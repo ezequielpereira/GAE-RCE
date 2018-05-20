@@ -1,0 +1,49 @@
+syntax = "proto2";
+
+package ecatcher.api.sql;
+
+option java_package = "com.google.net.ecatcher.api.sql";
+
+enum Type {
+  TYPE_STRING = 1;
+  TYPE_INT = 2;
+  TYPE_DOUBLE = 3;
+}
+
+message Column {
+  optional string name = 1;
+  optional string aka = 2;
+  optional .ecatcher.api.sql.Type type = 3;
+  repeated double double_data = 4;
+  repeated uint64 uint64_data = 5;
+  repeated string string_data = 6;
+}
+
+message SqlQuery {
+  optional string sql_string = 1;
+}
+
+message Tier {
+  repeated .ecatcher.api.sql.Column column = 1;
+}
+
+message Result {
+  repeated .ecatcher.api.sql.Tier tier = 1;
+  optional string error = 3;
+}
+
+message Request {
+  repeated .ecatcher.api.sql.SqlQuery query = 1;
+  optional float CompletionRatio = 2 [default = 1];
+}
+
+message Reply {
+  repeated .ecatcher.api.sql.Result result = 1;
+  optional int32 ServerCount = 2 [default = 1];
+}
+
+service ECatcherSqlService {
+  rpc Query(.ecatcher.api.sql.Request) returns (.ecatcher.api.sql.Reply);
+}
+
+

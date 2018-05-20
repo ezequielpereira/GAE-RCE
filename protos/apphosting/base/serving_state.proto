@@ -1,0 +1,97 @@
+syntax = "proto2";
+
+import "apphosting/base/dispatch.proto";
+import "apphosting/base/traffic_splitting.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "ServingStatePb";
+
+message ServingState {
+  required string app_id = 1;
+  required string borg_cell = 7;
+  optional bool uses_clone_scheduler = 9;
+  optional int64 clone_scheduler_timestamp_usec = 12;
+  required int64 timestamp_usec = 2;
+  required .apphosting.RoutingState routing_state = 3;
+  repeated .apphosting.VersionState versions = 4;
+  repeated .apphosting.AppServerGroup appserver_groups = 5;
+  repeated .apphosting.MemcacheBackendGroup memcache_backend_groups = 8;
+  optional int64 expiration_usec = 11;
+}
+
+message RoutingState {
+  message Engine {
+    optional string engine_id = 1 [default = "default"];
+    optional string default_version_id = 2;
+  }
+  optional string default_version_id = 1;
+  repeated group Backends = 2 {
+    required string name = 3;
+    optional string default_version_id = 4;
+  }
+  optional int32 diversion_method = 5 [default = 2];
+  repeated group DiversionSpec = 6 {
+    required string major_version_id = 7;
+    repeated group ModValueRange = 8 {
+      required uint32 begin = 9;
+      required uint32 end = 10;
+    }
+  }
+  repeated .apphosting.traffic_splitting.Experiment traffic_splitting_experiments = 13;
+  repeated .apphosting.RoutingState.Engine engines = 11;
+  optional .apphosting.DispatchConfig dispatch_config = 12;
+}
+
+message VersionState {
+  required string version_id = 1;
+  required int32 appserver_group_index = 2;
+  required string runtime_id = 3;
+  optional double local_load_fraction = 4 [default = 1];
+  optional bool serve_via_gclb = 5 [default = false];
+  optional bool route_to_ready_clones = 6 [default = true];
+}
+
+message AppServerGroup {
+  repeated group AppServer = 1 {
+    required .apphosting.AppServerSpec spec = 2;
+    optional int32 num_reserved = 3;
+    optional int32 num_ready = 11;
+    optional int32 min_instances = 10;
+    optional int32 desired_max_idle = 4;
+    optional int32 max_clones = 13;
+    optional int32 idle_quota_limit = 5;
+    repeated int32 replica_indices = 12;
+  }
+  optional int32 lb_policy = 8 [default = 6];
+  optional int32 secondary_lb_policy = 9 [default = 6];
+  optional int32 max_clones_on_unscheduled_appserver = 14;
+}
+
+message AppServerSpec {
+  optional string gns_group_name = 1;
+  required int32 gns_task_index = 2;
+}
+
+message MemcacheBackendGroup {
+  optional string memcache_pool_name = 1 [default = "default"];
+  repeated int32 task_index = 2;
+  optional int32 num_backends = 3 [default = 1];
+  optional int32 sharding_strategy = 4 [default = 1];
+  optional int32 version = 5 [default = 0];
+}
+
+message LocationState {
+  enum State {
+    ACTIVE = 0 [deprecated = true];
+    DISABLED = 1 [deprecated = true];
+  }
+  required string app_id = 1 [deprecated = true];
+  required string geo_name = 2 [deprecated = true];
+  optional .apphosting.LocationState.State state = 6 [default = ACTIVE, deprecated = true];
+  optional string shard_config_name = 3 [deprecated = true];
+  optional int32 num_datacenters = 4 [default = 1, deprecated = true];
+  required int64 timestamp_usec = 5 [deprecated = true];
+}
+
+

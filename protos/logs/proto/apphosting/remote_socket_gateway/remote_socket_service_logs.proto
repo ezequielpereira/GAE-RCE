@@ -1,0 +1,70 @@
+syntax = "proto2";
+
+import "logs/eventid/eventid.proto";
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package apphosting;
+
+enum TrafficType {
+  UNKNOWN = 0;
+  INTERNET = 1;
+  GOOGLE = 2;
+  ANDROMEDA = 3;
+}
+
+message ClientIdentifier {
+  message CustomId {
+    optional string id = 1;
+    optional string sub_id = 2;
+  }
+  enum Client {
+    UNKNOWN = 0;
+    APP_ENGINE = 1;
+    UNFUNDED = 2;
+  }
+  optional .apphosting.ClientIdentifier.Client name = 1;
+  optional .apphosting.ClientIdentifier.CustomId custom_id = 2;
+}
+
+message RemoteSocketServiceLogEntry {
+  enum StatusType {
+    START = 1;
+    STOP = 2;
+    INTERIM = 3;
+    PACKETS_USAGE_DELTA = 4;
+  }
+  enum CloseReason {
+    USER_CLOSED = 1;
+    IDLE_TIMEOUT = 2;
+    PERISCOPE_CLOSED = 3;
+    CREATE_FAILED = 4;
+    TASK_OVERLOADED = 5;
+  }
+  required .EventIdMessage event_id = 1;
+  optional .apphosting.RemoteSocketServiceLogEntry.StatusType status_type = 2;
+  optional string source_machine = 3;
+  optional string app_id = 4;
+  optional bool is_datagram = 5;
+  optional bool is_accepted = 6;
+  optional int64 create_socket_time = 7;
+  optional bytes periscope_socket_handle = 8;
+  optional string periscope_server = 9;
+  optional int64 connect_time = 10;
+  optional int64 connect_ms = 11;
+  optional string remote_hostname_hint = 12;
+  repeated string remote_address = 13;
+  optional string local_address = 14;
+  optional bool connect_succeeded = 15;
+  optional int64 close_time = 16;
+  optional .apphosting.RemoteSocketServiceLogEntry.CloseReason close_reason = 17;
+  optional int64 bytes_sent = 18;
+  optional int64 bytes_received = 19;
+  optional int64 datagrams_sent = 20;
+  optional int64 datagrams_received = 21;
+  optional string evicting_app_id = 22;
+  optional string socket_descriptor = 23;
+  optional .apphosting.ClientIdentifier client_identifier = 24;
+  optional string peer_ip_address = 25;
+  optional .apphosting.TrafficType traffic_type = 26;
+}
+

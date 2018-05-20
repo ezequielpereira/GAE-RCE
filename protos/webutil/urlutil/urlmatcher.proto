@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package webutil_urlutil;
+
+message PatternContextConstraint {
+  optional int32 min_depth = 1 [default = 0];
+  optional string parent_re2 = 2;
+}
+
+message UrlContextInput {
+  optional int32 depth = 1 [default = 0];
+  optional string parent_url = 2;
+}
+
+message UrlWithContext {
+  optional string url = 1;
+  optional .webutil_urlutil.UrlContextInput context = 2;
+}
+
+message ParamPatternProto {
+  optional string regexp = 1;
+  optional int32 min_occurrences = 2 [default = 1];
+  optional bool case_sensitive = 3 [default = false];
+  optional bool negative = 4 [default = false];
+}
+
+

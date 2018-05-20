@@ -1,0 +1,688 @@
+syntax = "proto2";
+
+import "apphosting/base/alias.proto";
+import "apphosting/base/appinfo.proto";
+import "apphosting/base/clone.proto";
+import "apphosting/base/common.proto";
+import "apphosting/base/datastore.proto";
+import "apphosting/base/dispatch.proto";
+import "apphosting/base/eaglepush.proto";
+import "apphosting/base/engine.proto";
+import "apphosting/base/firewall.proto";
+import "apphosting/base/platform_splitting.proto";
+import "apphosting/base/search.proto";
+import "apphosting/base/server.proto";
+import "apphosting/base/trace_config.proto";
+import "apphosting/base/traffic_splitting.proto";
+import "apphosting/magicgin/magicgin_annotations.proto";
+import "google/protobuf/field_mask.proto";
+import "net/rpc/empty-message.proto";
+import "storage/blobstore/rpc/blobservice.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "AppmasterPb";
+
+message AppMasterAPI {
+  enum ErrorCode {
+    OK = 0;
+    ALREADY_EXISTS = 1;
+    INVALID_APP = 2;
+    INVALID_VERSION = 3;
+    VERSION_IS_DEFAULT = 4;
+    INVALID_TRAFFIC_FRACTION = 5;
+    TOO_MANY_VERSIONS = 6;
+    TRY_AGAIN = 7;
+    INVALID_OWNER_LIST = 8;
+    UNAUTHORIZED = 9;
+    CLIENT_ERROR = 10;
+    INVALID_AUTH_DOMAIN = 11;
+    BLOBSTORE_ERROR = 12;
+    APP_BUSY = 13;
+    VERSION_BUSY = 14;
+    INVALID_TITLE = 15;
+    HAS_TOMBSTONE = 16;
+    UNKNOWN_USER = 17;
+    INVALID_API_VERSION = 18;
+    INVALID_RUNTIME_ID = 19;
+    QUOTA_SERVER_ERROR = 20;
+    GAIA_ERROR = 21;
+    NO_SUITABLE_INSTANCE = 22;
+    VERSION_OBSCURES_DEFAULT = 23;
+    AUTOSCHEDULE_DISABLED = 24;
+    AUTOSCHEDULE_UNKNOWN_ACTION = 25;
+    AUTOSCHEDULE_OVERRIDDEN = 26;
+    AUTOSCHEDULE_RATE_LIMIT = 27;
+    AUTOSCHEDULE_RATE_LIMIT_PER_APP = 28;
+    AUTOSCHEDULE_MAX_INSTANCES = 29;
+    AUTOSCHEDULE_MIN_INSTANCES = 30;
+    SERVER_ERROR = 31;
+    NO_ADMIN_CONFIG = 33;
+    UNTRUSTED_CONNECTION = 34;
+  }
+}
+
+message AppReference {
+  required string app_id = 1;
+}
+
+message DeleteAppVersionRequest {
+  required string app_id = 1;
+  required string version_id = 2;
+}
+
+message MemcacheConfig {
+  optional string pool_type = 1 [default = "default"];
+  optional int32 num_backends = 2 [default = 1];
+}
+
+message AclReference {
+  oneof acl_ref {
+    int64 d3_service_onoff_id = 1;
+  }
+}
+
+message GlobalConfig {
+  message IdentityAwareProxy {
+    optional bool enabled = 1;
+    optional string oauth2_client_id = 2;
+    optional string oauth2_client_secret = 3;
+  }
+  enum ServingStatus {
+    OK = 1;
+    DISABLED = 2;
+    TRUSTED_IPS_ONLY = 3;
+    USER_DISABLED = 4;
+    USER_DELETED = 5;
+    ADMINS_DELETED = 6;
+    ADMINS_PURGED = 7;
+  }
+  enum AuthType {
+    NONE = 0;
+    GOOGLE_ACCOUNTS = 1;
+    FEDERATED_LOGIN = 2;
+  }
+  enum PermissionType {
+    SUPERAPP = 0;
+    APP_CONFIG_SERVICE_API = 7;
+    CAPABILITY_API = 8;
+    DATASETS_API = 9 [deprecated = true];
+    GDATA_API = 10 [deprecated = true];
+    STUBBY_API = 11;
+    WORKFLOW_API = 12;
+    XMPP_API = 13;
+    BLOBSTORE_API = 14;
+    TASK_QUEUE_API = 15;
+    REMOVED_SMS_API = 16;
+    APN_API = 21 [deprecated = true];
+    OBSOLETE_LEARNING_API = 22;
+    FILE_API = 34 [deprecated = true];
+    DOS_API = 40;
+    MATCHER_API = 56;
+    SPECKLE_API = 57;
+    SPECKLE_NATIVE_API = 135;
+    SOCKET_API = 72;
+    SEARCH_API = 80;
+    CONVERSION_API = 94 [deprecated = true];
+    BASEMENT_API = 103;
+    SECRETS_API = 108;
+    MONITORING_API = 127;
+    NULL_API = 219;
+    USERS_API = 221;
+    TRUSTED_RUNTIME_REQUESTS = 1;
+    TRUSTED_REQUEST_PRESERVE_AUTH_DOMAIN = 158;
+    ALWAYS_REQUIRE_UBERPROXY = 160;
+    ALLOW_OTHER_AUTH_DOMAINS = 6;
+    ALLOW_OTHER_OAUTH_DOMAINS = 117;
+    ALLOW_AUTH_IMPERSONATION = 24;
+    USE_GOOGLE_COM_SID_AUTH = 31;
+    SID_AUTH_FALLBACK_MODE = 104;
+    ALLOW_UNVERIFIED_ACCOUNTS = 118;
+    ALWAYS_REQUIRE_LOGIN = 48;
+    ALWAYS_REQUIRE_ADMIN_LOGIN = 55;
+    SKIP_LOGIN_CONFIRMATION = 60;
+    USE_SELECT_SESSION = 61 [deprecated = true];
+    DISABLE_DATASTORE_WRITE = 65;
+    DATASTORE_READ_SUPERUSER = 2;
+    DATASTORE_WRITE_SUPERUSER = 3;
+    DATASTORE_TRUSTED = 92;
+    DATASTORE_EDIT_INDEX = 4;
+    DATASTORE_GET_SCHEMA = 5 [deprecated = true];
+    DATASTORE_NAMESPACES = 47;
+    DATASTORE_HR_MIGRATION = 93;
+    DATASTORE_BACKUP_SERVICE = 141;
+    DATASTORE_ALWAYS_CHARGE_CALLING_APP = 87;
+    DATASTORE_ALLOW_MULTIPLE_EG_TRANSACTIONS = 91 [deprecated = true];
+    DATASTORE_SNAPSHOTS = 120;
+    DATASTORE_GEO_SEARCH = 157;
+    ENABLE_CLOUD_DATASTORE = 175 [deprecated = true];
+    DISABLE_CLOUD_DATASTORE = 176;
+    MEMCACHE_SUPERUSER = 82;
+    MEMCACHE_IGNORE_SHARDLOCK = 105;
+    MEMCACHE_FOLLOW_SHARDLOCK = 150;
+    MEMCACHE_HIGH_QPS = 138;
+    MEMCACHE_SICKBAY = 139;
+    MEMCACHE_CONSOLE_FLUSH_REQUIRES_OWNER = 159;
+    MEMCACHE_CONSOLE_SKIP_HOT_KEYS = 186;
+    MEMCACHE_USE_CCCP_ALWAYS = 204;
+    MEMCACHE_USE_CCCP_ONLY_SHARED = 205;
+    MEMCACHE_USE_CCCP_ONLY_RESERVED = 206;
+    MEMCACHE_USE_CCCP_NEVER = 207;
+    TASK_QUEUE_API_ADMIN = 19;
+    TASK_QUEUE_API_TRUSTED_TESTER = 81;
+    TASK_QUEUE_DISABLE_CONGESTION_CONTROL = 107;
+    REMOVED_SMS_SEND_UNSOLICITED = 17;
+    REMOVED_SMS_ADMIN = 18;
+    URLFETCH_CUSTOM_REFERER = 20 [deprecated = true];
+    URLFETCH_OVER_RPC = 39;
+    DISABLE_URLFETCH_OVER_RPC = 88;
+    URLFETCH_SKIP_REQUEST_SIZE_CHECK = 70;
+    URLFETCH_OVER_RPC_USE_TRUSTED_IP = 89;
+    DISABLE_URLFETCH_VIA_HARPOON = 162;
+    ENABLE_URLFETCH_CACHE = 170 [deprecated = true];
+    DISABLE_URLFETCH_CACHE = 171 [deprecated = true];
+    BLOBSTORE_READ_SUPERUSER = 32;
+    BLOBSTORE_CLONE_SUPERUSER = 96;
+    BLOBSTORE_DELETE_SUPERUSER = 37;
+    BLOBSTORE_DECODE_BLOB_KEYS = 42;
+    BLOBSTORE_REST_INTERFACE = 46;
+    BLOBSTORE_API_EXP = 43;
+    STUBBY_API_NO_PROXY = 53;
+    STUBBY_API_QOS = 110;
+    SERVE_TO_ANY_COUNTRY = 25;
+    SERVE_TO_BURMA = 51;
+    SERVE_TO_CUBA = 26;
+    SERVE_TO_IRAN = 27;
+    SERVE_TO_NORTH_KOREA = 28;
+    SERVE_TO_SUDAN = 29;
+    SERVE_TO_SYRIA = 30;
+    ADD_GEOLOCATION_HEADER = 59;
+    ADD_GEOLOCATION_CITY_HEADERS = 109;
+    ONLY_ALLOW_ADMINS_FROM_AUTH_DOMAIN = 23;
+    ALLOW_MAIL_INBOUND_SERVICE = 33;
+    DISABLE_MAIL_SENDING = 58;
+    FILE_GOOGLE3_ACCESS = 35;
+    FILE_GOOGLE3_READ_ONLY_ACCESS = 36;
+    FILE_TEMPFILE_ACCESS = 50;
+    FILE_BLOBSTORE_ACCESS = 63;
+    FILE_FALL_THROUGH_ACCESS = 64;
+    FILE_BIGSTORE_ACCESS = 100;
+    FILE_SHUFFLE = 95;
+    DOS_API_ADMIN = 41;
+    HANDLE_FAST_URLFETCH_API = 44;
+    HANDLE_API_RECEIVE_GAIA_SESSION = 45;
+    ALLOW_CHANNEL_API = 49;
+    AUTOMATIC_MERGING = 52;
+    UNLIMITED_INSTANCES = 54;
+    ALLOW_UNSAFE_SHARED_BUFFER_SYSCALLS = 62 [deprecated = true];
+    DISABLE_AUTOMATIC_STIRRING = 66;
+    PRESERVE_REQUEST_HEADERS = 67;
+    PRESERVE_RESPONSE_HEADERS = 68;
+    PRESERVE_OUTBOUND_REQUEST_HEADERS = 69;
+    PROSPECTIVE_SEARCH_OVERRIDE_APPID = 71;
+    SOCKET_LISTEN = 73;
+    SOCKET_BIND = 74;
+    SOCKET_BIND_LOW_PORT = 75;
+    SOCKET_BIND_FIXED_ADDRESS = 76;
+    SOCKET_BYPASS_ACCESS_FILTER = 77;
+    SOCKET_ALL_SOCKOPTS = 78;
+    SOCKET_ACCESS_FOREIGN_SOCKET_DESCRIPTOR = 79;
+    SOCKET_ACCESS_DISABLED = 126;
+    SOCKET_ACCESS_BYPASS_BILLING_CHECK = 136;
+    BYPASS_STRICTER_EMAIL_SENDER_ABUSE_CHECKS = 83;
+    ENABLE_SERVERS = 84;
+    UNLIMITED_HR_BUDGET = 85;
+    SEARCH_API_ADMIN = 86;
+    DISABLE_LOGS_V1_WRITER = 106;
+    DISABLE_LOGS_V2_WRITER = 90;
+    LOGS_READER = 98;
+    LOGS_READER_SUPERUSER = 99;
+    APPLICATION_DOLLAR_BUCKET = 97;
+    BACKEND_STIRRING = 101;
+    ENABLE_CUSTOM_SCOPES_FOR_OAUTH = 102;
+    DEPRECATED_ALLOW_PAGESPEED = 111 [deprecated = true];
+    GOOGLE_PRODUCTION_SECURITY_PROFILE_INTENT = 112;
+    REQUIRE_TRUSTED_ADMIN_CONSOLE_ACCESS = 142;
+    ALLOW_APISERVING = 113;
+    ENABLE_VFS_PREFETCH = 114;
+    ENABLE_VFS_LOGGING = 129 [deprecated = true];
+    DISABLE_VFS_LOGGING = 130 [deprecated = true];
+    SAWMILL_APP_EXTENSIONS_ENABLE = 115;
+    SAWMILL_APP_EXTENSIONS_IGNORE = 116;
+    ENABLE_ERROR_PAGE_TRUSTED_DETAILS = 119;
+    ENABLE_ENGINES = 121;
+    ERROR_DETAIL_ALL_APIS = 123;
+    ALLOW_MORE_ADMINS = 124;
+    ALLOW_EVEN_MORE_ADMINS = 156;
+    USE_VERSION_IN_CHANNEL_API_TOKEN = 125 [deprecated = true];
+    MONITORING_API_ADMIN = 128;
+    DATA_ACCESS_LOG = 131;
+    ALLOW_PHP_ON_GOOGLEPLEX = 132;
+    ALLOW_PHP_WITH_PRODUCTION_SECURITY_PROFILE = 133;
+    ENABLE_GO_STDERR_LOGGING = 134;
+    SEND_P3P_HEADER_FOR_APP_CONFLOGIN = 137;
+    ENABLE_TRAFFIC_MOVE = 140;
+    DISABLE_TRAFFIC_MOVE = 174;
+    ENABLE_PUSHTODEPLOY = 143;
+    DISABLE_UPGRADE_RUNTIME_ID = 144;
+    ENABLE_CLOUD_LOGGING = 146;
+    DISABLE_CLOUD_LOGGING = 151;
+    DISABLE_LOGS_V2_LOGGING = 178;
+    ALLOW_JAVA6_RUNTIME = 147;
+    ENABLE_BIGQUERY_LOG_INGESTION = 148;
+    ENABLE_FACETED_SEARCH = 149;
+    CENSUS_EXPORT_PROJECT_ID = 152;
+    DEPRECATED_ENABLE_CLOUD_TRACE = 153;
+    ENABLE_VM_RUNTIME = 122;
+    ENABLE_VM_RUNTIME_INTERNAL_DEVEL_MODE = 145;
+    VM_RUNTIME_STAGING_MODE = 154;
+    ENABLE_VM_RUNTIME_TRUSTED_TESTER_MODE = 155;
+    VM_RUNTIME_ALLOW_FILES_API = 163 [deprecated = true];
+    ENABLE_VM_RUNTIME_DEPLOYMENT_MANAGER = 169;
+    FLEX_BILLING_MODEL_GRANDFATHERED_PRICING = 199;
+    NEW_FLEX_BILLING_MODEL = 200;
+    ENABLE_VM_RUNTIME_REGIONAL = 182 [deprecated = true];
+    DEFAULT_VM_FLEX_TO_GOTHAM = 198;
+    DISABLE_VM_PERIODIC_ADMIN = 201;
+    FLEX_ALLOW_VM_TRUE = 202;
+    FLEX_ALLOW_APP_ENGINE_APIS = 203;
+    DISABLE_CLOUD_TRACE = 161;
+    ENABLE_CLOUD_TRACE_CLIENT_NEW = 217;
+    ENABLE_COPY_PERF_SETTINGS = 164;
+    ENABLE_JAVA_CLOUD_DEBUGGER = 165;
+    DISABLE_JAVA_CLOUD_DEBUGGER = 166;
+    ENABLE_VMMASTER = 167;
+    ENABLE_PERFORMANCE_DATA_COLLECTION = 168;
+    ALLOW_PHP54_RUNTIME = 172;
+    DISABLE_ZERO_LOAD_SCHEDULING = 173;
+    ALWAYS_LOG_PROCESS_OUTPUT = 177;
+    ENABLE_THROTTLER = 179;
+    ENABLE_PYTHON_CLOUD_DEBUGGER = 180;
+    DISABLE_PYTHON_CLOUD_DEBUGGER = 181;
+    USE_OLDER_LOAS_LOGIC = 183;
+    ALLOW_JAVA8G_RUNTIME = 185;
+    ALLOW_JAVA8_RUNTIME = 196;
+    MAP_NONUSER_LOAS_TO_PROD = 187;
+    MAP_ALL_LOAS_TO_PROD = 188;
+    ENABLE_CLONE_EXIT_LOGGING = 189;
+    ENROLL_IN_GVISOR = 190;
+    DO_NOT_RUN_ON_GVISOR = 191;
+    ENABLE_TITANIUM_VERSION_DEPLOYMENT = 192;
+    DISABLE_TITANIUM_VERSION_DEPLOYMENT = 193;
+    ENABLE_CLONESCHEDULER = 194;
+    DISABLE_CLONESCHEDULER = 195;
+    VERBOSE_TITANIUM_DEBUG = 197;
+    ALLOW_LEGACY_PAUSE_UNPAUSE = 208;
+    ALLOW_PYTHON25_RUNTIME = 209;
+    RUNTIME_UPDATE_OPTIN = 210;
+    RUNTIME_UPDATE_OPTOUT = 211;
+    JAVA_RUNTIME_MIGRATION_OPTIN = 212;
+    JAVA_RUNTIME_MIGRATION_OPTOUT = 213;
+    DAPPER_TRACE_ALL_REQS = 214;
+    CLOUD_ML_PROBER = 215;
+    ALLOW_DEPRECATED_RUNTIME = 216;
+    FOLLOWING_PERMISSIONS_ARE_EXPLICIT_OPT_IN = 218;
+    ENABLE_WEBSOCKET = 220;
+  }
+  enum QuotaPolicy {
+    ENFORCE_QUOTAS = 0;
+    DISPATCH_BUT_IGNORE = 1;
+    TRIVIAL_MODE = 2;
+  }
+  enum QuotaDispatchType {
+    QUOTA_DISPATCH_USE_SYNC = 0;
+    QUOTA_DISPATCH_USE_DEFAULT = 1;
+    QUOTA_DISPATCH_USE_CACHING = 2;
+  }
+  enum AuthCookieType {
+    PERSISTENT = 0;
+    SESSION = 1;
+  }
+  enum BillingStatusType {
+    BILLING_FREE = 0;
+    BILLING_ENABLED = 1;
+    BILLING_FREE_NEW = 2;
+  }
+  enum GCacheOverride {
+    NO_GCACHE_OVERRIDE = 0;
+    ENABLE_GCACHE = 1;
+    DISABLE_GCACHE = 2;
+  }
+  enum DosApiMode {
+    DOS_API_DISABLED = 0;
+    DOS_API_TRACKING = 1;
+    DOS_API_ENFORCED = 2;
+  }
+  enum LoggingMode {
+    LOGGING_NONE = 0;
+    LOGGING_TMPGWS_ONLY = 4;
+    LOGGING_ALLGWS_ONLY = 1;
+    LOGGING_GWS_AND_REQUEST_ONLY = 2;
+    LOGGING_NORMAL = 3;
+  }
+  enum FilePoolType {
+    LOCAL_DISK = 0;
+    TMPFS = 1;
+    VFS = 2;
+  }
+  enum AppMasterType {
+    APPMASTER1 = 0;
+    APPMASTER2 = 1;
+    TRANSITION_1_TO_2 = 2;
+    TRANSITION_2_TO_1 = 3;
+  }
+  enum AppStatsWritesEnabled {
+    APP_STATS_WRITES_DEFAULT = 0;
+    APP_STATS_WRITES_DISABLED = 1;
+    APP_STATS_WRITES_ENABLED = 2;
+  }
+  enum URLFetchReputationPool {
+    URLFETCH_DEFAULT = 0;
+    URLFETCH_BILLED = 1;
+    URLFETCH_RESERVED_A = 2;
+    URLFETCH_GOOGLE_CONTROLLED = 3;
+  }
+  enum ServeViaGclbStrategy {
+    UNKNOWN_STRATEGY = 0;
+    BY_URL_MAP = 1;
+    BY_BACKEND_SERVICE = 2;
+  }
+  enum FirewallEnforcementMode {
+    DO_NOT_LOOKUP = 0;
+    LOOKUP_AND_ENFORCE = 1;
+  }
+  enum SelfRequestsToBackendMode {
+    SELF_REQUESTS_TO_BACKEND_DEFAULT = 0;
+    SELF_REQUESTS_TO_BACKEND_REQUIRE_URLFETCH_IP = 1;
+    SELF_REQUESTS_TO_BACKEND_DO_NOT_REQUIRE_URLFETCH_IP = 2;
+  }
+  required string app_id = 1;
+  optional bool is_lite = 80 [default = false];
+  optional int64 timestamp_usec = 81;
+  optional int64 app_gaia_id = 27;
+  optional int64 robot_gaia_id = 59;
+  optional string last_modified_by = 52;
+  repeated string owner = 3 [deprecated = true];
+  repeated int64 owner_gaia_id = 8;
+  repeated string owner_email = 11 [deprecated = true];
+  optional int64 owner_ggg_group = 62;
+  optional .apphosting.GlobalConfig.ServingStatus serving_status = 13 [default = OK];
+  optional .apphosting.GlobalConfig.ServingStatus previous_serving_status = 119;
+  optional string default_version_id = 4;
+  optional int32 max_versions = 51;
+  optional .apphosting.SchedulerOverride scheduler_override = 93;
+  optional int32 num_instances_override = 14 [default = 0];
+  optional int32 autoschedule_instances = 41;
+  optional int32 autoschedule_instances_floor = 72;
+  optional int32 frontend_instance_class = 75 [default = 4, deprecated = true];
+  optional int64 max_http_request_size_bytes = 60;
+  optional int64 max_http_response_size_bytes = 61;
+  optional int32 diversion_method = 82 [default = 2, deprecated = true];
+  repeated group VersionInfo = 5 [deprecated = true] {
+    required string major_version_id = 6;
+    repeated group ModValueRange = 83 {
+      required uint32 begin = 84;
+      required uint32 end = 85;
+    }
+  }
+  repeated .apphosting.traffic_splitting.Experiment traffic_splitting_experiments = 105;
+  optional .apphosting.GlobalConfig.AuthType auth_type = 43 [default = GOOGLE_ACCOUNTS, deprecated = true];
+  optional string auth_domain = 9 [default = ""];
+  optional string request_auth_domain_regex = 15 [default = ""];
+  repeated .apphosting.AclReference access_authorization_acl = 114;
+  optional .apphosting.GlobalConfig.IdentityAwareProxy iap = 122;
+  optional string title = 10 [default = "", deprecated = true];
+  optional int64 analytics_account_id = 17;
+  optional int64 analytics_profile_id = 18;
+  repeated .apphosting.GlobalConfig.PermissionType permission = 19;
+  repeated string login_host = 20;
+  optional string scheduler_hint = 21 [default = "default"];
+  optional string datastore_pool = 87 [default = ""];
+  optional .apphosting.LoadBalancingPolicy.Enum default_version_lb_policy = 22;
+  optional int32 non_default_version_lb_policy = 23 [default = 1];
+  optional int32 cookie_expiration_seconds = 24;
+  optional string ltmpl = 25 [deprecated = true];
+  optional string gaia_service = 63;
+  optional bool gaia_extra_logout_redirect = 66 [deprecated = true];
+  repeated .apphosting.MemcacheConfig memcache_config = 101;
+  optional int32 memcache_sharding_strategy = 99 [default = 1];
+  repeated int32 appserver_index_override = 29;
+  optional .apphosting.GlobalConfig.QuotaPolicy quota_policy = 31 [default = ENFORCE_QUOTAS];
+  repeated int32 dispatch_but_ignore_quotas = 86;
+  optional .apphosting.GlobalConfig.QuotaDispatchType quota_dispatch_type = 40 [default = QUOTA_DISPATCH_USE_DEFAULT];
+  optional .apphosting.GlobalConfig.AuthCookieType auth_cookie_type = 32 [default = PERSISTENT];
+  optional .apphosting.GlobalConfig.BillingStatusType billing_status = 33 [default = BILLING_FREE];
+  optional string gmr_selector_override = 88;
+  optional .apphosting.GlobalConfig.GCacheOverride gcache_override = 46 [default = NO_GCACHE_OVERRIDE];
+  optional int32 num_reserved_clones = 39 [deprecated = true];
+  optional int32 desired_max_idle_clones = 70 [deprecated = true];
+  optional .apphosting.GlobalConfig.DosApiMode dos_api_mode = 42 [default = DOS_API_TRACKING];
+  repeated .apphosting.AliasConfig alias = 47;
+  repeated .apphosting.ServerConfig servers = 48;
+  repeated .apphosting.EngineConfig engines = 94;
+  optional .blobstore.BlobRef default_error_blob = 50;
+  optional int32 app_cookie_check_session_period_s = 53;
+  optional bool passive_login = 54;
+  optional bool confirmed_login = 55;
+  optional bool gaia_add_hdf_token = 64;
+  optional bool gaia_add_sig = 65;
+  optional .apphosting.GlobalConfig.LoggingMode logging_mode = 57 [default = LOGGING_NORMAL];
+  optional .apphosting.GlobalConfig.FilePoolType file_pool_type = 58 [default = LOCAL_DISK];
+  optional bool datastore_mark_changes = 67 [default = false];
+  optional int32 num_log_write_shards = 68 [default = 1];
+  optional int32 num_log_read_shards = 69 [default = 1];
+  optional int32 app_log_line_size = 77;
+  optional int32 app_log_group_size = 78;
+  optional int32 app_log_total_size = 79;
+  optional bool truncate_log_line_in_runtime = 126 [default = false];
+  optional int32 log_retention_days = 90;
+  optional int32 log_retention_mb = 91;
+  optional int32 log_groomer_period_s = 96;
+  optional int32 logs_delete_catchup_multiplier = 106;
+  optional int32 logs_delete_deadline_s = 107;
+  optional int32 logs_delete_parallelism = 108;
+  optional int32 logs_delete_flush_threshold = 109;
+  optional bool log_deletion_enabled = 95;
+  optional int32 frontend_quota_policy = 71 [default = 0];
+  optional int32 over_quota_response_delay_ms = 76;
+  optional .apphosting.GlobalConfig.AppMasterType appmaster_type = 89 [default = APPMASTER1];
+  optional .apphosting.DispatchConfig dispatch_config = 97;
+  optional .apphosting.GlobalConfig.AppStatsWritesEnabled app_stats_writes_enabled = 98 [default = APP_STATS_WRITES_DEFAULT];
+  repeated .apphosting.LocationOverride location_override = 100 [deprecated = true];
+  optional .apphosting.GlobalConfig.URLFetchReputationPool urlfetch_reputation_pool = 102;
+  optional string urlfetch_periscope_user = 103;
+  optional string urlfetch_periscope_address = 104;
+  optional bool disable_per_path_monitoring = 112;
+  optional .apphosting.platform_splitting.Configuration platform_splitting_configuration = 115;
+  optional string gclb_vip_address = 116;
+  optional .apphosting.GlobalConfig.ServeViaGclbStrategy serve_via_gclb_strategy = 127 [default = UNKNOWN_STRATEGY];
+  optional int32 clonestats_rowkey_shard_size = 118;
+  repeated string throttled_apis = 121;
+  optional .apphosting.Firewall ingress_firewall = 123 [deprecated = true];
+  optional .apphosting.GlobalConfig.FirewallEnforcementMode ingress_firewall_enforcement_mode = 128;
+  optional string vmimage_override = 124;
+  optional .apphosting.GlobalConfig.SelfRequestsToBackendMode self_requests_to_backend_mode = 125 [default = SELF_REQUESTS_TO_BACKEND_DEFAULT];
+  reserved 2, 12, 16, 26, 28, 56, 73, 74, 92, 110, 111, 113, 117, 120;
+}
+
+message ServerSettings {
+  required string name = 1;
+  optional .apphosting.CloneSettings clone_settings = 2;
+  optional .apphosting.SupervisorSettings supervisor_settings = 3;
+}
+
+message TrustedTesterSettings {
+  optional int32 max_servers = 1;
+  optional int32 max_resident_servers = 2;
+  optional int32 max_replicas = 3;
+  optional int32 max_memory_single_replica = 4;
+  optional int32 max_memory_single_server = 5;
+  optional int32 max_memory_all_servers = 6;
+  optional int32 max_file_count = 7;
+  optional int64 max_total_code_file_size = 8;
+  optional int32 max_reserved_memcache_gb = 9;
+  optional int32 max_task_queues = 10;
+  optional int32 max_dispatch_rules = 11;
+  optional double max_queue_disables_fraction = 12;
+}
+
+message WipeoutState {
+  enum WipeoutStage {
+    UNKNOWN = 0;
+    SOFT_DELETED = 1;
+    SOFT_DELETED_ABOUT_TO_PURGE = 2;
+    PURGING = 3;
+    PURGED = 4;
+    PURGE_PAUSED = 5;
+    PENDING_PROJECT_DELETION = 6;
+  }
+  optional .apphosting.WipeoutState.WipeoutStage wipeout_stage = 1;
+  optional int64 app_deletion_time = 2;
+  optional bool app_deletion_time_set_in_scan = 3;
+  optional int64 app_disabled_time = 4;
+}
+
+message AdminConfig {
+  message DelegatedRobot {
+    required int64 gaia_id = 1;
+    optional string refresh_token = 2;
+  }
+  message FeatureSettings {
+    optional bool split_health_checks = 1;
+  }
+  enum CreateUploadUrlBehavior {
+    DEFAULT_UPLOAD_BEHAVIOR = 0;
+    BLOBSTORE_AND_BLOBINFO = 1;
+    GCS_AND_BLOBINFO = 2;
+  }
+  enum TableInterval {
+    DAILY = 0;
+    HOURLY = 1;
+  }
+  required string app_id = 1;
+  optional int64 created_timestamp_usec = 39;
+  required int64 timestamp_usec = 2;
+  optional string last_modified_by = 7;
+  optional .apphosting.CloneSettings clone_settings = 3;
+  optional .apphosting.SupervisorSettings supervisor_settings = 4;
+  repeated .apphosting.ServerSettings servers = 5;
+  optional string preferred_hostname = 6;
+  repeated group CurrentConfigVersion = 9 {
+    required string major_version_id = 10;
+    required int64 config_version = 11;
+  }
+  optional .apphosting.TrustedTesterSettings trusted_tester_settings = 12;
+  repeated string deprecated_stubby_api_host_whitelist_re = 13;
+  optional int64 devconsole_project_id = 14;
+  optional string default_bigstore_bucket = 15;
+  repeated int64 api_access_gaia_ids = 17;
+  repeated .apphosting.AdminConfig.DelegatedRobot delegated_robot = 18;
+  optional .apphosting.SearchApiSettings search_api_settings = 19;
+  optional .apphosting.DatastoreApiSettings datastore_api_settings = 26;
+  optional .apphosting.AdminConfig.CreateUploadUrlBehavior upload_behavior = 20;
+  optional string vm_config_bigstore_bucket = 21;
+  optional bool bigquery_logging_enabled = 22;
+  optional int32 bigquery_logging_level = 23 [default = 0];
+  optional .apphosting.AdminConfig.TableInterval bigquery_table_interval = 24 [default = DAILY];
+  optional string vm_logging_bigstore_bucket = 25;
+  optional .apphosting.WipeoutState wipeout_state = 27;
+  optional string vm_container_bigstore_bucket = 28 [deprecated = true];
+  repeated .apphosting.AdminModuleConfig admin_modules = 29;
+  optional .apphosting.AdminVersionSettings global_settings = 30;
+  repeated int64 allowed_email_sender_gaia_id = 32;
+  optional string cloud_debugger_mdb_group = 33;
+  optional string gcloud_staging_bigstore_bucket = 34;
+  optional string creation_source = 35;
+  optional int64 creator_gaia_id = 37;
+  optional string flex_gce_region_override = 38;
+  optional .apphosting.AdminConfig.FeatureSettings feature_settings = 40;
+  reserved 31;
+}
+
+message AppLevelConfig {
+  optional .apphosting.GlobalConfig global_config = 1;
+  optional .apphosting.AdminConfig admin_config = 2;
+  optional .apphosting.Firewall firewall = 3;
+}
+
+message AppLevelConfigChange {
+  optional .apphosting.AppLevelConfig before = 1;
+  optional .apphosting.AppLevelConfig after = 2;
+  optional .google.protobuf.FieldMask expected_changes = 3;
+}
+
+message AdminModuleConfig {
+  optional string module_id = 1 [default = "default"];
+  optional .apphosting.AdminVersionSettings default_settings = 2;
+  repeated .apphosting.AdminVersionConfig versions = 3;
+  optional .apphosting.UserLabels user_labels = 4;
+}
+
+message AdminVersionConfig {
+  optional string major_version_id = 1;
+  optional .apphosting.AdminVersionSettings settings = 2;
+}
+
+message AdminVersionSettings {
+  optional .apphosting.TraceSettings cloud_trace_settings = 1;
+}
+
+message UserLabels {
+  map<string, string> labels = 1;
+}
+
+message LocationOverride {
+  optional string shard_config_name = 1 [deprecated = true];
+  optional int32 num_datacenters = 2 [default = 1, deprecated = true];
+}
+
+message WipeoutDetails {
+  optional string app_id = 1;
+  optional int64 project_number = 7;
+  optional string component = 2;
+  optional string replica_name = 5;
+  optional int64 started_time = 3;
+  optional int64 completed_time = 4;
+  repeated int64 attempt_completed_times = 6;
+}
+
+message AppServerInfo {
+  required string appserver = 2;
+  repeated group PoolInfo = 8 {
+    required string pool_id = 9;
+    optional int32 clones = 10 [default = -1];
+  }
+}
+
+message SetAdminConfigRequest {
+  required .apphosting.AdminConfig admin_config = 1;
+}
+
+message SetAdminConfigResponse {
+}
+
+message SetEaglePushConfigRequest {
+  required .apphosting.EaglePushConfig eaglepush_config = 1;
+}
+
+message SetEaglePushConfigResponse {
+}
+
+message GetAppServerByAttributesRequest {
+  repeated string attributes = 1;
+}
+
+message GetAppServerByAttributesResponse {
+  repeated string appserver_names = 1;
+}
+
+service AppMaster {
+  rpc AddAppVersion(.apphosting.AppInfo) returns (.EmptyMessage);
+  rpc DeleteAppVersion(.apphosting.DeleteAppVersionRequest) returns (.EmptyMessage);
+  rpc SetGlobalConfig(.apphosting.GlobalConfig) returns (.EmptyMessage);
+  rpc SetAdminConfig(.apphosting.SetAdminConfigRequest) returns (.apphosting.SetAdminConfigResponse);
+  rpc SetEaglePushConfig(.apphosting.SetEaglePushConfigRequest) returns (.apphosting.SetEaglePushConfigResponse);
+  rpc GetAppServerByAttributes(.apphosting.GetAppServerByAttributesRequest) returns (.apphosting.GetAppServerByAttributesResponse);
+}
+
+

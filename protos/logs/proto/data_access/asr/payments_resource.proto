@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "PaymentsResourceProtoFile";
+option java_multiple_files = true;
+
+message PaymentsResource {
+  optional string payment_request_id = 5;
+  repeated string billing3_customer_id = 2;
+  optional string product_account_correlation_id = 15;
+  repeated string customer_name = 8;
+  repeated string customer_number = 10;
+  repeated string local_document_external_id = 11;
+  repeated string billing_account_id = 3;
+  repeated string billing_account_number = 9;
+  repeated string invoice_id = 4;
+  repeated string invoice_number = 12;
+  repeated string cdp_order_id = 6;
+  optional int64 wallet_card_id = 7;
+  repeated string statement_line_id = 16;
+  optional string google_bank_account_id = 13;
+  repeated string google_vendor_statement_id = 14;
+  repeated string local_document_internal_id = 17;
+  repeated string instrument_id = 18;
+  repeated string tax_info_id = 19;
+  repeated int64 review_id = 20;
+  repeated string product_account_id = 21;
+  repeated int64 customer_id = 22;
+  repeated string google_settlement_id = 23;
+  repeated int64 f1_billing_account_id = 24;
+  repeated string gift_card_id = 25;
+}
+

@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package file;
+
+message CreateDirRecursed {
+  extend .proto2.bridge.MessageSet {
+    optional .file.CreateDirRecursed message_set_extension = 55478377;
+  }
+}
+
+

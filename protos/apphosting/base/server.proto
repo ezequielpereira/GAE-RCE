@@ -1,0 +1,84 @@
+syntax = "proto2";
+
+import "apphosting/base/alias.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "ServerPb";
+
+message ServerConfig {
+  message CpuUtilization {
+    optional double target_utilization = 1 [default = 0.8];
+    optional int32 aggregation_window_length_sec = 2;
+  }
+  enum State {
+    STOP = 0;
+    START = 1;
+    DISABLED = 2;
+  }
+  enum SchedulerType {
+    DESIRED_ONLY = 0;
+    READY_ONLY = 1;
+  }
+  enum AccessType {
+    PUBLIC = 0;
+    PRIVATE = 1;
+    NONE = 2;
+  }
+  enum ServerType {
+    WORKER = 0;
+    BACKEND = 1;
+    FRONTEND = 2;
+    JOB = 3;
+  }
+  required string name = 1;
+  optional int32 num_replicas = 2 [default = 1];
+  optional fixed32 seed = 3;
+  optional int32 lb_policy = 4 [default = 6];
+  optional bool resident = 14 [default = true];
+  optional int32 max_idle_time_s = 17;
+  repeated .apphosting.VersionAliasConfig alias = 6;
+  optional string live_version_id = 7;
+  optional .apphosting.ServerConfig.State state = 23 [default = STOP];
+  optional double update_time_s = 19;
+  optional int32 memory = 10;
+  optional double instance_weight = 20 [default = 2];
+  optional int32 instance_class = 21 [default = 1];
+  optional string scheduler_hint = 11;
+  optional .apphosting.ServerConfig.SchedulerType scheduler_type = 12 [default = DESIRED_ONLY];
+  optional string runtime_id = 13;
+  optional .apphosting.ServerConfig.AccessType access = 15 [default = PRIVATE];
+  optional bool enable_pending_queue = 18 [default = true];
+  optional string start_handler = 24;
+  optional int32 min_num_replicas = 25 [default = 1];
+  optional int32 max_num_replicas = 26 [default = 1];
+  optional int32 cool_down_period_sec = 27 [default = 60];
+  optional .apphosting.ServerConfig.CpuUtilization cpu_utilization = 28;
+  optional int32 target_network_sent_bytes_per_sec = 29;
+  optional int32 target_network_sent_packets_per_sec = 30;
+  optional int32 target_network_received_bytes_per_sec = 31;
+  optional int32 target_network_received_packets_per_sec = 32;
+  optional int32 target_disk_write_bytes_per_sec = 33;
+  optional int32 target_disk_write_ops_per_sec = 34;
+  optional int32 target_disk_read_bytes_per_sec = 35;
+  optional int32 target_disk_read_ops_per_sec = 36;
+  optional int32 target_request_count_per_sec = 37;
+  optional int32 target_concurrent_requests = 38;
+  optional int32 max_concurrent_requests = 22;
+  optional bool serve_via_gclb = 39;
+  optional uint64 gclb_backend_service_id = 41;
+  optional string full_app_container = 42;
+  optional bool reserve_clones = 5 [default = false];
+  optional bool autostart = 8 [default = true];
+  optional bool autostop = 9 [default = true];
+  optional .apphosting.ServerConfig.ServerType type = 16;
+}
+
+message ServerReplicas {
+  optional string server_name = 1;
+  optional int32 replica_start = 2 [default = 0];
+  optional int32 replica_limit = 3 [default = 1];
+  optional string appserver_bns = 4;
+}
+
+

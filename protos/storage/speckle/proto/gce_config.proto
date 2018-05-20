@@ -1,0 +1,86 @@
+syntax = "proto2";
+
+import "google/type/dayofweek.proto";
+import "storage/speckle/proto/enums.proto";
+package speckle;
+
+enum UpdateTrack {
+  UNKNOWN_UPDATE_TRACK = 0;
+  EARLIER = 1;
+  LATER = 2;
+  CRITICAL = 3;
+}
+
+message GceConfigProto {
+  optional int64 project_number = 1 [deprecated = true];
+  optional string zone_name = 2;
+  optional string vm_name = 3;
+  optional string vm_id = 41;
+  optional string boot_disk_name = 4;
+  optional string data_disk_name = 5;
+  optional string machine_type = 7;
+  optional string image_name = 8;
+  optional string startup_script_url = 10 [deprecated = true];
+  optional string vm_ip_address = 11;
+  optional string vm_ip_address_name = 12;
+  optional string network_name = 13;
+  optional string project_id = 14;
+  optional .speckle.ServiceAccount service_account = 15;
+  optional string snapshot_prefix = 16;
+  optional .speckle.ImageType image_type = 17;
+  optional string user_data_path = 18;
+  optional string critical_user_data_manifest_path = 45;
+  optional string non_critical_user_data_manifest_path = 46;
+  optional bool use_agent_decoupling = 47;
+  optional string service_agents_uri = 24;
+  optional string fallback_service_agents_uri = 26;
+  optional string critical_service_agents_uri = 27;
+  optional string fallback_critical_service_agents_uri = 28;
+  optional string override_oneshot_agents_uri = 44;
+  optional string target_instance_name = 19 [deprecated = true];
+  optional string forwarding_rule_name = 20;
+  optional .speckle.MaintenanceWindow maintenance_window = 21;
+  optional string forwarding_rule_ip_address = 22;
+  optional string forwarding_rule_ip_address_name = 23;
+  optional .speckle.Disk data_disk = 25;
+  optional string to_vm_topic = 29;
+  optional string to_vm_sub = 30;
+  optional string from_vm_topic = 31;
+  optional string from_vm_sub = 32;
+  optional string target_pool_name = 33;
+  optional string health_check_name = 34;
+  optional string instance_template_name = 35;
+  optional string regional_vm_name = 36;
+  optional string data_image_name = 37;
+  optional string custom_network_name = 38;
+  optional string custom_subnet_name = 39;
+  optional string custom_subnet_range = 40;
+  optional string binlog_disk_name = 42;
+  optional string private_forwarding_rule_ip_address = 43;
+  reserved 6, 9;
+}
+
+message MaintenanceWindow {
+  optional int32 hour_of_day = 1;
+  optional .google.type.DayOfWeek day_of_week = 2;
+  optional .speckle.UpdateTrack update_track = 3;
+}
+
+message ServiceAccount {
+  enum Type {
+    UNKNOWN_TYPE = 0;
+    PROJECT_DEFAULT = 1;
+    PER_INSTANCE_GAIA = 2;
+    PER_INSTANCE_IAM = 3;
+  }
+  optional uint64 gaia_id = 1;
+  optional string email = 2;
+  optional .speckle.ServiceAccount.Type type = 3;
+}
+
+message Disk {
+  optional int64 size_gb = 1;
+  optional .speckle.DiskType type = 2;
+}
+
+

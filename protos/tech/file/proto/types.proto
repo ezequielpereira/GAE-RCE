@@ -1,0 +1,230 @@
+syntax = "proto2";
+
+import "google/protobuf/any.proto";
+import "security/thinmint/proto/core/thinmint_core.proto";
+import "tech/file/proto/blob_types.proto";
+package tech.file;
+
+option java_outer_classname = "Types";
+
+enum FileType {
+  FILE = 1;
+  DIRECTORY = 2;
+}
+
+enum StatMask {
+  STAT_NONE = 0;
+  STAT_VERSION = 1;
+  STAT_LENGTH = 2;
+  STAT_FILE_TYPE = 4;
+  STAT_IMMUTABLE = 8;
+  STAT_PROTECTED = 16;
+  STAT_STICKY = 32;
+  STAT_OWNER = 64;
+  STAT_GROUP = 128;
+  STAT_MODE = 256;
+  STAT_CRC32C = 512;
+  STAT_PARTITION = 1024;
+  STAT_ENCODING = 2048;
+  STAT_TARGET_ENCODING = 4096;
+  STAT_WRITE_QUANTUM = 8192;
+  STAT_MTIME_NSECS = 16384;
+  STAT_FUZZY_ATIME_NSECS = 32768;
+  STAT_TTL_SECS = 65536;
+  STAT_GC_DELAY_SECS = 131072;
+  STAT_ENCRYPTION_PROPERTIES = 262144;
+  STAT_CONTENT_PROPERTIES = 524288;
+  STAT_FS_PROPERTIES = 1048576;
+  STAT_SPACE_USAGE = 2097152;
+  STAT_LOCALITY = 4194304;
+  STAT_FIFO = 8388608;
+  STAT_ALL = 2147483647;
+}
+
+enum AccessPattern {
+  ACCESS_NONE = 0;
+  ACCESS_NORMAL = 1;
+  ACCESS_RANDOM = 2;
+  ACCESS_SEQUENTIAL = 3;
+}
+
+enum CachePolicy {
+  CACHED = 0;
+  UNCACHED = 1;
+}
+
+enum EncryptionAccess {
+  DEFAULT_ACCESS = 0;
+  RAW_CIPHERTEXT_ACCESS = 1;
+}
+
+enum WrappedKeyType {
+  KEYSTORE_KEY = 0;
+  SHARED_KEY = 1;
+  EPHEMERAL_KEY = 2;
+  CLIENT_MANAGED_KEY = 3;
+  KEYMASTER_KEY = 4;
+}
+
+enum EncryptionMode {
+  UNKNOWN_ENCRYPTION_MODE = 0;
+  AES_SHA1_HMAC = 2;
+  AES_GCM = 3;
+  AES_SHA256_HMAC = 4;
+}
+
+message ContentProperties {
+  optional string content_type = 1;
+  optional string content_encoding = 2;
+}
+
+message PerPartitionUsage {
+  optional string partition = 1;
+  optional int64 space_used = 2;
+  optional int64 space_overhead = 3;
+}
+
+message SpaceUsage {
+  repeated .tech.file.PerPartitionUsage space_usage = 1;
+}
+
+message Int128 {
+  optional int64 low_bits = 1;
+  optional int64 high_bits = 2;
+}
+
+message FSStat {
+  optional .tech.file.Int128 total_bytes = 1;
+  optional .tech.file.Int128 used_bytes = 2;
+  optional .tech.file.Int128 available_bytes = 3;
+}
+
+message StatProto {
+  optional string version = 1;
+  optional int64 length = 2;
+  optional .tech.file.FileType file_type = 4;
+  optional bool immutable = 5;
+  optional bool protected = 6;
+  optional bool sticky = 7;
+  optional string owner = 8;
+  optional string group = 9;
+  optional uint32 mode = 10;
+  optional fixed32 crc32c = 11;
+  optional string partition = 12;
+  optional string encoding = 13;
+  optional string target_encoding = 14;
+  optional int32 write_quantum = 15;
+  optional int64 mtime_nsecs = 16;
+  optional int64 fuzzy_atime_nsecs = 17;
+  optional int32 ttl_secs = 18;
+  optional int32 gc_delay_secs = 19;
+  optional .tech.file.EncryptionProperties encryption_properties = 20;
+  optional .tech.file.ContentProperties content_properties = 21;
+  oneof fs {
+    .tech.file.BlobV2BucketStat blob_v2_bucket = 22;
+    .tech.file.BlobV2ObjectStat blob_v2_object = 23;
+  }
+  optional .tech.file.SpaceUsage space_used = 24;
+  optional string locality = 25;
+  optional bool fifo = 26;
+  repeated .google.protobuf.Any extended_attributes = 27;
+}
+
+message SnapshotOptions {
+  optional bool keep_owner = 1;
+  optional bool keep_group = 2;
+  optional int32 dir_mask = 3 [default = 146];
+  optional int32 file_mask = 4 [default = 146];
+  optional .thinmint.ThinMint destination_thinmint = 5;
+}
+
+message ReadOptions {
+  optional bool allow_partial_reads = 1 [default = false];
+}
+
+message WriteOptions {
+  optional bool allow_partial_writes = 1 [default = false];
+  optional uint32 data_crc = 2;
+}
+
+message RenameOptions {
+  optional bool overwrite = 1 [default = false];
+  optional .thinmint.ThinMint destination_thinmint = 2;
+}
+
+message CreateDirOptions {
+  optional .tech.file.StatProto stat = 1;
+  optional bool internal_recursive = 2;
+}
+
+message OpenOptions {
+  optional .tech.file.StatProto stat = 1;
+  optional bool fail_if_exists = 2 [default = false];
+  optional bool require_write_checksum = 3 [default = false];
+  optional bool direct_io = 4 [default = false];
+  optional .tech.file.AccessPattern access_pattern = 5 [default = ACCESS_NONE];
+  optional .tech.file.CachePolicy cache_policy = 6 [default = CACHED];
+  optional bool noatime = 7 [default = false];
+  optional .tech.file.EncryptionAccess encryption_access = 8 [default = DEFAULT_ACCESS];
+  optional bool verify_authorship = 9 [default = true];
+  optional bool allow_stale_metadata = 10 [default = false];
+  optional .tech.file.EncryptionKey client_managed_master_key = 11;
+}
+
+message CloseOptions {
+  enum Mutability {
+    UNKNOWN = 0;
+    MUTABLE = 1;
+    IMMUTABLE = 2;
+  }
+  optional .tech.file.CloseOptions.Mutability mutability = 1;
+}
+
+message MatchOptions {
+  optional bool match_dot = 1 [default = false];
+  optional bool match_backup = 2 [default = false];
+  optional bool match_strict = 3 [default = false];
+}
+
+message EncryptionKey {
+  optional bytes key = 1;
+  optional fixed32 crc32c = 2;
+}
+
+message EncryptionProperties {
+  optional int32 keystore_config_id = 1;
+  optional string master_key_name = 2;
+  optional .tech.file.EncryptionMode encryption_mode = 13;
+  optional int32 encryption_key_length = 14;
+  optional bytes master_key_hash = 3;
+  optional bytes wrapped_key = 4;
+  optional int64 ciphertext_length = 5;
+  optional bytes authentication_code = 6;
+  repeated string owner = 7;
+  optional bytes document_id = 8;
+  optional int32 scope = 9;
+  optional int64 expiry = 10;
+  optional .tech.file.WrappedKeyType key_type = 11;
+  optional fixed32 crc32c = 12;
+}
+
+message StatOptions {
+  optional uint64 statmask = 1 [default = 18446744073709551615];
+  optional bool local_info_only = 2 [default = false];
+  optional bool allow_stale_metadata = 3 [default = false];
+  repeated string extended_attributes_types = 4;
+}
+
+message FlushOptions {
+  enum FlushType {
+    FROM_PROCESS = 1;
+    FROM_MACHINE = 2;
+  }
+  optional .tech.file.FlushOptions.FlushType flush_type = 1 [default = FROM_PROCESS];
+}
+
+message DeleteOptions {
+  optional string version = 1;
+}
+
+

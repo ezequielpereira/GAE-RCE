@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+option java_package = "com.google.common.stats.proto";
+
+message EV_KeyValuePair {
+  required string name = 1;
+  required string value = 2;
+  optional string docstring = 3;
+}
+
+message EV_KeyValueList {
+  repeated .EV_KeyValuePair pair = 1;
+}
+
+

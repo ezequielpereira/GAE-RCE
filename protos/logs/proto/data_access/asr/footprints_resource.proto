@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "FootprintsResourceProtoFile";
+option java_multiple_files = true;
+
+message FootprintsResource {
+  message CorpusDataType {
+    optional string corpus = 1;
+    optional string datatype = 2;
+  }
+  optional .security.data_access.asr.FootprintsResource.CorpusDataType corpus_datatype = 1;
+  optional string corpus_group = 2;
+}
+

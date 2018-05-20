@@ -1,0 +1,114 @@
+syntax = "proto2";
+
+import "net/discovery/internal/bidichannel.proto";
+package net_discovery;
+
+option java_package = "com.google.net.discovery.proto";
+option java_outer_classname = "DiscoveryProtos";
+option java_multiple_files = true;
+option cc_generic_services = false;
+
+message WatchRequest {
+  required string group = 1;
+  optional .net_discovery.WatchStream.Encoding encoding = 2 [default = EVENTS_PROTO];
+}
+
+message WatchStream {
+  enum Encoding {
+    EVENTS_PROTO = 0;
+    PACKED_STRINGDELTA = 1;
+    ZIPPY_PACKED_STRINGDELTA = 2;
+    KEYVALUE_PROTO = 3;
+    KEYVALUE_PACKED_STRINGDELTA = 4;
+    KEYVALUE_ZIPPY_PACKED_STRINGDELTA = 5;
+    WATCH_API = 6;
+  }
+  required .net_discovery.WatchStream.Encoding encoding = 1;
+  required bytes events = 2 [ctype = CORD];
+}
+
+message Events {
+  repeated group Event = 1 {
+    enum Type {
+      JOIN = 0;
+      LEAVE = 1;
+    }
+    required .net_discovery.Events.Event.Type type = 2;
+    required bytes value = 3;
+    optional bytes key = 4;
+    optional int64 sequence = 5;
+  }
+}
+
+message WatchResponse {
+}
+
+message JoinRequest {
+  required bytes value = 1;
+  required string group = 2;
+  optional string key = 3;
+  optional int64 sequence = 4;
+}
+
+message JoinResponse {
+}
+
+message SnapshotRequest {
+  required string group = 1;
+  optional .net_discovery.WatchStream.Encoding encoding = 2 [default = EVENTS_PROTO];
+}
+
+message DiscoveryServiceError {
+  enum ErrorCode {
+    CANCELLED = -1;
+    OK = 0;
+    ALREADY_CONNECTED = 1;
+    GO_AWAY = 2;
+    INVALID_REQUEST = 3;
+    NOT_AUTHORIZED = 4;
+    NOT_AUTHENTICATED = 5;
+    NOT_READY = 6;
+    INSUFFICIENT_RESOURCES = 7;
+    QUOTA_EXCEEDED = 8;
+  }
+}
+
+message ServingMode {
+  enum Mode {
+    NONE = 0;
+    SERVING = 1;
+    LAME = 2;
+  }
+}
+
+message ModeRequest {
+  required .net_discovery.ServingMode.Mode force_mode = 1;
+  optional double timeout_secs = 2;
+}
+
+message ModeResponse {
+}
+
+message DiscoveryStreamType {
+  enum Type {
+    LOCAL_WATCH = 1;
+    GLOBAL_WATCH = 2;
+    BRIDGE_WATCH = 3;
+    JOIN = 4;
+  }
+}
+
+message UnsupportedStreamMessage {
+}
+
+service DiscoveryService {
+  rpc GlobalWatch(.net_discovery.WatchRequest) returns (.net_discovery.WatchResponse);
+  rpc LocalWatch(.net_discovery.WatchRequest) returns (.net_discovery.WatchResponse);
+  rpc BridgeWatch(.net_discovery.WatchRequest) returns (.net_discovery.WatchResponse);
+  rpc GlobalSnapshot(.net_discovery.SnapshotRequest) returns (.net_discovery.WatchStream);
+  rpc LocalSnapshot(.net_discovery.SnapshotRequest) returns (.net_discovery.WatchStream);
+  rpc Join(.net_discovery.JoinRequest) returns (.net_discovery.JoinResponse);
+  rpc SetServingMode(.net_discovery.ModeRequest) returns (.net_discovery.ModeResponse);
+}
+
+

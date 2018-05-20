@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package google.type;
+
+option java_package = "com.google.type";
+option java_outer_classname = "LatLngProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/type/latlng;latlng";
+option objc_class_prefix = "GTP";
+
+message LatLng {
+  double latitude = 1;
+  double longitude = 2;
+}
+

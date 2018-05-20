@@ -1,0 +1,65 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/credentials/proto/principal.proto";
+package thinmint;
+
+option java_package = "com.google.protos.thinmint";
+
+message Test {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.Test message_set_extension = 18061414;
+  }
+}
+
+message NonSensitive {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.NonSensitive message_set_extension = 20752982;
+  }
+}
+
+message ReadOnly {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.ReadOnly message_set_extension = 15908743;
+  }
+}
+
+message Modify {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.Modify message_set_extension = 20780734;
+  }
+}
+
+message Admin {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.Admin message_set_extension = 20771855;
+  }
+}
+
+message Monitoring {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.Monitoring message_set_extension = 20817490;
+  }
+}
+
+message Debugging {
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.Debugging message_set_extension = 25391318;
+  }
+}
+
+message ForgedOnBehalfOf {
+  optional .security.credentials.PrincipalProto creator = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.ForgedOnBehalfOf message_set_extension = 30797334;
+  }
+}
+
+message Ratchet {
+  optional uint64 serial_number = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.Ratchet message_set_extension = 45534334;
+  }
+}
+
+

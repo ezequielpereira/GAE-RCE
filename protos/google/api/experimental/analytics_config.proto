@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+import "google/type/date.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "AnalyticsConfigProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+message AnalyticsConfig {
+  message AnalyticsConfigDestination {
+    string monitored_resource = 1;
+    repeated string metrics = 2;
+  }
+  message RetentionBackfillPolicy {
+    enum ReprocessingStrategy {
+      KEEP_OLD_VERSION = 0;
+      DELETE_OLD_VERSION = 1;
+    }
+    int32 reprocessing_version = 1;
+    oneof retention_policy {
+      .google.type.Date from_date = 2;
+      int32 most_recent_days = 3;
+    }
+    .google.api.AnalyticsConfig.RetentionBackfillPolicy.ReprocessingStrategy reprocessing_strategy = 4;
+  }
+  repeated .google.api.AnalyticsConfig.AnalyticsConfigDestination destinations = 1;
+  string description = 2;
+  string data_tier = 3;
+  .google.api.AnalyticsConfig.RetentionBackfillPolicy retention_and_backfill_policy = 4;
+}
+
+

@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package net_httpsconnection;
+
+option java_package = "com.google.net.httpsconnection";
+
+message TcpProxyHeaderProto {
+  enum SslResumeType {
+    SESSION_TICKET = 0;
+    SESSION_ID = 1;
+  }
+  optional string client_address = 2;
+  optional uint32 client_vnid = 21;
+  optional uint64 client_gce_project_number = 22;
+  optional string pzf_data = 3;
+  optional string datacenter = 4;
+  optional string server_vip = 5;
+  optional string no_sni_certificate_name = 7;
+  optional string pzf3_signature = 8;
+  optional string ssl_client_certificate_hash = 9;
+  optional string requested_servername_via_sni = 10;
+  optional string gslb_service = 11;
+  optional bool ssl_session_resumed = 12;
+  optional .net_httpsconnection.TcpProxyHeaderProto.SslResumeType ssl_resumption_mechanism = 13;
+  repeated string intermediate_gfe = 14;
+  optional bool ssl_terminated = 15;
+  optional bool starttls_supported = 16;
+  repeated string preferred_location = 18;
+  optional string requested_tcp_proxy_service = 19;
+  optional string sticky_picking_backend_ip_and_port = 20;
+  extend .proto2.bridge.MessageSet {
+    optional .net_httpsconnection.TcpProxyHeaderProto message_set_extension = 11108534;
+  }
+  reserved 17;
+}
+
+

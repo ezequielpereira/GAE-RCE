@@ -1,0 +1,126 @@
+syntax = "proto2";
+
+import "net/base/qos.proto";
+package net_bamm;
+
+message SecurityOptions {
+  enum MessageSecurityLevel {
+    NONE = 1;
+    INTEGRITY = 2;
+    PRIVACY_AND_INTEGRITY = 3;
+  }
+  optional string security_protocol = 1 [default = "loas"];
+  optional int32 security_protocol_version = 10 [default = 1];
+  optional int32 supported_security_protocol_version = 11 [default = 1];
+  oneof local_credential {
+    string desired_local_id = 2;
+    int64 desired_local_gaia_id = 12;
+  }
+  optional bool server_full_authentication = 3 [default = true];
+  optional string server_username = 4 [default = ""];
+  optional .net_bamm.SecurityOptions.MessageSecurityLevel message_security_level = 5 [default = NONE];
+  optional bool allow_transparent_security_upgrade = 6 [default = true];
+  optional string resolved_address = 7 [default = ""];
+  optional string proxy_address = 8 [default = ""];
+  optional string service_name = 9 [default = ""];
+}
+
+message IOWatcherOptions {
+  optional string scheduler_policy = 1 [default = "basic"];
+  optional int32 max_spinning_threads = 2 [default = 0];
+  optional int32 read_budget = 3 [default = 2];
+  optional int32 write_budget = 4 [default = 2];
+  optional int32 dispatcher_threads = 5 [default = 0];
+  optional int32 poller_threads = 6 [default = 0];
+  optional bool all_ios_in_dedicated_threads = 7 [default = false];
+}
+
+message BammSocketOptions {
+  optional .net_base.qos.TrafficClass traffic_class = 1;
+  optional int32 tcp_min_rto_ms = 2 [default = 5];
+  optional int32 tcp_user_timeout_seconds = 3 [default = 20];
+  optional int32 tcp_receive_buffer_kb = 4 [default = 1024];
+  optional int32 tcp_send_buffer_kb = 5 [default = 1024];
+  optional int32 tcp_cwnd_mss = 6;
+  optional string interface = 7;
+  optional string tcp_congestion_control = 8;
+}
+
+message VerbsOptions {
+  optional bool allow_inbound_rdma_writes = 1 [default = true];
+  optional bool allow_inbound_rdma_reads = 2 [default = true];
+  optional bool force_rdma_when_registered = 3 [default = false];
+  optional string qos_level = 4 [default = "roce_lo"];
+}
+
+message VerbsTransportOptions {
+  optional string device = 1 [default = ""];
+}
+
+message BlockingOptions {
+  optional bool enable_blocking = 1 [default = true];
+  optional uint32 anticipatory_spin_microseconds = 2 [default = 0];
+  optional string waiter_strategy = 3 [default = "siloed"];
+  optional int32 waiter_shards = 4 [default = 1];
+  optional int64 shard_switch_threshold_microseconds = 5 [default = -1];
+}
+
+message PonySessionOptions {
+  optional .net_base.qos.TrafficClass traffic_class = 1;
+  optional int32 selector = 2;
+}
+
+message SessionOptions {
+  optional .net_bamm.BammSocketOptions socket_options = 1;
+  optional .net_bamm.SecurityOptions security_options = 2;
+  optional .net_bamm.VerbsOptions verbs_options = 3;
+  optional .net_bamm.PonySessionOptions pony_options = 11;
+  optional int32 port_selection = 4 [default = 0];
+  oneof announcement_selection {
+    .net_bamm.LoadBalanceAnnouncementSelection load_balance_announcement_selection = 8;
+    .net_bamm.IndexAnnouncementSelection index_announcement_selection = 9;
+  }
+  optional int32 max_failed_connections = 10;
+  reserved 5, 6, 7;
+}
+
+message LoadBalanceAnnouncementSelection {
+  optional int32 lb_index = 1 [default = 0];
+  optional int32 lb_groupsize = 2 [default = 1];
+}
+
+message IndexAnnouncementSelection {
+  optional int32 index = 1 [default = 0];
+}
+
+message PonyOptions {
+  optional string engine_path = 2 [default = "/pony/listener"];
+  optional bool launch_engine = 4;
+  optional bool init_can_fail = 5 [default = false];
+  optional bool exclusivity_hint = 6 [default = false];
+  optional string client_type = 7 [default = ""];
+  optional string force_engine_id = 8;
+  optional bool enable_memory_chargeback = 9 [default = false];
+  optional uint32 initial_memory = 10;
+  optional uint32 maximum_memory = 11;
+  optional uint32 memory_increment = 12;
+  reserved 3;
+  reserved "tmpfs_path";
+}
+
+message TikiOptions {
+  optional string interface = 1 [default = ""];
+}
+
+message SessionGroupOptions {
+  optional string name = 1;
+  optional .net_bamm.SessionOptions session_options = 2;
+  optional .net_bamm.IOWatcherOptions iowatcher_options = 3;
+  optional double health_check_interval_seconds = 4 [default = 120];
+  optional .net_bamm.VerbsTransportOptions verbs_options = 5;
+  optional .net_bamm.BlockingOptions blocking_options = 6;
+  optional .net_bamm.PonyOptions pony_options = 7;
+  optional .net_bamm.TikiOptions tiki_options = 8;
+}
+
+

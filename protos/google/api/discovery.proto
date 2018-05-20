@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "DiscoveryProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Discovery {
+  enum Schema {
+    GOOGLE_API = 0;
+    GOOGLE_REST = 1;
+    GOOGLE_REST_SIMPLE_URI = 2;
+    SWAGGER1 = 3;
+    SWAGGER2 = 4;
+    GOOGLE_REST_PATCHABLE_VERSION = 100;
+  }
+  bool public_directory = 1;
+  bool public_discovery = 10;
+  repeated .google.api.Discovery.Schema supported_schemas = 2;
+  string schema_name_template = 3;
+  bool exponential_backoff_default = 5;
+  string canonical_name = 6;
+  string api_name = 7;
+  string version = 8;
+  repeated .google.api.Discovery discovery_per_version = 9;
+  repeated .google.api.JsonSchemaRule rules = 11;
+  repeated string path_prefixes = 12;
+  string root_url = 13;
+  reserved 4;
+}
+
+message JsonSchemaRule {
+  string selector = 1;
+  string schema_name_template = 2;
+  bool excluded = 3;
+}
+
+

@@ -1,0 +1,111 @@
+syntax = "proto2";
+
+import "borg/borgletlib/dynamic_remote_package.proto";
+import "borg/common/common.proto";
+import "net/rpc/empty-message.proto";
+package borg;
+
+option java_package = "com.google.borg.rpc";
+option java_outer_classname = "TaskStatus";
+
+message TaskStatusReq {
+  optional string status_msg = 1;
+  optional string jobstate = 2;
+  optional int32 signalpid = 7;
+  optional string task_handle = 8;
+  optional int64 timestamp_sec = 9;
+  optional bytes auth_token = 10;
+}
+
+message TaskStatusResp {
+  message LostDiskRecord {
+    required int32 id = 1;
+    required string path = 2;
+  }
+  optional .borg.ResAlloc limits = 1;
+  optional .borg.ResAlloc usage = 2;
+  optional .borg.ResAlloc reservation = 26;
+  optional .borg.ScratchFsDirs scratch_fs_dirs = 29;
+  optional .borg.DiskAlloc logsusage = 3;
+  optional .borg.ResAlloc alloc_limits = 20;
+  optional .borg.ResAlloc alloc_usage = 21;
+  optional .borg.ResAlloc alloc_reservation = 27;
+  optional .borg.ScratchFsDirs alloc_scratch_fs_dirs = 30;
+  repeated .borg.CliqueSsdInfo clique_ssd = 31;
+  repeated uint64 reserved_cpu_mask = 4;
+  optional int32 reserved_cpu_core_count = 5;
+  required string taskstate = 11;
+  optional string jobstate = 13;
+  optional int32 death_time = 16;
+  optional string death_status = 22;
+  repeated group LostDisks = 23 {
+    required int32 id = 24;
+    required string path = 25;
+  }
+  repeated .borg.TaskStatusResp.LostDiskRecord lostshareddisks = 28;
+  optional .borg.Permissions perm = 32;
+}
+
+message UpdateHealthReq {
+  required string handle = 1;
+  optional string portname = 2;
+  required bool disable = 3;
+}
+
+message RunCommandInTaskReq {
+  required string task_handle = 1;
+  repeated string cmdargv = 2;
+  optional bool repin_master_process = 3;
+}
+
+message RunCommandInTaskResp {
+  optional int32 assigned_port = 1;
+  optional int32 attached_pid = 2;
+  optional string borglet_name = 3;
+}
+
+message UpdateMigrationStateReq {
+  enum Endpoint {
+    SOURCE = 0;
+    DESTINATION = 1;
+  }
+  enum State {
+    MIGRATING = 0;
+    COMPLETE = 1;
+  }
+  optional string task_handle = 1;
+  optional .borg.UpdateMigrationStateReq.Endpoint endpoint = 2;
+  optional .borg.UpdateMigrationStateReq.State state = 3;
+  optional string destination_hostport = 4;
+  optional int32 root_pid = 5;
+  optional string google_loas_cookie = 6;
+}
+
+message UpdateMigrationStateResp {
+}
+
+message PidList {
+  repeated int32 pid = 1;
+}
+
+message GetTaskHandlesForPidsRequest {
+  optional .borg.PidList pid_list = 1;
+}
+
+message GetTaskHandlesForPidsResponse {
+  map<string, .borg.PidList> task_handle_pids = 1;
+  optional int32 num_pids_handled = 2;
+}
+
+service BorgletClient {
+  rpc TaskStatus(.borg.TaskStatusReq) returns (.borg.TaskStatusResp);
+  rpc UpdateHealthz(.borg.UpdateHealthReq) returns (.EmptyMessage);
+  rpc RunCommandInTask(.borg.RunCommandInTaskReq) returns (.borg.RunCommandInTaskResp);
+  rpc InstallDynamicPackage(.borg.InstallDynamicPackageRequest) returns (.borg.InstallDynamicPackageResponse);
+  rpc ListDynamicPackages(.borg.ListDynamicPackagesRequest) returns (.borg.ListDynamicPackagesResponse);
+  rpc UninstallDynamicPackage(.borg.UninstallDynamicPackageRequest) returns (.borg.UninstallDynamicPackageResponse);
+  rpc UpdateMigrationState(.borg.UpdateMigrationStateReq) returns (.borg.UpdateMigrationStateResp);
+  rpc GetTaskHandlesForPids(.borg.GetTaskHandlesForPidsRequest) returns (.borg.GetTaskHandlesForPidsResponse);
+}
+
+

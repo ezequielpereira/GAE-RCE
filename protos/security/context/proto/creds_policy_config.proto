@@ -1,0 +1,54 @@
+syntax = "proto2";
+
+import "security/context/proto/audit_requirements.proto";
+package security.context;
+
+option java_package = "com.google.security.context";
+option java_outer_classname = "CredsPolicyConfigProtoFile";
+option java_multiple_files = true;
+
+message CredsPolicyConfigProto {
+  enum CredsEnvironment {
+    PROD = 0;
+    TEST = 1;
+    FAKE = 2;
+  }
+  repeated .security.context.CredsPolicyProto creds_policy = 1;
+  optional .security.context.CredsPolicyConfigProto.CredsEnvironment creds_environment = 3 [default = PROD];
+}
+
+message CredsPolicyProto {
+  repeated string method = 1;
+  optional .security.context.ValidationOptions validation_options = 5;
+}
+
+message ValidationOptions {
+  repeated int32 acceptable_scope = 1;
+  repeated .security.context.CredsWhitelistProto whitelist = 2;
+  optional bool allow_anonymous = 3 [default = false];
+  optional bool enable_scope_check = 4 [default = true];
+  optional bool allow_mdb_auth = 5 [default = false];
+  optional bool allow_gaia_auth = 9 [default = true];
+  optional .security.context.AuditRequirements audit_requirements = 6;
+  optional bool accept_iam_request_attributes = 7 [default = false];
+  optional bool provide_gaia_session = 8 [default = false];
+}
+
+message CredsWhitelistProto {
+  enum WhitelistPurpose {
+    INVALID = 0;
+    TEST_ONLY = 1;
+    LEGACY_NO_CREDS = 2;
+    PRIVILEGED = 3;
+  }
+  enum WhitelistMode {
+    IGNORE_CREDS = 1;
+  }
+  repeated string client = 1;
+  optional .security.context.CredsWhitelistProto.WhitelistPurpose purpose = 5 [default = INVALID];
+  optional string justification = 2;
+  repeated int32 granted_scope = 3;
+  optional .security.context.CredsWhitelistProto.WhitelistMode mode = 4 [default = IGNORE_CREDS];
+}
+
+

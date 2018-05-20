@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+import "apphosting/executor/group.proto";
+import "apphosting/executor/retry.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+
+message QueueRef {
+  required .apphosting.GroupRef group_ref = 1;
+  required bytes name = 2;
+}
+
+message QueueRangeBorder {
+  required bytes customer = 1;
+  optional bytes group = 2;
+  optional bytes queue = 3;
+}
+
+message QueueRange {
+  required .apphosting.QueueRangeBorder start = 1;
+  required .apphosting.QueueRangeBorder limit = 2;
+}
+
+message QueueThrottlingParameters {
+  required double bucket_refill_per_second = 1;
+  required double bucket_capacity = 2;
+  optional int32 max_concurrent_requests = 3;
+  optional int32 max_pull_requests_per_second = 8 [default = 0];
+  optional double override_bucket_refill_per_second = 4 [default = -1];
+  optional double override_bucket_capacity = 5 [default = -1];
+  optional int32 override_max_concurrent_requests = 7 [default = -1];
+  optional int32 override_max_pull_requests_per_second = 9 [default = -1];
+}
+
+message HttpTaskRunnerHeader {
+  required bytes key = 1;
+  required bytes value = 2;
+}
+
+message QueueDefinition {
+  enum QueueMode {
+    PUSH = 0;
+    PULL = 1;
+  }
+  required .apphosting.QueueRef queue_ref = 1;
+  required .apphosting.QueueThrottlingParameters throttling_parameters = 2;
+  optional string user_specified_rate = 3;
+  optional int64 last_purge_usec = 4 [default = 0];
+  optional bool paused = 5 [default = false];
+  optional .apphosting.RetryParameters retry_parameters = 6;
+  optional .apphosting.QueueDefinition.QueueMode mode = 7 [default = PUSH];
+  optional .proto2.bridge.MessageSet metadata = 8;
+  repeated .apphosting.HttpTaskRunnerHeader header_override = 9;
+  optional bytes acl = 10 [ctype = CORD];
+  optional string creator_name = 11 [default = "apphosting", ctype = CORD];
+  optional uint32 num_read_shards = 12 [default = 1];
+  optional uint32 num_write_shards = 13 [default = 1];
+  optional int64 last_heartbeat_usec = 14;
+  optional int64 queue_task_count_checkpoint = 15 [default = 0];
+  optional .apphosting.PubsubQueueDefinition pubsub_queue_def = 16;
+  optional bool enable_cloud_logging = 17 [default = false];
+  optional int64 allocated_capacity = 18 [default = 0];
+  optional int64 maximum_alive_lifetime_usec = 19;
+  optional int64 maximum_tombstone_lifetime_usec = 20;
+}
+
+message PubsubQueueDefinition {
+  optional string topic_name = 1;
+}
+
+message QueueRangeAssignment {
+  required .apphosting.QueueRange queue_range = 1;
+  required bytes scanner_task = 2;
+}
+
+message QueueMap {
+  repeated .apphosting.QueueRangeAssignment push_range = 5;
+  repeated .apphosting.QueueRangeAssignment pull_range = 6;
+  required int64 timestamp_usec = 4;
+}
+

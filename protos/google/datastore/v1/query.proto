@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+import "google/datastore/v1/entity.proto";
+import "google/protobuf/wrappers.proto";
+import "google/type/latlng.proto";
+package google.datastore.v1;
+
+option java_package = "com.google.datastore.v1";
+option java_outer_classname = "QueryProto";
+option java_multiple_files = true;
+option csharp_namespace = "Google.Cloud.Datastore.V1";
+option php_namespace = "Google\\Cloud\\Datastore\\V1";
+
+message EntityResult {
+  enum ResultType {
+    RESULT_TYPE_UNSPECIFIED = 0;
+    FULL = 1;
+    PROJECTION = 2;
+    KEY_ONLY = 3;
+  }
+  .google.datastore.v1.Entity entity = 1;
+  int64 version = 4;
+  bytes cursor = 3;
+}
+
+message Query {
+  repeated .google.datastore.v1.Projection projection = 2;
+  repeated .google.datastore.v1.KindExpression kind = 3;
+  .google.datastore.v1.Filter filter = 4;
+  repeated .google.datastore.v1.PropertyOrder order = 5;
+  repeated .google.datastore.v1.PropertyReference distinct_on = 6;
+  bytes start_cursor = 7;
+  bytes end_cursor = 8;
+  int32 offset = 10;
+  .google.protobuf.Int32Value limit = 12;
+}
+
+message KindExpression {
+  string name = 1;
+}
+
+message PropertyReference {
+  string name = 2;
+}
+
+message Projection {
+  .google.datastore.v1.PropertyReference property = 1;
+}
+
+message PropertyOrder {
+  enum Direction {
+    DIRECTION_UNSPECIFIED = 0;
+    ASCENDING = 1;
+    DESCENDING = 2;
+  }
+  .google.datastore.v1.PropertyReference property = 1;
+  .google.datastore.v1.PropertyOrder.Direction direction = 2;
+}
+
+message Filter {
+  oneof filter_type {
+    .google.datastore.v1.CompositeFilter composite_filter = 1;
+    .google.datastore.v1.PropertyFilter property_filter = 2;
+    .google.datastore.v1.StContainsFilter st_contains_filter = 3;
+  }
+}
+
+message CompositeFilter {
+  enum Operator {
+    OPERATOR_UNSPECIFIED = 0;
+    AND = 1;
+  }
+  .google.datastore.v1.CompositeFilter.Operator op = 1;
+  repeated .google.datastore.v1.Filter filters = 2;
+}
+
+message PropertyFilter {
+  enum Operator {
+    OPERATOR_UNSPECIFIED = 0;
+    LESS_THAN = 1;
+    LESS_THAN_OR_EQUAL = 2;
+    GREATER_THAN = 3;
+    GREATER_THAN_OR_EQUAL = 4;
+    EQUAL = 5;
+    HAS_ANCESTOR = 11;
+    HAS_PARENT = 12;
+  }
+  .google.datastore.v1.PropertyReference property = 1;
+  .google.datastore.v1.PropertyFilter.Operator op = 2;
+  .google.datastore.v1.Value value = 3;
+}
+
+message StContainsFilter {
+  .google.datastore.v1.PropertyReference property = 1;
+  .google.datastore.v1.GeoRegion contained_in = 2;
+}
+
+message GeoRegion {
+  message Circle {
+    .google.type.LatLng center = 1;
+    double radius_meters = 2;
+  }
+  message Rectangle {
+    .google.type.LatLng southwest = 1;
+    .google.type.LatLng northeast = 2;
+  }
+  oneof shape {
+    .google.datastore.v1.GeoRegion.Rectangle rectangle = 1;
+    .google.datastore.v1.GeoRegion.Circle circle = 2;
+  }
+}
+
+message GqlQuery {
+  string query_string = 1;
+  bool allow_literals = 2;
+  map<string, .google.datastore.v1.GqlQueryParameter> named_bindings = 5;
+  repeated .google.datastore.v1.GqlQueryParameter positional_bindings = 4;
+}
+
+message GqlQueryParameter {
+  oneof parameter_type {
+    .google.datastore.v1.Value value = 2;
+    bytes cursor = 3;
+    .google.datastore.v1.GeoRegion geo_region = 4;
+  }
+}
+
+message QueryResultBatch {
+  enum MoreResultsType {
+    MORE_RESULTS_TYPE_UNSPECIFIED = 0;
+    NOT_FINISHED = 1;
+    MORE_RESULTS_AFTER_LIMIT = 2;
+    MORE_RESULTS_AFTER_CURSOR = 4;
+    NO_MORE_RESULTS = 3;
+  }
+  int32 skipped_results = 6;
+  bytes skipped_cursor = 3;
+  .google.datastore.v1.EntityResult.ResultType entity_result_type = 1;
+  repeated .google.datastore.v1.EntityResult entity_results = 2;
+  bytes end_cursor = 4;
+  .google.datastore.v1.QueryResultBatch.MoreResultsType more_results = 5;
+  int64 snapshot_version = 7;
+}
+

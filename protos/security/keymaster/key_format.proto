@@ -1,0 +1,98 @@
+syntax = "proto2";
+
+import "security/keymaster/keymaster.proto";
+package security.keymaster;
+
+option java_package = "com.google.security.keymaster";
+option java_outer_classname = "UnusedKeyFormatOuterName";
+option java_multiple_files = true;
+option go_package = "keymaster";
+option cc_enable_arenas = true;
+
+message AesFormat {
+  optional int32 symmetric_key_size_in_bits = 1;
+}
+
+message AesTetFormat {
+  optional int32 symmetric_key_size_in_bits = 1;
+  optional int32 signature_length_in_bytes = 2;
+}
+
+message TripleDesFormat {
+  optional int32 symmetric_key_size_in_bits = 1;
+}
+
+message RsaFormat {
+  optional int32 key_size_in_bits = 1;
+  optional .security.KeyMetadata.Type symmetric_type = 2;
+}
+
+message DsaFormat {
+  optional int32 key_size_in_bits = 1;
+}
+
+message EcdsaFormat {
+  optional .security.KeyMetadata.EllipticCurve curve = 1;
+}
+
+message EciesFormat {
+  optional .security.KeyMetadata.EllipticCurve curve = 1;
+  optional .security.ECIESParameters parameters = 2;
+}
+
+message HmacFormat {
+  optional int32 hmac_key_size_in_bits = 1;
+  optional int32 hmac_signature_length_in_bytes = 2;
+  optional .security.URLParameters url_parameters = 3;
+}
+
+message ExtraEncryptionParam {
+  enum Type {
+    NONCE = 1;
+    TWEAK = 2;
+    WITH_DATA = 3;
+  }
+  required .security.keymaster.ExtraEncryptionParam.Type type = 1;
+}
+
+message KeyFormat {
+  optional .security.KeyMetadata.Type key_type = 1;
+  optional .security.KeyMetadata.HashAlgorithm hash_algorithm = 2;
+  optional .security.KeyMetadata.SignatureType signature_type = 3;
+  optional .security.keymaster.AesFormat aes_format = 12;
+  optional .security.keymaster.RsaFormat rsa_format = 13;
+  optional .security.keymaster.DsaFormat dsa_format = 14;
+  optional .security.keymaster.EcdsaFormat ecdsa_format = 15;
+  optional .security.keymaster.AesTetFormat aes_tet_format = 18;
+  optional .security.keymaster.EciesFormat ecies_format = 21;
+  optional .security.keymaster.TripleDesFormat triple_des_format = 22;
+  optional .security.keymaster.DerivationFormat derivation_format = 23;
+  optional .security.keymaster.HmacFormat hmac_format = 30;
+  optional .security.KeyMetadata.PrfInputFormat prf_input_format = 31;
+  optional .security.keymaster.ExtraEncryptionParam extra_encryption_param = 40;
+  extensions 1000 to 536870911;
+  reserved 16, 17, 19, 20;
+}
+
+message DerivationFormat {
+  optional bool can_derive_deriving_key = 1 [default = false];
+  optional bool can_derive_raw_bytes = 2 [default = false];
+  optional .security.keymaster.KeyFormat crypt_key_format = 3;
+  optional .security.keymaster.KeyFormat mac_key_format = 4;
+  optional .security.keymaster.KeyFormat asymmetric_sign_key_format = 5;
+}
+
+message ReadableKeyTemplate {
+  enum Usage {
+    SPECIAL_CASE = 0;
+    LIMES_STANDARD_ENCRYPTED_DATA = 1;
+  }
+  optional .security.keymaster.ReadableKeyTemplate.Usage intended_key_use = 1;
+  optional .security.keymaster.KeyFormat key_format = 2;
+}
+
+message ReadableKeyTemplates {
+  repeated .security.keymaster.ReadableKeyTemplate key_template = 1;
+}
+
+

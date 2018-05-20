@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package cloud_trace;
+
+option java_package = "com.google.protos.cloud.trace";
+
+message TraceIdProto {
+  optional fixed64 hi = 1;
+  optional fixed64 lo = 2;
+}
+

@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package monitoring.logging.base.remote_debug_logging.java;
+
+option java_package = "com.google.monitoring.logging.base.remotedebug";
+option java_multiple_files = true;
+
+enum RemoteDebugLoggingMode {
+  FILE_ONLY = 0;
+  HYBRID = 1;
+  REMOTE_ONLY = 2;
+}
+

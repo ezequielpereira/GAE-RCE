@@ -1,0 +1,343 @@
+syntax = "proto2";
+
+import "storage/onestore/v3/action.proto";
+import "storage/onestore/v3/entity.proto";
+import "storage/onestore/v3/snapshot.proto";
+package apphosting_datastore_v3;
+
+option java_package = "com.google.apphosting.datastore";
+option java_outer_classname = "DatastoreV3Pb";
+
+message Transaction {
+  required fixed64 handle = 1;
+  required string app = 2;
+  optional string database_id = 6;
+  optional bool mark_changes = 3 [default = false];
+  repeated .storage_onestore_v3.CompositeIndex composite_index = 5;
+}
+
+message Query {
+  enum Hint {
+    ORDER_FIRST = 1;
+    ANCESTOR_FIRST = 2;
+    FILTER_FIRST = 3;
+  }
+  required string app = 1;
+  optional string database_id = 42;
+  optional string name_space = 29;
+  optional string kind = 3;
+  optional .storage_onestore_v3.Reference ancestor = 17;
+  optional bool shallow = 43;
+  repeated group Filter = 4 {
+    enum Operator {
+      LESS_THAN = 1;
+      LESS_THAN_OR_EQUAL = 2;
+      GREATER_THAN = 3;
+      GREATER_THAN_OR_EQUAL = 4;
+      EQUAL = 5;
+      IN = 6;
+      EXISTS = 7;
+      CONTAINED_IN_REGION = 8;
+    }
+    required .apphosting_datastore_v3.Query.Filter.Operator op = 6;
+    repeated .storage_onestore_v3.Property property = 14;
+    optional .apphosting_datastore_v3.GeoRegion geo_region = 40;
+  }
+  optional string search_query = 8;
+  repeated group Order = 9 {
+    enum Direction {
+      ASCENDING = 1;
+      DESCENDING = 2;
+    }
+    required string property = 10;
+    optional .apphosting_datastore_v3.Query.Order.Direction direction = 11 [default = ASCENDING];
+  }
+  optional .apphosting_datastore_v3.Query.Hint hint = 18;
+  optional int32 count = 23;
+  optional int32 offset = 12 [default = 0];
+  optional int32 limit = 16;
+  optional .apphosting_datastore_v3.CompiledCursor compiled_cursor = 30;
+  optional .apphosting_datastore_v3.CompiledCursor end_compiled_cursor = 31;
+  repeated .storage_onestore_v3.CompositeIndex composite_index = 19;
+  optional bool require_perfect_plan = 20 [default = false];
+  optional bool keys_only = 21 [default = false];
+  optional .apphosting_datastore_v3.Transaction transaction = 22;
+  optional bool compile = 25 [default = false];
+  optional int64 failover_ms = 26;
+  optional bool strong = 32;
+  repeated string property_name = 33;
+  repeated string group_by_property_name = 34;
+  optional bool distinct = 24;
+  optional int64 min_safe_time_seconds = 35;
+  repeated string safe_replica_name = 36;
+  optional bool persist_offset = 37 [default = true, deprecated = true];
+}
+
+message RegionPoint {
+  required double latitude = 1;
+  required double longitude = 2;
+}
+
+message CircleRegion {
+  required .apphosting_datastore_v3.RegionPoint center = 1;
+  required double radius_meters = 2;
+}
+
+message RectangleRegion {
+  required .apphosting_datastore_v3.RegionPoint southwest = 1;
+  required .apphosting_datastore_v3.RegionPoint northeast = 2;
+}
+
+message GeoRegion {
+  optional .apphosting_datastore_v3.CircleRegion circle = 1;
+  optional .apphosting_datastore_v3.RectangleRegion rectangle = 2;
+}
+
+message CompiledQuery {
+  required group PrimaryScan = 1 {
+    optional string index_name = 2;
+    optional string start_key = 3;
+    optional bool start_inclusive = 4;
+    optional string end_key = 5;
+    optional bool end_inclusive = 6;
+    repeated string start_postfix_value = 22;
+    repeated string end_postfix_value = 23;
+    optional int64 end_unapplied_log_timestamp_us = 19;
+  }
+  repeated group MergeJoinScan = 7 {
+    required string index_name = 8;
+    repeated string prefix_value = 9;
+    optional bool value_prefix = 20 [default = false];
+  }
+  optional .storage_onestore_v3.Index index_def = 21;
+  optional int32 offset = 10 [default = 0];
+  optional int32 limit = 11;
+  required bool keys_only = 12;
+  repeated string property_name = 24;
+  optional int32 distinct_infix_size = 25;
+  optional int32 key_path_length = 27;
+  optional group EntityFilter = 13 {
+    optional bool distinct = 14 [default = false];
+    optional string kind = 17;
+    optional .storage_onestore_v3.Reference ancestor = 18;
+  }
+  optional string plan_label = 26;
+}
+
+message CompiledCursor {
+  optional group Position = 2 [deprecated = true] {
+    optional string start_key = 27 [deprecated = true];
+    repeated group IndexValue = 29 [deprecated = true] {
+      optional string property = 30 [deprecated = true];
+      required .storage_onestore_v3.PropertyValue value = 31 [deprecated = true];
+    }
+    optional .storage_onestore_v3.Reference key = 32 [deprecated = true];
+    optional bool start_inclusive = 28 [default = true, deprecated = true];
+    optional bool before_ascending = 33 [deprecated = true];
+  }
+  optional .storage_onestore_v3.IndexPostfix postfix_position = 1;
+  optional .storage_onestore_v3.IndexPosition absolute_position = 3;
+}
+
+message Cursor {
+  required fixed64 cursor = 1;
+  optional string app = 2;
+  optional string database_id = 3;
+}
+
+message Error {
+  enum ErrorCode {
+    BAD_REQUEST = 1;
+    CONCURRENT_TRANSACTION = 2;
+    INTERNAL_ERROR = 3;
+    NEED_INDEX = 4;
+    TIMEOUT = 5;
+    PERMISSION_DENIED = 6;
+    BIGTABLE_ERROR = 7;
+    COMMITTED_BUT_STILL_APPLYING = 8;
+    CAPABILITY_DISABLED = 9;
+    TRY_ALTERNATE_BACKEND = 10;
+    SAFE_TIME_TOO_OLD = 11;
+    RESOURCE_EXHAUSTED = 12;
+    NOT_FOUND = 13;
+    ALREADY_EXISTS = 14;
+    FAILED_PRECONDITION = 15;
+    UNAUTHENTICATED = 16;
+    ABORTED = 17;
+  }
+}
+
+message Cost {
+  optional int32 index_writes = 1;
+  optional int32 index_write_bytes = 2;
+  optional int32 entity_writes = 3;
+  optional int32 entity_write_bytes = 4;
+  optional group CommitCost = 5 {
+    optional int32 requested_entity_puts = 6;
+    optional int32 requested_entity_deletes = 7;
+  }
+  optional int32 approximate_storage_delta = 8;
+  optional int32 id_sequence_updates = 9;
+}
+
+message GetRequest {
+  repeated .storage_onestore_v3.Reference key = 1;
+  optional .apphosting_datastore_v3.Transaction transaction = 2;
+  optional int64 failover_ms = 3;
+  optional bool strong = 4;
+  optional bool allow_deferred = 5 [default = false];
+}
+
+message GetResponse {
+  repeated group Entity = 1 {
+    optional .storage_onestore_v3.EntityProto entity = 2;
+    optional .storage_onestore_v3.Reference key = 4;
+    optional int64 version = 3;
+  }
+  repeated .storage_onestore_v3.Reference deferred = 5;
+  optional bool in_order = 6 [default = true];
+}
+
+message PutRequest {
+  enum AutoIdPolicy {
+    CURRENT = 0;
+    SEQUENTIAL = 1;
+  }
+  repeated .storage_onestore_v3.EntityProto entity = 1;
+  optional .apphosting_datastore_v3.Transaction transaction = 2;
+  repeated .storage_onestore_v3.CompositeIndex composite_index = 3;
+  optional bool trusted = 4 [default = false];
+  optional bool force = 7 [default = false];
+  optional bool mark_changes = 8 [default = false];
+  repeated .storage_onestore_v3.Snapshot snapshot = 9;
+  optional .apphosting_datastore_v3.PutRequest.AutoIdPolicy auto_id_policy = 10 [default = CURRENT];
+}
+
+message PutResponse {
+  repeated .storage_onestore_v3.Reference key = 1;
+  optional .apphosting_datastore_v3.Cost cost = 2;
+  repeated int64 version = 3;
+}
+
+message TouchRequest {
+  repeated .storage_onestore_v3.Reference key = 1;
+  repeated .storage_onestore_v3.CompositeIndex composite_index = 2;
+  optional bool force = 3 [default = false];
+  repeated .storage_onestore_v3.Snapshot snapshot = 9;
+}
+
+message TouchResponse {
+  optional .apphosting_datastore_v3.Cost cost = 1;
+}
+
+message DeleteRequest {
+  repeated .storage_onestore_v3.Reference key = 6;
+  optional .apphosting_datastore_v3.Transaction transaction = 5;
+  repeated .storage_onestore_v3.CompositeIndex composite_index = 11;
+  optional bool trusted = 4 [default = false];
+  optional bool force = 7 [default = false];
+  optional bool mark_changes = 8 [default = false];
+  repeated .storage_onestore_v3.Snapshot snapshot = 9;
+}
+
+message DeleteResponse {
+  optional .apphosting_datastore_v3.Cost cost = 1;
+  repeated int64 version = 3;
+}
+
+message NextRequest {
+  required .apphosting_datastore_v3.Cursor cursor = 1;
+  optional int32 count = 2;
+  optional int32 offset = 4 [default = 0, deprecated = true];
+  optional bool compile = 3 [default = false];
+}
+
+message QueryResult {
+  optional .apphosting_datastore_v3.Cursor cursor = 1;
+  repeated .storage_onestore_v3.EntityProto result = 2;
+  optional int32 skipped_results = 7;
+  required bool more_results = 3;
+  optional bool keys_only = 4;
+  optional bool index_only = 9;
+  optional bool small_ops = 10;
+  optional .apphosting_datastore_v3.CompiledQuery compiled_query = 5;
+  optional .apphosting_datastore_v3.CompiledCursor compiled_cursor = 6;
+  repeated .storage_onestore_v3.CompositeIndex index = 8;
+  repeated int64 version = 11;
+  repeated .apphosting_datastore_v3.CompiledCursor result_compiled_cursor = 12;
+  optional .apphosting_datastore_v3.CompiledCursor skipped_results_compiled_cursor = 13;
+}
+
+message AllocateIdsRequest {
+  optional .storage_onestore_v3.Reference model_key = 1;
+  optional int64 size = 2;
+  optional int64 max = 3;
+  repeated .storage_onestore_v3.Reference reserve = 5;
+  optional bool trusted = 6 [default = false];
+}
+
+message AllocateIdsResponse {
+  required int64 start = 1;
+  required int64 end = 2;
+  optional .apphosting_datastore_v3.Cost cost = 3;
+}
+
+message CompositeIndices {
+  repeated .storage_onestore_v3.CompositeIndex index = 1;
+}
+
+message AddActionsRequest {
+  required .apphosting_datastore_v3.Transaction transaction = 1;
+  repeated .storage_onestore_v3.Action action = 2;
+}
+
+message AddActionsResponse {
+}
+
+message BeginTransactionRequest {
+  enum TransactionMode {
+    UNKNOWN = 0;
+    READ_ONLY = 1;
+    READ_WRITE = 2;
+  }
+  required string app = 1;
+  optional bool allow_multiple_eg = 2 [default = false];
+  optional string database_id = 4;
+  optional .apphosting_datastore_v3.BeginTransactionRequest.TransactionMode mode = 5 [default = UNKNOWN];
+  optional .apphosting_datastore_v3.Transaction previous_transaction = 7;
+}
+
+message CommitResponse {
+  optional .apphosting_datastore_v3.Cost cost = 1;
+  repeated group Version = 3 {
+    required .storage_onestore_v3.Reference root_entity_key = 4;
+    required int64 version = 5;
+  }
+}
+
+message GetIndicesRequest {
+  required string app_id = 1;
+  optional string database_id = 2;
+}
+
+message DatastoreService_3 {
+  enum Method {
+    Get = 1;
+    Put = 2;
+    Touch = 3;
+    Delete = 4;
+    RunQuery = 5;
+    AddActions = 6;
+    Next = 7;
+    DeleteCursor = 8;
+    BeginTransaction = 9;
+    Commit = 10;
+    Rollback = 11;
+    AllocateIds = 12;
+    CreateIndex = 13;
+    UpdateIndex = 14;
+    GetIndices = 15;
+    DeleteIndex = 16;
+  }
+}
+

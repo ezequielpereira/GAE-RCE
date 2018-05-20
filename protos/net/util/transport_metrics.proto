@@ -1,0 +1,87 @@
+syntax = "proto2";
+
+import "google/protobuf/duration.proto";
+import "net/base/qos.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package transport_metrics_log;
+
+option java_package = "com.google.net.util";
+option java_outer_classname = "TransportMetricsLog";
+
+message TransportMetrics {
+  optional .transport_metrics_log.Flow flow = 1;
+  optional .transport_metrics_log.ConnectionMetrics connection_metrics = 2;
+  optional .transport_metrics_log.Latency latency = 3;
+}
+
+message Flow {
+  enum Protocol {
+    TCP = 0;
+  }
+  optional bytes local_ip_addr = 1;
+  optional uint32 local_port = 2;
+  optional bytes peer_ip_addr = 3;
+  optional uint32 peer_port = 4;
+  optional bytes peer_user = 10;
+  optional bytes peer_job = 11;
+  optional string congestion_ctrl = 5;
+  optional .net_base.qos.TrafficClass traffic_class = 6;
+  optional bool is_b4 = 7;
+  optional .transport_metrics_log.Flow.Protocol protocol = 8;
+  optional bool is_closed = 9;
+}
+
+message ConnectionMetrics {
+  optional uint64 delivery_rate = 1;
+  optional uint64 data_retx = 2;
+  optional uint64 data_sent = 3;
+  optional uint32 min_rtt = 4;
+  optional uint32 recurring_retrans = 5;
+  optional bool is_delivery_rate_app_limited = 6;
+  optional uint64 pacing_rate = 7;
+  optional uint32 congestion_window = 8;
+  optional uint32 reordering = 9;
+}
+
+message Latency {
+  enum Type {
+    UNKNOWN = 0;
+    HEAD_OF_LINE_BLOCKING_LATENCY = 1;
+    RATE_LIMIT_LATENCY = 2;
+    TRANSFER_LATENCY = 3;
+  }
+  optional .transport_metrics_log.Latency.Type type = 1;
+  optional uint64 size = 2;
+  optional .google.protobuf.Duration duration = 3;
+}
+
+message Timestamps {
+  message Timestamp {
+    enum Type {
+      UNKNOWN = 0;
+      SCHEDULED = 1;
+      SENT = 2;
+      ACKED = 3;
+      SENDMSG = 4;
+    }
+    enum CongestionControl {
+      FALLBACK = 0;
+      BBR = 1;
+      CUBIC = 2;
+    }
+    optional .transport_metrics_log.Timestamps.Timestamp.Type type = 1;
+    optional int64 delta_nsec = 2;
+    optional uint64 byte_offset = 3;
+    optional .transport_metrics_log.Timestamps.Timestamp.CongestionControl congestion_ctrl = 4;
+    optional string congestion_ctrl_name = 5;
+    optional .transport_metrics_log.ConnectionMetrics connection_metrics = 6;
+    optional int64 stream_seq = 7;
+  }
+  optional fixed64 base_time_nsec = 1;
+  repeated .transport_metrics_log.Timestamps.Timestamp timestamp = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .transport_metrics_log.Timestamps message_set_extension = 141924095;
+  }
+}
+
+

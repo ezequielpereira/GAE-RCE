@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+import public "google/api/auditing.proto";
+import public "google/iam/v1/rule.proto";
+import public "google/type/expr.proto";
+import "tech/iam/proto/logging.proto";
+package google.iam.v1;
+
+option java_package = "com.google.iam.v1";
+option java_outer_classname = "PolicyProto";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+option csharp_namespace = "Google.Cloud.Iam.V1";
+
+message Policy {
+  int32 version = 1;
+  repeated .google.iam.v1.Binding bindings = 4;
+  repeated .google.iam.v1.AuditConfig audit_configs = 6;
+  repeated .google.iam.v1.Rule rules = 2;
+  bytes etag = 3;
+  bool iam_owned = 5;
+}
+
+message Binding {
+  string role = 1;
+  repeated string members = 2;
+  .google.type.Expr condition = 3;
+}
+
+message AuditConfig {
+  string service = 1;
+  repeated string exempted_members = 2 [deprecated = true];
+  repeated .google.iam.v1.AuditLogConfig audit_log_configs = 3;
+}
+
+message AuditLogConfig {
+  enum LogType {
+    LOG_TYPE_UNSPECIFIED = 0;
+    ADMIN_READ = 1;
+    DATA_WRITE = 2;
+    DATA_READ = 3;
+  }
+  .google.iam.v1.AuditLogConfig.LogType log_type = 1;
+  repeated string exempted_members = 2;
+}
+
+message PolicyDelta {
+  repeated .google.iam.v1.BindingDelta binding_deltas = 1;
+  repeated .google.iam.v1.AuditConfigDelta audit_config_deltas = 2;
+}
+
+message BindingDelta {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ADD = 1;
+    REMOVE = 2;
+  }
+  .google.iam.v1.BindingDelta.Action action = 1;
+  string role = 2;
+  string member = 3;
+}
+
+message AuditConfigDelta {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ADD = 1;
+    REMOVE = 2;
+  }
+  .google.iam.v1.AuditConfigDelta.Action action = 1;
+  string service = 2;
+  string exempted_member = 3;
+  string log_type = 4;
+}
+
+

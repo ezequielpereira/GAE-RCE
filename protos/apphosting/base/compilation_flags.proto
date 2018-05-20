@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "CompilationFlagsPb";
+
+message CompilationFlags {
+  optional bool return_raw_errors = 1;
+  optional bool bulk = 2;
+}
+

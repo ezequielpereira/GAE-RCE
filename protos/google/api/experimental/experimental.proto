@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/api/experimental/advanced_service_config.proto";
+import "google/api/experimental/authorization_config.proto";
+import "google/api/experimental/codegen.proto";
+import "google/api/experimental/service_control_config.proto";
+import "google/api/experimental/service_management_config.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ExperimentalProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+message Experimental {
+  .google.api.Codegen codegen = 1;
+  .google.api.AdvancedServiceConfig advanced = 2;
+  .google.api.ServiceControlConfig service_control = 5;
+  .google.api.ServiceManagementConfig service_management = 7;
+  .google.api.AuthorizationConfig authorization = 8;
+}
+
+

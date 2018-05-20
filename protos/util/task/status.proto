@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+import "net/proto/typed_message.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package util;
+
+option java_package = "com.google.net.util";
+option cc_enable_arenas = true;
+
+message StatusProto {
+  optional int32 code = 1;
+  optional string space = 2;
+  optional string message = 3;
+  optional int32 canonical_code = 6;
+  optional .proto.TypedMessage payload = 4 [deprecated = true];
+  optional .proto2.bridge.MessageSet message_set = 5;
+  extend .proto2.bridge.MessageSet {
+    optional .util.StatusProto message_set_extension = 10071;
+  }
+}
+
+

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "net/proto2/proto/descriptor.proto";
+package tech.iam;
+
+message FieldLogOption {
+  bool not_logged = 1;
+}
+
+message MethodLogOption {
+  bool logged = 1;
+}
+
+extend .proto2.FieldOptions {
+  .tech.iam.FieldLogOption log_option = 139642647;
+}
+
+extend .proto2.MethodOptions {
+  .tech.iam.MethodLogOption method_log_option = 139642647;
+}
+
+

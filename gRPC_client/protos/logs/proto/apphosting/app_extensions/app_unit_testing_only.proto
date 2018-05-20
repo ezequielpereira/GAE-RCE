@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package appengine_proto;
+
+option java_outer_classname = "GAEAppUnitTestingOnly";
+option java_multiple_files = true;
+
+message AppUnitTestingOnly {
+  optional string name = 1;
+  optional int32 value32 = 2;
+  optional int64 value64 = 3;
+}
+

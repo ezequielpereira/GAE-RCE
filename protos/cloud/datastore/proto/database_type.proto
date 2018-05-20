@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package cloud_datastore.internal;
+
+option java_package = "com.google.cloud.datastore.internal";
+option java_outer_classname = "proto";
+option java_multiple_files = true;
+
+enum DatabaseType {
+  UNSPECIFIED = 0;
+  CLOUD_DATASTORE = 1;
+  CLOUD_FIRESTORE = 2;
+}
+
+enum ProjectStorageState {
+  UNSPECIFIED_PROJECT_STORAGE_STATE = 0;
+  NEVER_USED = 1;
+  USED = 2;
+}
+
+

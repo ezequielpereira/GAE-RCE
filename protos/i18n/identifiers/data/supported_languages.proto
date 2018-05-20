@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package i18n_identifiers;
+
+option java_package = "com.google.i18n.identifiers";
+option java_outer_classname = "SupportedLanguagesProtos";
+
+enum TierId {
+  TIER_0 = 0;
+  TIER_1 = 1;
+  TIER_2 = 2;
+  TIER_3 = 3;
+  TIER_4 = 4;
+  TIER_5 = 6;
+  TIER_6 = 9;
+  TIER_SPECIAL = 8;
+  TIER_TOP_REGIONAL_VARIANTS = 10;
+  OTHERS = 5;
+}
+
+message TierLanguages {
+  required .i18n_identifiers.TierId key = 1;
+  repeated string language_code = 2;
+}
+
+message AllTiersProto {
+  repeated .i18n_identifiers.TierLanguages tier = 1;
+}
+

@@ -1,0 +1,79 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "SearchPb";
+
+enum FeatureState {
+  FOLLOW_FLAG = 0;
+  ENABLED = 1;
+  DISABLED = 2;
+}
+
+enum TrafficClass {
+  BE1 = 0;
+  AF1 = 1;
+  AF2 = 2;
+  AF3 = 3;
+  AF4 = 4;
+  NC1 = 5;
+  NC0 = 6;
+  BE0 = 7;
+}
+
+enum LocationFieldIndexQueryTarget {
+  INDEX_AND_QUERY_UNIFIED_FIELD = 2;
+}
+
+message SearchApiSettings {
+  enum MigrationState {
+    OLD_ONLY = 0;
+    DUAL_OLD = 1;
+    DUAL_NEW = 2;
+    NEW_ONLY = 3;
+  }
+  optional double search_failover_timeout_s = 1 [default = 1];
+  optional bool enable_global_number_search = 3;
+  optional bool allow_distance_equality_comparison = 4;
+  optional bool enable_cast_function = 5;
+  optional bool pick_first_type_when_ambiguous = 6 [default = false];
+  optional bool vip_monitoring = 7;
+  optional .apphosting.TrafficClass qos = 8;
+  optional bool compute_st_score_only_when_used = 9 [default = true];
+  optional bool exclude_docs_without_field_from_gt_distance = 10 [default = true];
+  optional bool allow_non_existent_fields = 11 [default = true];
+  optional bool disable_job_failover = 12;
+  optional bool disable_query_failover = 13;
+  optional bool disable_phrase_match_for_equality_queries = 14 [default = true];
+  optional bool wait_for_primary_apply = 15;
+  optional double primary_apply_deadline_s = 16 [default = 10];
+  optional bool handle_ambiguous_sort_expressions = 17 [default = true];
+  optional bool read_current_index_metadata = 18 [default = true];
+  optional bool call_query_rewrite = 19 [default = false];
+  optional int32 query_rewrite_millis = 20 [default = 100];
+  optional bool enforce_field_number_limit = 21 [default = false];
+  optional bool enable_local_trace_span = 22 [default = false];
+  optional bool enable_megastore_queue = 23 [default = false];
+  optional bool use_squery_path = 24 [default = true];
+  optional .apphosting.LocationFieldIndexQueryTarget deprecated_location_field_index_query_target = 25 [deprecated = true];
+  optional string search_scheduling_group = 26;
+  optional string search_indexing_scheduling_group = 27;
+  repeated string search_tag = 28;
+  optional string search_api_pool = 29;
+  optional bool allow_prefix_fields = 30 [default = false];
+  optional bool allow_prefix_queries = 31 [default = false];
+  optional bool allow_vector_fields = 32 [default = false];
+  optional bool allow_vector_queries = 33 [default = false];
+  optional float dexter_send_credentials_fraction = 34 [default = 0];
+  optional string gst_username = 35 [default = "default"];
+  optional double search_thread_limit_fraction = 36 [default = 0];
+  optional .apphosting.SearchApiSettings.MigrationState search_migration_state = 37 [default = OLD_ONLY];
+  optional string search_database_id = 38 [deprecated = true];
+  optional int32 search_max_parallelism = 39;
+  optional .apphosting.FeatureState search_per_index_reporting = 40 [default = FOLLOW_FLAG];
+  optional string search_instance = 41;
+  optional string search_shard = 42;
+}
+
+

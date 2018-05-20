@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+import "security/keymaster/keymaster.proto";
+package security;
+
+option java_package = "com.google.security.keymaster";
+option java_outer_classname = "UnusedKeyProfileOuterName";
+option java_multiple_files = true;
+
+message KeyProfile {
+  enum Primitive {
+    UNKNOWN_PRIMITIVE = 0;
+    MAC = 1;
+    DIGITAL_SIGNATURE_PUBLIC = 2;
+    DIGITAL_SIGNATURE_PRIVATE = 3;
+    SYMMETRIC_ENCRYPTION = 4;
+    HYBRID_ENCRYPTION_PUBLIC = 5;
+    HYBRID_ENCRYPTION_PRIVATE = 6;
+    DETERMINISTIC_ENCRYPTION = 7;
+  }
+  enum Annotation {
+    UNKNOWN_ANNOTATION = 0;
+    SUPERSEDED = 1;
+    DEPRECATED = 2;
+    DISABLE_CHECKS = 3;
+    AUTHENTICATED_ENCRYPTION = 4;
+    ALLOWS_AAD = 5;
+    TWEAKABLE = 6;
+  }
+  enum Language {
+    UNKNOWN_LANGUAGE = 0;
+    CPP = 1;
+    JAVA = 2;
+    GO = 3;
+  }
+  optional .security.KeyMetadata.Type type = 1;
+  optional .security.KeyProfile.Primitive primitive = 2;
+  repeated .security.KeyProfile.Annotation annotation = 3;
+  repeated .security.KeyProfile.Language language = 4;
+  optional string crunchy_key_type = 5;
+}
+
+message KeyProfileList {
+  repeated .security.KeyProfile key_profile = 1;
+}
+
+

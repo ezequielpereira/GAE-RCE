@@ -1,0 +1,81 @@
+syntax = "proto2";
+
+package speckle;
+
+message MobOperationProto {
+  message CreateOp {
+    enum State {
+      BEGIN = 0;
+      PROVISIONED = 1;
+      BOOTSTRAPPED = 2;
+      UP = 3;
+      MASTER_SET = 4;
+    }
+    required .speckle.MobOperationProto.CreateOp.State state = 1;
+  }
+  message DeleteOp {
+    enum State {
+      BEGIN = 0;
+      DOWN = 1;
+      DESTROYED = 2;
+    }
+    required .speckle.MobOperationProto.DeleteOp.State state = 1;
+  }
+  message UpdateOp {
+    enum State {
+      BEGIN = 0;
+      UPDATING = 1;
+      UPDATED = 2;
+    }
+    enum SubOp {
+      START = 0;
+      REDUCE_RESOURCES = 1;
+      FAILOVER = 2;
+      FIXUP_NEW_REPLICAS = 3;
+      DOWN_OLD_REPLICAS = 4;
+      UPDATE = 5;
+      FINISH = 6;
+      ERROR = 7;
+    }
+    enum SubOpState {
+      SUBOP_START = 0;
+      SUBOP_RPC_SENT = 1;
+      SUBOP_FINISHED = 2;
+    }
+    optional .speckle.MobOperationProto.UpdateOp.State state = 1;
+    optional .speckle.MobOperationProto.UpdateOp.SubOp current_op = 2;
+    optional .speckle.MobOperationProto.UpdateOp.SubOpState subop_state = 3;
+    optional bool needs_update = 4;
+  }
+  message MobUrgentFailoverOp {
+    enum State {
+      FAILOVER = 0;
+      REENQUEUE = 1;
+      FINISH = 2;
+      ERROR = 3;
+    }
+    optional .speckle.MobOperationProto.MobUrgentFailoverOp.State state = 1;
+    optional .speckle.MobOperationProto mob_operation = 2;
+  }
+  optional .speckle.MobOperationProto.CreateOp create_op = 1;
+  optional .speckle.MobOperationProto.DeleteOp delete_op = 2;
+  optional .speckle.MobOperationProto.UpdateOp update_op = 3;
+  optional .speckle.MobOperationProto.MobUrgentFailoverOp mob_urgent_failover_op = 4;
+}
+
+message MobConfigProto {
+  repeated string cells = 2 [deprecated = true];
+  optional string primary_cell = 6 [deprecated = true];
+  optional int32 replicas_per_cell = 3 [deprecated = true];
+  optional bool ignore_boss_specification = 4 [deprecated = true];
+  optional string release_type = 5 [deprecated = true];
+  optional string release_candidate_name = 7 [deprecated = true];
+  optional bool monitor_metadata = 8 [deprecated = true];
+  optional string automob_gns_prefix = 9 [deprecated = true];
+  optional string automob_mob_address_prefix = 10;
+  repeated string permissions_file = 29 [deprecated = true];
+  optional string target_speckle_instance_name = 30;
+  reserved 1;
+}
+
+

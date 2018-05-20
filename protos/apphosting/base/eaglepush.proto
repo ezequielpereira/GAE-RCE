@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package apphosting;
+
+message EaglePushSetting {
+  required string flag_name = 1;
+  required string value = 2;
+  optional string comments = 3;
+  repeated string attribute = 4;
+}
+
+message EaglePushConfig {
+  repeated .apphosting.EaglePushSetting settings = 1;
+  optional int64 timestamp_usec = 2;
+  optional string last_modified_by = 3;
+}
+
+message EaglePushConfigChange {
+  optional .apphosting.EaglePushConfig eaglepush_config = 1;
+}
+
+

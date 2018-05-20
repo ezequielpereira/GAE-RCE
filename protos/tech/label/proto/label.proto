@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package tech.label;
+
+option java_package = "com.google.tech.label";
+option java_outer_classname = "LabelProto";
+
+message Label {
+  required string key = 1;
+  oneof value {
+    string str_value = 2;
+    int64 num_value = 3;
+  }
+}
+
+message Labels {
+  repeated .tech.label.Label label = 1;
+}
+
+

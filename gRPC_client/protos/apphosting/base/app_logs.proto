@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+import "apphosting/api/source.proto";
+import "apphosting/base/request_logs.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "AppLogsPb";
+
+message AppLogLine {
+  required int64 timestamp_usec = 1;
+  required int64 level = 2;
+  required string message = 3;
+  optional .apphosting.SourceLocation source_location = 4;
+}
+
+message AppLogGroup {
+  optional .apphosting.RequestLogLine request = 1;
+  repeated .apphosting.AppLogLine log_line = 2;
+}
+
+message AppLogMessage {
+  optional int64 timestamp_usec = 1;
+  optional string log_message = 2;
+  optional .apphosting.SourceLocation source_location = 4;
+}
+
+message AppLogMessages {
+  repeated .apphosting.AppLogMessage logs = 1;
+}
+

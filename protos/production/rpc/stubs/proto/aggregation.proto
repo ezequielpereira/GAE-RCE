@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "util/task/status.proto";
+package production.rpc.stubs.proto;
+
+message IndividualRequest {
+  optional string method = 1;
+  optional bytes data = 2 [ctype = CORD];
+  optional double deadline_seconds = 3;
+  optional .proto2.bridge.MessageSet request_extensions = 4;
+}
+
+message IndividualResponse {
+  optional .util.StatusProto status = 1;
+  optional bytes data = 2 [ctype = CORD];
+  optional .proto2.bridge.MessageSet response_extensions = 3;
+}
+
+message RequestBundle {
+  repeated .production.rpc.stubs.proto.IndividualRequest request = 1;
+}
+
+message ResponseBundle {
+  repeated .production.rpc.stubs.proto.IndividualResponse response = 1;
+}
+
+message RequestAggregator {
+  optional bool enable_aggregation = 1 [default = true];
+  optional int64 maximum_size_requests = 2 [default = 100];
+  optional int64 maximum_size_bytes = 3 [default = 100000];
+  optional double maximum_delay_seconds = 4 [default = 1];
+}
+
+service Bundler {
+  rpc Process(.production.rpc.stubs.proto.RequestBundle) returns (.production.rpc.stubs.proto.ResponseBundle);
+}
+
+

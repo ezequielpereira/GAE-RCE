@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+option java_outer_classname = "TraceParamsProto";
+option cc_generic_services = false;
+option java_generic_services = false;
+
+message TraceParams {
+  optional double root_sampling_probability = 1;
+  optional double inflationary_sampling_probability = 2;
+  optional double tracer_probability = 4;
+  optional int32 max_tracer_bytes = 5;
+  optional int32 max_tracer_entry_bytes = 6;
+  optional int32 initial_trace_mask = 7;
+  optional bool only_sample_roots = 8;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.TraceParams message_set_extension = 16462216;
+  }
+}
+
+

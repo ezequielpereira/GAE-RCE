@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+import "storage/onestore/v3/entity.proto";
+package apphosting;
+
+option java_package = "com.google.appengine.tools.appstats";
+option java_outer_classname = "StatsProtos";
+option optimize_for = SPEED;
+
+message AggregateRpcStatsProto {
+  required string service_call_name = 1;
+  required int64 total_amount_of_calls = 3;
+  optional int64 total_cost_of_calls_microdollars = 4;
+  repeated .apphosting.BilledOpProto total_billed_ops = 5;
+}
+
+message KeyValProto {
+  required string key = 1;
+  required string value = 2;
+}
+
+message StackFrameProto {
+  required string class_or_file_name = 1;
+  optional int32 line_number = 2;
+  required string function_name = 3;
+  repeated .apphosting.KeyValProto variables = 4;
+}
+
+message BilledOpProto {
+  enum BilledOp {
+    DATASTORE_READ = 0;
+    DATASTORE_WRITE = 1;
+    DATASTORE_SMALL = 2;
+    MAIL_RECIPIENT = 3;
+    CHANNEL_OPEN = 4;
+    XMPP_STANZA = 5;
+    CHANNEL_PRESENCE = 6;
+  }
+  required .apphosting.BilledOpProto.BilledOp op = 1;
+  required int32 num_ops = 2;
+}
+
+message DatastoreCallDetailsProto {
+  optional string query_kind = 1;
+  optional .storage_onestore_v3.Reference query_ancestor = 2;
+  optional fixed64 query_thiscursor = 3;
+  optional fixed64 query_nextcursor = 4;
+  repeated bool get_successful_fetch = 5;
+  repeated .storage_onestore_v3.Reference keys_read = 6;
+  repeated .storage_onestore_v3.Reference keys_written = 7;
+}
+
+message IndividualRpcStatsProto {
+  required string service_call_name = 1;
+  optional string request_data_summary = 3;
+  optional string response_data_summary = 4;
+  optional int64 api_mcycles = 5;
+  optional int64 api_milliseconds = 11;
+  required int64 start_offset_milliseconds = 6;
+  optional int64 duration_milliseconds = 7 [default = 0];
+  optional string namespace = 8 [default = ""];
+  optional bool was_successful = 9 [default = true];
+  repeated .apphosting.StackFrameProto call_stack = 10;
+  optional .apphosting.DatastoreCallDetailsProto datastore_details = 12;
+  optional int64 call_cost_microdollars = 13;
+  repeated .apphosting.BilledOpProto billed_ops = 14;
+}
+
+message RequestStatProto {
+  required int64 start_timestamp_milliseconds = 1;
+  optional string http_method = 2 [default = "GET"];
+  optional string http_path = 3 [default = "/"];
+  optional string http_query = 4;
+  optional int32 http_status = 5 [default = 200];
+  required int64 duration_milliseconds = 6;
+  optional int64 api_mcycles = 7;
+  optional int64 processor_mcycles = 8;
+  repeated .apphosting.AggregateRpcStatsProto rpc_stats = 9;
+  repeated .apphosting.KeyValProto cgi_env = 101;
+  optional int64 overhead_walltime_milliseconds = 102;
+  optional string user_email = 103;
+  optional bool is_admin = 104;
+  repeated .apphosting.IndividualRpcStatsProto individual_stats = 107;
+}
+

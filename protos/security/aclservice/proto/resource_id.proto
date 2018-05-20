@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package security.aclservice;
+
+option java_package = "com.google.security.aclservice";
+option java_outer_classname = "ResourceIdProtoFile";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message ResourceIdProto {
+  optional string application = 1;
+  optional string id = 2;
+  optional string part = 3;
+}
+
+

@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package net_http.frontend;
+
+option java_package = "com.google.gse.internal.frontend";
+
+message LoadReport {
+  optional float utilization_percent = 1;
+  optional int32 queries_per_second = 2;
+  optional int32 errors_per_second = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .net_http.frontend.LoadReport message_set_extension = 137313179;
+  }
+}
+
+

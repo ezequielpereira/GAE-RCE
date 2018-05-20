@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package expvar;
+
+option java_package = "com.google.common.stats.proto";
+
+message MapProto {
+  required string key_description = 1;
+  repeated group Pairs = 2 {
+    required string key = 3;
+    optional int64 value_int = 4;
+    optional double value_float = 5;
+    optional string value_string = 6;
+  }
+}
+
+message VariableProto {
+  required string name = 1;
+  optional string docstring = 6;
+  optional int64 value_int = 2;
+  optional double value_float = 3;
+  optional string value_string = 4;
+  optional .expvar.MapProto value_map = 5;
+}
+
+message ListProto {
+  repeated .expvar.VariableProto pair = 1;
+}
+
+

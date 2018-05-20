@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package proto2.bridge;
+
+option java_outer_classname = "MessageSetProtos";
+option java_multiple_files = true;
+
+message MessageSet {
+  option message_set_wire_format = true;
+  extensions 4 to 2147483646;
+}
+
+

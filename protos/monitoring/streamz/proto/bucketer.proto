@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+import "monitoring/streamz/proto/visibility.proto";
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_outer_classname = "BucketerProtos";
+option java_multiple_files = true;
+
+message BucketerProto {
+  optional double width = 1 [default = 0];
+  optional double growth_factor = 2 [default = 0];
+  required int32 num_finite_buckets = 3;
+  optional double scale_factor = 5 [default = 1];
+  optional double offset = 4 [default = 0];
+  repeated double lower_bounds = 6;
+}
+
+

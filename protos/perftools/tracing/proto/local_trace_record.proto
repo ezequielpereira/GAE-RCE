@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "perftools/tracing/proto/tracerecord.proto";
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+option java_outer_classname = "LocalTraceRecordProto";
+
+message LocalTraceRecord {
+  required .TraceRecord tr = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.LocalTraceRecord message_set_extension = 14610079;
+  }
+}
+

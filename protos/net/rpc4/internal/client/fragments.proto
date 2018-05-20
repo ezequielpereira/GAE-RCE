@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+import "net/rpc4/proto/service_config.proto";
+package net.rpc4;
+
+message Fragment {
+  optional string path = 1;
+  optional .net.rpc4.StubbyPartCfg config = 2;
+}
+
+message ManyFragments {
+  repeated .net.rpc4.Fragment fragment = 1;
+}
+
+

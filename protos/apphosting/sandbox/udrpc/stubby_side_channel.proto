@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package apphosting;
+
+message UdrpcProxySideChannel {
+  optional int32 peer_pid = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .apphosting.UdrpcProxySideChannel message_set_extension = 71361116;
+  }
+}
+
+

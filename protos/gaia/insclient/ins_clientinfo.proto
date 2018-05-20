@@ -1,0 +1,368 @@
+syntax = "proto2";
+
+import "gaia/data/accounttype/account_type.proto";
+import "gaia/data/prefs.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+option java_package = "com.google.gaia.client.proto";
+option cc_enable_arenas = true;
+
+message INSAddress {
+  optional string Address1 = 1;
+  optional string Address2 = 2;
+  optional string Address3 = 3;
+  optional string City = 4;
+  optional string State = 5;
+  optional string ZIP = 6;
+  optional string Country = 7;
+}
+
+message INSName {
+  optional string Prefix = 1;
+  optional string FirstName = 2;
+  optional string MiddleName = 3;
+  optional string LastName = 4;
+  optional string Suffix = 5;
+}
+
+message GlobalTos {
+  optional string RequestedLocation = 1;
+  optional string RequestedLanguage = 2;
+  optional string AgreedLocation = 3;
+  optional string AgreedLanguage = 4;
+  optional string Ip = 5;
+  optional int64 Time = 6;
+}
+
+message GaiaCapabilityRecord {
+  enum CapabilityType {
+    NEW_ACCOUNT = 0;
+    CHANGE_EMAIL = 1;
+    REVOKE_EMAIL_CHANGE = 2;
+    CHANGE_PASSWORD = 3;
+    ADD_ALT_EMAIL = 4;
+    UNKNOWN = 5;
+  }
+  optional uint64 UserID = 1;
+  optional uint64 CapabilityID = 11;
+  required int32 Type = 2;
+  optional string RedirectURL = 3;
+  optional uint64 ExpirationTime = 4;
+  optional uint64 RevokeTime = 12;
+  optional string NewEmail = 5;
+  optional string RecoveryEmail = 13;
+  optional uint64 EmailChangeCapability = 6;
+  optional uint64 ExerciseTime = 7;
+  optional bool LoginAllowed = 8;
+  optional bool NewEmailIsPrimary = 9;
+  optional bool DeliveryDisabled = 10;
+  optional bool RecoveryDisabled = 16;
+  repeated int32 EmailAnnotation = 53;
+  optional uint64 Reserved = 15;
+}
+
+message AccountRecoveryCodes {
+  enum DisableReasonType {
+    UNKNOWN = 0;
+    SPAMMING = 1;
+    HIJACKING = 3;
+    BROKE_TOS = 6;
+    HARRASSMENT = 7;
+    IMPERSONATION = 8;
+    LEGAL = 9;
+    ACCOUNT_MAINTENANCE = 12;
+    PHISHING = 13;
+    CHILD_PORN = 14;
+    MALWARE = 20;
+    OTHER = 22;
+    UNDER_13 = 24;
+    NUDITY = 25;
+    INVESTIGATION_SECURITY = 27;
+    DMCA = 28;
+    DASHER_ADMIN_DISABLE = 29;
+    SELF_MANAGED_REVERIFICATION = 30;
+    CHILD_MISSING_PARENTAL_CONSENT = 31;
+    CONSENT_BUMP_REFUND_PENDING = 32;
+    BULK_ACCOUNT = 33;
+    DISABLED_BY_OWNER = 34;
+    PAYMENT_FRAUD_HIJACKING = 35;
+    CHILD_OVER_GRADUATION_AGE = 36;
+    LEGAL_EXPORT = 37;
+    LEGAL_COURT_ORDER = 38;
+    LEGAL_GOVERNMENT_ORDER = 39;
+    DEPRECATED_REASON_2 = 2 [deprecated = true];
+    DEPRECATED_REASON_4 = 4 [deprecated = true];
+    DEPRECATED_REASON_5 = 5 [deprecated = true];
+    DEPRECATED_REASON_10 = 10 [deprecated = true];
+    DEPRECATED_REASON_11 = 11 [deprecated = true];
+    DEPRECATED_REASON_15 = 15 [deprecated = true];
+    DEPRECATED_REASON_16 = 16 [deprecated = true];
+    DEPRECATED_REASON_17 = 17 [deprecated = true];
+    DEPRECATED_REASON_18 = 18 [deprecated = true];
+    DEPRECATED_REASON_19 = 19 [deprecated = true];
+    DEPRECATED_REASON_21 = 21 [deprecated = true];
+    DEPRECATED_REASON_23 = 23 [deprecated = true];
+    DEPRECATED_REASON_26 = 26 [deprecated = true];
+  }
+  enum EnableActionType {
+    ACTION_CAPTCHA = 0;
+    ACTION_MANUAL = 1;
+    ACTION_SMS = 2;
+    ACTION_PARENTAL_CONTROLS = 3;
+    ACTION_DOMAIN_ADMIN_RECOVERABLE = 4;
+    ACTION_UNRECOVERABLE = 5;
+    ACTION_WARNING = 6;
+    ACTION_GRADUATE = 7;
+  }
+}
+
+message DisableAccountInfo {
+  optional int32 ServiceID = 1;
+  optional int64 Timestamp = 2;
+  optional int32 DisableReason = 3;
+  optional int32 RecoveryAction = 4;
+  optional int64 RecoveryActionExpiration = 5;
+  optional string Description = 6;
+}
+
+message EnableAccountInfo {
+  optional int32 ServiceID = 1;
+  optional int64 Timestamp = 2;
+  optional int32 RecoveryAction = 3;
+  optional string Description = 4;
+}
+
+message UserContext {
+  message Timestamp {
+    optional int64 seconds = 1;
+    optional int32 nanos = 2;
+  }
+  optional fixed32 IpAddress = 1 [deprecated = true];
+  optional bytes IP46 = 7;
+  optional string AdminNotes = 4;
+  repeated string PubsubKeywords = 5;
+  optional int32 ServiceSuspendReason = 6;
+  optional string locale = 8;
+  optional fixed64 TlsChannelId = 9;
+  optional string DeviceUserSessionId = 10;
+  optional .UserContext.Timestamp SidAuthenticationTime = 12;
+  optional string UserAgent = 13;
+  reserved 2, 3, 11;
+}
+
+message QualifiedNameInfo {
+  enum TypeEnum {
+    TYPE_STANDARD = 1;
+    TYPE_PHONE_NUMBER = 2;
+    TYPE_MALFORMED_PHONE_NUMBER = 3;
+    TYPE_ANONYMOUS_PHONE_NUMBER = 4;
+  }
+  optional int32 Type = 1;
+  optional string Name = 2;
+}
+
+message ClientUserInfo {
+  enum Constants {
+    SERVICE_FLAG_CACHE_NUM_BITS = 63;
+  }
+  enum FlagBitsEnum {
+    REGISTERED = 0;
+    SUSPENDED = 1;
+    FORCE_HTTPS_CONTINUE = 2;
+    FORCE_HTTPS_CONTINUE_SET_BY_USER = 3;
+    DASHER_ADMIN_DISABLED = 4;
+  }
+  enum ServiceFlagChangeType {
+    SERVICE_FLAG_ADDED = 1;
+    SERVICE_FLAG_REMOVED = 2;
+  }
+  optional int64 UserID = 1;
+  optional string Email = 2;
+  optional .QualifiedNameInfo QualifiedName = 169;
+  repeated group EmailInfo = 11 {
+    required string Email = 12;
+    optional .QualifiedNameInfo QualifiedName = 170;
+    optional bool LoginAllowed = 85 [default = true];
+    optional bool DeliveryDisabled = 90;
+    optional bool IsXmppJid = 112;
+    optional bool IsPublicId = 124;
+    optional bool IsPrimaryId = 125;
+    optional bool RecoveryDisabled = 149;
+    optional bool IsShadow = 160;
+    optional bool HasShadow = 161;
+    optional bool FederatedAuthnEnabled = 163;
+  }
+  optional int64 LastAddedEmailTimestamp = 135;
+  optional int64 LastRemovedEmailTimestamp = 136;
+  repeated group Memberships = 22 {
+    required int64 GroupID = 87;
+    optional string Tag = 131;
+    optional int64 AddTimeMS = 106;
+  }
+  optional int64 Timestamp = 13;
+  optional int64 PasswordTimestamp = 18;
+  optional int64 ValidSessionTimestamp = 151;
+  optional int64 RecoveryPromptTimestamp = 157;
+  optional int64 RecoveryPromptCount = 159;
+  optional bool DoForceRecoveryPrompt = 158;
+  optional int64 CreationTime = 3;
+  optional bool Verified = 4;
+  optional int64 VerifiedTimestamp = 137;
+  optional bool Disabled = 5;
+  optional string DisabledReason = 40;
+  optional .DisableAccountInfo DisableInfo = 120;
+  optional .EnableAccountInfo EnableInfo = 121;
+  optional bool LockedOut = 172;
+  optional int64 PurgeTime = 129;
+  optional bool IsNonUser = 145;
+  optional bool AgreedToTerms = 7;
+  optional int64 ServiceFlag = 8;
+  repeated group ServiceInfo = 21 {
+    required int32 ServiceId = 107;
+    required int64 FlagBits = 108;
+  }
+  optional .gaia_data.AccountType AccountType = 173;
+  repeated group PreviousLogins = 9 {
+    enum Const {
+      NUM_LOGIN_KEPT = 3;
+    }
+    required int64 Time = 77;
+  }
+  optional int64 LastLoginGeocode = 14;
+  optional int64 LastProgrammaticLoginTime = 164;
+  optional string SecondaryPersonalEmail = 64;
+  optional int64 SecondaryPersonalEmailModTime = 154;
+  optional .GlobalTos GlobalTos = 20;
+  optional string Title = 66;
+  optional string SecretQuestion = 74;
+  optional string SecretAnswer = 75;
+  optional int64 SecretQuestionModTime = 155;
+  optional int64 SecretAnswerModTime = 156;
+  optional int32 OverAge = 78 [default = 0];
+  optional .GaiaUserPreferences Preferences = 79;
+  repeated group ServiceFlagHistory = 80 {
+    required int32 ServiceID = 81;
+    required int64 Time = 82;
+    required int32 ChangeType = 83;
+  }
+  optional bool TruncatedServiceFlagHistory = 130;
+  repeated group EmailHistory = 109 {
+    required string Email = 110;
+    required int64 Date = 111;
+  }
+  optional bool TruncatedEmailHistory = 171;
+  repeated .GaiaCapabilityRecord Capabilities = 119;
+  repeated group RemovedMemberships = 114 {
+    required int64 GroupID = 115;
+    optional string Tag = 132;
+    optional int64 AddTimeMS = 116;
+    optional int64 RemoveTimeMS = 117;
+  }
+  optional .GaiaCachedUserPreferences CachedPreferences = 84;
+  optional bool DoForcePasswdChange = 86 [default = false];
+  optional int32 ClusterScoreHigh = 144;
+  optional int32 ClusterScore = 133;
+  optional int32 SpamScore = 113 [deprecated = true];
+  optional int32 SpamScoreBeta = 118 [deprecated = true];
+  optional int32 SpamScoreBeta2 = 126 [deprecated = true];
+  optional .UserContext Ctx = 122;
+  optional string CtxReq = 123;
+  optional group IdvChallengeInfo = 146 {
+    optional bool SmsVerified = 147;
+    optional bool ClickToCallVerified = 153;
+  }
+  optional int64 CookieUserUpdateMicros = 168;
+  optional int64 deleted_6 = 6 [deprecated = true];
+  optional int32 deleted_10 = 10 [deprecated = true];
+  optional .INSName deleted_16 = 16 [deprecated = true];
+  optional .INSAddress deleted_17 = 17 [deprecated = true];
+  optional string deleted_50 = 50 [deprecated = true];
+  optional int32 deleted_51 = 51 [deprecated = true];
+  optional string deleted_56 = 56 [deprecated = true];
+  optional string deleted_65 = 65 [deprecated = true];
+  optional string deleted_67 = 67 [deprecated = true];
+  optional string deleted_68 = 68 [deprecated = true];
+  optional bool deleted_76 = 76 [deprecated = true];
+  optional bool deleted_88 = 88 [default = false, deprecated = true];
+  optional bool deleted_89 = 89 [deprecated = true];
+  optional string deleted_105 = 105 [deprecated = true];
+  optional string deleted_127 = 127 [deprecated = true];
+  optional group Deleted_138 = 138 [deprecated = true] {
+    required bool deleted_139 = 139 [deprecated = true];
+    required string deleted_140 = 140 [deprecated = true];
+    required string deleted_141 = 141 [deprecated = true];
+    optional string deleted_142 = 142 [deprecated = true];
+    optional int64 deleted_143 = 143 [deprecated = true];
+    optional bool deleted_166 = 166 [deprecated = true];
+    optional int64 deleted_167 = 167 [deprecated = true];
+  }
+  optional int32 deleted_134 = 134 [deprecated = true];
+  optional group Deleted_91 = 91 {
+  }
+  extend .proto2.bridge.MessageSet {
+    optional .ClientUserInfo message_set_extension = 2910452;
+  }
+  reserved 19, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62, 63, 69, 70, 71, 72, 73, 92 to 104, 128, 148, 152, 165;
+}
+
+message ClientData {
+  optional string Username = 1;
+  optional int32 Pid = 2;
+  optional string TargetName = 3;
+  optional string ProcessName = 4;
+  optional int64 BuildTimestampAsInt = 5;
+  optional string GaiaClientVersion = 6;
+  optional int32 Priority = 7 [default = 50];
+  optional bool SkipProfileInfo = 8 [deprecated = true];
+  optional string InstanceName = 9;
+  optional bool ClientReportsLoad = 10 [default = false];
+  optional int32 RetryCount = 11;
+  optional string OriginatingUsername = 12;
+  optional string OriginatingLocation = 14;
+  optional string OriginatingJob = 15;
+  optional int32 MaxTries = 13;
+}
+
+message DummyClientDataMessage {
+  optional .ClientData ClientData = 100;
+}
+
+message DummyUserDataMessage {
+  optional .UserContext UserContext = 101;
+}
+
+message ClientResourceInfo {
+  enum GroupType {
+    UNKNOWN_GROUP_TYPE = 0;
+    GAIA_ID = 1;
+  }
+  required int64 Owner = 1;
+  optional string Email = 2;
+  repeated group EmailInfo = 8 {
+    required string Email = 9;
+  }
+  optional int64 CreationTime = 3;
+  optional int64 Timestamp = 4;
+  repeated group ServiceInfo = 5 {
+    required int32 ServiceID = 6;
+  }
+  optional .ClientResourceInfo.GroupType GroupMemberships = 7;
+}
+
+message SecondFactorInfo {
+  repeated group UserCookie = 1 {
+    required int64 UserId = 2;
+    required int64 IssueTime = 3;
+    optional int64 ExpirationTime = 4;
+    optional bool ExpireAtLogout = 5;
+    optional int32 Epoch = 6;
+    optional fixed64 Nonce = 8;
+    optional fixed64 TlsChannelId = 9;
+  }
+  optional bool PersistentCookie = 7;
+}
+
+message GaiaNotificationSettings {
+  required bool ShouldNotify = 1;
+}
+
+

@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+package google.devtools.source.v1;
+
+option java_package = "com.google.devtools.source.v1";
+option java_outer_classname = "SourceContextProto";
+option java_multiple_files = true;
+option csharp_namespace = "Google.Cloud.DevTools.Source.V1";
+
+message SourceContext {
+  oneof context {
+    .google.devtools.source.v1.CloudRepoSourceContext cloud_repo = 1;
+    .google.devtools.source.v1.CloudWorkspaceSourceContext cloud_workspace = 2;
+    .google.devtools.source.v1.GerritSourceContext gerrit = 3;
+    .google.devtools.source.v1.GitSourceContext git = 6;
+    .google.devtools.source.v1.PiperDepotSourceContext piper = 4;
+    .google.devtools.source.v1.CitcWorkspaceSourceContext citc = 5;
+  }
+}
+
+message ExtendedSourceContext {
+  .google.devtools.source.v1.SourceContext context = 1;
+  map<string, string> labels = 2;
+}
+
+message AliasContext {
+  enum Kind {
+    ANY = 0;
+    FIXED = 1;
+    MOVABLE = 2;
+    OTHER = 4;
+  }
+  .google.devtools.source.v1.AliasContext.Kind kind = 1;
+  string name = 2;
+}
+
+message CloudRepoSourceContext {
+  .google.devtools.source.v1.RepoId repo_id = 1;
+  oneof revision {
+    string revision_id = 2;
+    string alias_name = 3 [deprecated = true];
+    .google.devtools.source.v1.AliasContext alias_context = 4;
+  }
+}
+
+message CloudWorkspaceSourceContext {
+  .google.devtools.source.v1.CloudWorkspaceId workspace_id = 1;
+  string snapshot_id = 2;
+}
+
+message GerritSourceContext {
+  string host_uri = 1;
+  string gerrit_project = 2;
+  oneof revision {
+    string revision_id = 3;
+    string alias_name = 4 [deprecated = true];
+    .google.devtools.source.v1.AliasContext alias_context = 5;
+  }
+}
+
+message GitSourceContext {
+  string url = 1;
+  string revision_id = 2;
+}
+
+message PiperDepotSourceContext {
+  int64 change_number = 1;
+  string branch_name = 2;
+  bool disable_components = 3;
+  bytes version_map = 4;
+}
+
+message CitcWorkspaceSourceContext {
+  string workspace_id = 1;
+  uint64 snapshot_version = 2;
+  string branch_name = 3;
+  bool is_baseline = 4;
+}
+
+message RepoId {
+  oneof id {
+    .google.devtools.source.v1.ProjectRepoId project_repo_id = 1;
+    string uid = 2;
+  }
+}
+
+message ProjectRepoId {
+  string project_id = 1;
+  string repo_name = 2;
+}
+
+message CloudWorkspaceId {
+  .google.devtools.source.v1.RepoId repo_id = 1;
+  string name = 2;
+}
+
+

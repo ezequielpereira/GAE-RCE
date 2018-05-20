@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+
+enum SecurityLevel {
+  SECURITY_NONE = 0;
+  INTEGRITY_ONLY = 1;
+  INTEGRITY_AND_PRIVACY = 2;
+}
+
+

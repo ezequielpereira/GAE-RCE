@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+
+message TraceConfig {
+  required int32 version = 1;
+  required string base_dir = 2;
+  optional string log_basename = 5 [default = "traces"];
+  required int32 max_file_size_mb = 3;
+  required int32 max_active_files = 4;
+}
+
+

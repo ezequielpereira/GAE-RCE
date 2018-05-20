@@ -1,0 +1,78 @@
+syntax = "proto2";
+
+import "apphosting/executor/executor.proto";
+import "apphosting/executor/queue.proto";
+import "apphosting/executor/task.proto";
+import "logs/proto/apphosting/queue_event.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+option java_outer_classname = "ScannerPb";
+
+message ScannerServiceError {
+  enum ErrorCode {
+    OK = 0;
+    SCANNER_BUSY = 1;
+    IGNORED_PER_THROTTLE_DEPRECATED = 2;
+    QUEUE_NOT_LOADED = 3;
+    FUTURE_ETA = 4;
+    QUEUE_BUSY = 5;
+    INVALID_QUEUE_MODE = 6;
+    QUEUE_PAUSED = 7;
+    TASK_LEASE_EXPIRED = 8;
+    UNKNOWN_TASK = 9;
+    TOMBSTONED_TASK = 10;
+    UNKNOWN_ERROR = 11;
+    TASK_LEASE_PENDING = 12;
+    QUEUE_NOT_STARTED = 13;
+    SCANNER_SHUTTING_DOWN = 14;
+    SCANNER_THROTTLE_EXCEEDED = 15;
+    QUEUE_THROTTLE_EXCEEDED = 16;
+    TASK_LOCKED = 17;
+    UNUSED_TRANSIENT_ERROR_18 = 18;
+    UNUSED_TRANSIENT_ERROR_19 = 19;
+    UNUSED_TRANSIENT_ERROR_20 = 20;
+    UNUSED_TRANSIENT_ERROR_21 = 21;
+  }
+}
+
+message NotifyRequest {
+  required .apphosting.TaskRef task_ref = 1;
+  required int64 eta_usec = 2;
+  optional bool force_run = 3;
+  optional bool notify_record_stored = 4 [default = false];
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 5;
+}
+
+message NotifyResponse {
+}
+
+message FetchQueueInfoRequest {
+  required .apphosting.QueueRef queue_ref = 1;
+  optional int32 max_num_tasks = 2 [deprecated = true];
+}
+
+message FetchQueueInfoResponse {
+  required .apphosting.ScannerQueueInfo info = 1;
+  required int32 num_tasks = 2;
+  required int64 oldest_eta_usec = 3;
+}
+
+message NotifyDeleteTaskRequest {
+  required .apphosting.TaskRef task_ref = 1;
+  optional bytes tag = 2;
+  optional int64 task_eta_usec = 3;
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 4;
+}
+
+message NotifyDeleteTaskResponse {
+}
+
+service ScannerService {
+  rpc Notify(.apphosting.NotifyRequest) returns (.apphosting.NotifyResponse);
+  rpc FetchQueueInfo(.apphosting.FetchQueueInfoRequest) returns (.apphosting.FetchQueueInfoResponse);
+  rpc QueryAndOwnTasks(.apphosting.QueryAndOwnTasksRequest) returns (.apphosting.QueryAndOwnTasksResponse);
+  rpc NotifyDeleteTask(.apphosting.NotifyDeleteTaskRequest) returns (.apphosting.NotifyDeleteTaskResponse);
+  rpc ModifyTaskLease(.apphosting.ModifyTaskLeaseRequest) returns (.apphosting.ModifyTaskLeaseResponse);
+}
+

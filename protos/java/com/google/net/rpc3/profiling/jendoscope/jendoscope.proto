@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+import "net/proto2/contrib/js_proto/public/field_annotations.proto";
+package net.rpc3.profiling.jendoscope;
+
+option java_package = "com.google.net.rpc3.profiling.jendoscope";
+option java_outer_classname = "JEndoPB";
+
+message Task {
+  optional sint32 marker_id = 1;
+  optional sint64 thread_id = 2;
+  optional sint64 start_time_nanos = 3;
+  optional sint64 end_time_nanos = 4;
+  optional string numeric_tag = 5;
+  optional string string_tag = 6;
+  optional sint64 start_time_cpu_nanos = 7;
+  optional sint64 end_time_cpu_nanos = 8;
+}
+
+message Marker {
+  enum MarkerType {
+    INVALID = 0;
+    TASK = 1;
+    EVENT = 2;
+    TAG = 3;
+  }
+  optional sint32 id = 1;
+  optional .net.rpc3.profiling.jendoscope.Marker.MarkerType type = 2;
+  optional string name = 3;
+  optional string file_name = 4;
+  optional sint32 line = 5;
+  optional string func_name = 6;
+  optional bool has_min_period = 7;
+}
+
+message Thread {
+  optional sint64 id = 1;
+  optional string name = 2;
+}
+
+message Snapshot {
+  repeated .net.rpc3.profiling.jendoscope.Marker marker = 1;
+  repeated .net.rpc3.profiling.jendoscope.Task task = 2;
+  repeated .net.rpc3.profiling.jendoscope.Thread thread = 3;
+  optional sint64 start_time_millis = 4;
+  optional sint64 duration_nanos = 5;
+}
+

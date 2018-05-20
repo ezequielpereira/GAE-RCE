@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "net/rpc/rpc.proto";
+package net.rpc4;
+
+message UdsMessage {
+  oneof message {
+    .RPC_ShmRequest request = 1;
+    .RPC_ShmResponse response = 2;
+  }
+}
+
+

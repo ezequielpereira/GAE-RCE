@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "apphosting/executor/task.proto";
+package storage_onestore_v3;
+
+option java_package = "com.google.storage.onestore.v3";
+option java_outer_classname = "OnestoreAction";
+option go_package = "storage_onestore_v3";
+
+message Action {
+  optional .apphosting.TaskDefinition task = 1;
+}
+

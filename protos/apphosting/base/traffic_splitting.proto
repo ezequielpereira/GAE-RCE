@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package apphosting.traffic_splitting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "TrafficSplittingPb";
+
+message Cookie {
+  message Assignment {
+    optional uint64 experiment_id = 1;
+    optional int32 shard = 2;
+    optional string engine_version_id = 3;
+    optional int32 created_at = 4;
+  }
+  repeated .apphosting.traffic_splitting.Cookie.Assignment assignments = 1;
+}
+
+message Experiment {
+  message Partition {
+    required string engine_version_id = 1;
+    required int32 begin = 2;
+    required int32 end = 3;
+  }
+  enum ShardBy {
+    IP = 0;
+    COOKIE = 1;
+    RANDOM = 2;
+  }
+  optional uint64 id = 1;
+  repeated string engine_ids = 2;
+  optional .apphosting.traffic_splitting.Experiment.ShardBy shard_by = 3 [default = IP];
+  repeated .apphosting.traffic_splitting.Experiment.Partition partitions = 4;
+}
+
+

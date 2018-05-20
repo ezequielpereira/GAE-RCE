@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "net/proto2/proto/descriptor.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "AuthzProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message AuthorizationRule {
+  string selector = 1;
+  string permissions = 2;
+}
+
+extend .proto2.FieldOptions {
+  .google.api.AuthorizationRule authz = 119718449;
+}
+

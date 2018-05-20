@@ -1,0 +1,61 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/credentials/proto/principal.proto";
+import "security/thinmint/proto/thinmint.proto";
+option java_package = "com.google.security.util.genfiles";
+
+message AcctRestrictions {
+  repeated .AcctDstRestriction dst_restrictions = 1;
+  optional .AcctSrcRestriction src_restriction = 2;
+  optional .DestinationRestriction destination_restriction = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .AcctRestrictions message_set_extension = 43674265;
+  }
+}
+
+message DestinationRestriction {
+  repeated .DestinationPermission destination_permissions = 1;
+}
+
+message DestinationPermission {
+  enum DestinationType {
+    BORG = 0;
+    BABYSAT = 1;
+    CORP = 2;
+    BANDAID = 3;
+  }
+  optional .DestinationPermission.DestinationType type = 1;
+  repeated string security_realms = 7;
+  repeated string security_tags = 8;
+  optional .security.credentials.PrincipalProto principal = 2;
+  optional string job = 3;
+  repeated .thinmint.ThinMintDescription rpc_services_labels = 4;
+  repeated .thinmint.ThinMintDescription application_thinmint_descriptions = 5;
+  optional string description = 6;
+}
+
+message AcctDstRestriction {
+  enum DestType {
+    BORG = 0;
+    BABYSAT = 1;
+    CORP = 2;
+    BANDAID = 3;
+  }
+  optional .AcctDstRestriction.DestType dst_type = 1;
+  optional string dst_user = 2;
+  optional string dst_job = 3;
+  repeated string rpc_labels = 4;
+  repeated string rpc_services = 5;
+  repeated .thinmint.ThinMintDescription rpc_services_labels = 8;
+  repeated .thinmint.ThinMintDescription application_thinmint_descriptions = 9;
+  optional string description = 7;
+}
+
+message AcctSrcRestriction {
+  optional string src_address = 1;
+  optional bool strict_check = 2 [default = true];
+  repeated string machine_owner = 3;
+  repeated string allowed_ipranges = 4;
+}
+

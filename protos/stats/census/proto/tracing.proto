@@ -1,0 +1,111 @@
+syntax = "proto2";
+
+import "stats/census/proto/view.proto";
+import "util/task/status.proto";
+package stats_census.tracing;
+
+message Op {
+  message Annotation {
+    optional double timestamp = 1;
+    optional string value = 2;
+    optional int32 thread_id = 3;
+  }
+  message Tag {
+    optional string key = 1;
+    optional string value = 2;
+  }
+  message Link {
+    message Peer {
+    }
+    enum Type {
+      UNKNOWN = 0;
+      PARENT = 1;
+      CHILD = 2;
+    }
+    optional .stats_census.tracing.Op.Link.Type type = 1;
+    optional double timestamp = 2;
+    optional fixed64 op_id = 3;
+    optional .stats_census.tracing.Op.Link.Peer peer = 4;
+  }
+  optional fixed64 trace_id = 1;
+  optional double start_time = 2;
+  optional double end_time = 3;
+  repeated .stats_census.tracing.Op.Annotation annotations = 6;
+  repeated .stats_census.tracing.Op.Tag tags = 7;
+  repeated .stats_census.tracing.Op.Link links = 8;
+  optional fixed64 op_id = 10;
+  optional .util.StatusProto error = 11;
+  reserved 4, 5;
+}
+
+message Condition {
+  optional string resource = 1;
+  optional string measure = 2;
+  optional double measure_lower_bound = 3;
+  optional double measure_upper_bound = 4;
+  repeated .stats_census.TagSelectorProto tag_filters = 5;
+  optional bool for_sampled_traces = 6;
+}
+
+message Trigger {
+  optional string trigger_id = 1;
+  optional double expiration_timestamp = 2;
+  optional double rate_per_second = 3;
+  optional .stats_census.tracing.Condition condition = 4;
+}
+
+message TracezRequest {
+  message CollectByTraceId {
+    optional string id = 1;
+    repeated fixed64 trace_ids = 2;
+  }
+  message CollectConditionalTraces {
+    optional string id = 1;
+    optional .stats_census.tracing.Condition condition = 2;
+    optional int32 max_ops_to_return = 3;
+    optional double start_time = 5;
+    optional double end_time = 6;
+    optional bool active = 7;
+  }
+  message CollectOpsForTrigger {
+    optional string id = 1;
+    optional double ops_horizon_timestamp = 2;
+  }
+  repeated .stats_census.tracing.TracezRequest.CollectByTraceId trace_ids_requests = 2;
+  repeated .stats_census.tracing.TracezRequest.CollectConditionalTraces condition_requests = 3;
+  repeated .stats_census.tracing.Trigger install_triggers = 4;
+  repeated string remove_triggers = 5;
+  repeated .stats_census.tracing.TracezRequest.CollectOpsForTrigger collect_ops_for_trigger_request = 6;
+  reserved 1;
+}
+
+message TracezResponse {
+  message TriggeredTraces {
+    message Trace {
+      optional fixed64 trace_id = 1;
+      optional fixed64 op_id = 2;
+      optional double start_time = 3;
+      optional double end_time = 4;
+    }
+    optional string id = 1;
+    repeated .stats_census.tracing.TracezResponse.TriggeredTraces.Trace traces = 4;
+    reserved 2, 3;
+  }
+  message CollectedTraces {
+    optional string id = 1;
+    repeated .stats_census.tracing.Op ops = 2;
+    optional .util.StatusProto status = 3;
+  }
+  message RequestStats {
+    optional double trace_data_horizon_timestamp = 1;
+    optional fixed64 process_id = 2;
+  }
+  repeated .stats_census.tracing.TracezResponse.TriggeredTraces triggered = 1;
+  repeated .stats_census.tracing.TracezResponse.CollectedTraces collected = 2;
+  repeated .util.StatusProto trigger_install_status = 3;
+  repeated .util.StatusProto trigger_remove_status = 4;
+  optional .stats_census.tracing.TracezResponse.RequestStats stats = 5;
+  reserved 10;
+}
+
+

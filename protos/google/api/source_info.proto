@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "SourceInfoProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message SourceInfo {
+  repeated .google.protobuf.Any source_files = 1;
+}
+
+

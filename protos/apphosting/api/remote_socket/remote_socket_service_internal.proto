@@ -1,0 +1,100 @@
+syntax = "proto2";
+
+import "apphosting/api/remote_socket/remote_socket_service.proto";
+import "apphosting/base/appmaster.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.api.remote_socket";
+option java_outer_classname = "RemoteSocketServiceInternalPb";
+option cc_generic_services = false;
+option java_generic_services = false;
+option py_generic_services = false;
+
+message SocketDescriptor {
+  required string server_address = 1;
+  required bytes remote_socket_descriptor = 2;
+  required string app_id = 4;
+}
+
+message GlobalConfigInfo {
+  optional .apphosting.GlobalConfig global_config = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .apphosting.GlobalConfigInfo message_set_extension = 32128128;
+  }
+}
+
+message ConnectLatencyInfoOnSocketService {
+  extend .apphosting.ConnectReply {
+    optional int32 connect_external_latency_ms = 93738374;
+  }
+  extend .apphosting.CreateSocketReply {
+    optional int32 create_external_latency_ms = 93738375;
+  }
+}
+
+message RPCLatencyInfoOnSocketService {
+  optional int64 rpc_internal_latency_ns = 1;
+  optional int64 rpc_external_latency_ns = 2;
+}
+
+extend .apphosting.AcceptReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService accept_latency_ext = 113751390;
+}
+
+extend .apphosting.BindReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService bind_latency_ext = 113751391;
+}
+
+extend .apphosting.CloseReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService close_latency_ext = 113751392;
+}
+
+extend .apphosting.ConnectReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService connect_latency_ext = 113751393;
+}
+
+extend .apphosting.CreateSocketReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService create_socket_latency_ext = 113751394;
+}
+
+extend .apphosting.GetPeerNameReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService get_peer_name_latency_ext = 113751395;
+}
+
+extend .apphosting.GetSocketNameReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService get_socket_name_latency_ext = 113751396;
+}
+
+extend .apphosting.GetSocketOptionsReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService get_socket_options_latency_ext = 113751397;
+}
+
+extend .apphosting.ListenReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService listen_latency_ext = 113751398;
+}
+
+extend .apphosting.PollReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService poll_latency_ext = 113751399;
+}
+
+extend .apphosting.ReceiveReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService receive_latency_ext = 113751400;
+}
+
+extend .apphosting.ResolveReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService resolve_latency_ext = 113751401;
+}
+
+extend .apphosting.SendReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService send_latency_ext = 113751402;
+}
+
+extend .apphosting.SetSocketOptionsReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService set_socket_options_latency_ext = 113751403;
+}
+
+extend .apphosting.ShutDownReply {
+  optional .apphosting.RPCLatencyInfoOnSocketService shut_down_latency_ext = 113751404;
+}
+

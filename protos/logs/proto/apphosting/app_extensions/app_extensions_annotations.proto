@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package appengine_proto;
+
+message Apps {
+  repeated string app_id = 1;
+}
+
+extend .proto2.MessageOptions {
+  optional .appengine_proto.Apps allowed_apps = 31023483;
+}
+

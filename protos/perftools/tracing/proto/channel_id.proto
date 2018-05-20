@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+package perftools.tracing.channels;
+
+option java_package = "com.google.tracing";
+
+message ChannelIDValues {
+  enum Values {
+    option allow_alias = true;
+    TEXT_CHANNEL = 0;
+    RESERVED_MIN = 0;
+    RPC_CHANNEL = 1;
+    EQUIV_CLASS_CHANNEL = 2;
+    RPC_PAYLOAD_CHANNEL = 3;
+    RPC_EVENT_CHANNEL = 4;
+    LINK_CHANNEL = 5;
+    SECONDARY_INDEX_CHANNEL = 6;
+    FATHOM_TSTAMP_CHANNEL = 7;
+    VERBOSE_CHANNEL = 10;
+    BIGTABLE_DEPS_CHANNEL = 20;
+    CRT_CHANNEL = 21;
+    ENCRYPTED_CHANNEL = 30;
+    UNENCRYPTED_CHANNEL = 31;
+    INTERNAL_CHANNEL = 126;
+    COLLECTOR_CHANNEL = 127;
+    RESERVED_MAX = 127;
+    REQUESTZ_ACTIVE_CLIENT_CHANNEL = 200;
+    LEGACY_CHANNEL = 1073741824;
+  }
+}
+

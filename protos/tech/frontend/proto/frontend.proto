@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package tech.frontend;
+
+message FrontEndMessage {
+  optional bytes headers = 2 [ctype = CORD];
+  optional bytes data = 3 [ctype = CORD];
+}
+
+service HTTPService {
+  rpc Request(stream .tech.frontend.FrontEndMessage) returns (stream .tech.frontend.FrontEndMessage);
+}
+
+service WebChannelService {
+  rpc Message(stream .tech.frontend.FrontEndMessage) returns (stream .tech.frontend.FrontEndMessage);
+}
+
+service ByteStreamService {
+  rpc Message(stream .tech.frontend.FrontEndMessage) returns (stream .tech.frontend.FrontEndMessage);
+}
+
+

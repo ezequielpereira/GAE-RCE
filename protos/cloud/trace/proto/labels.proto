@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package cloud_trace;
+
+option java_package = "com.google.cloud.trace";
+option java_outer_classname = "LabelsProtos";
+option cc_enable_arenas = true;
+
+message LabelProto {
+  oneof id {
+    string key = 1;
+  }
+  oneof value {
+    string str_value = 2;
+    int64 int_value = 3;
+    uint64 value_hash_id = 5;
+    bool bool_value = 6;
+  }
+  reserved 4;
+  reserved "key_hash_id";
+}
+
+message LabelsProto {
+  repeated .cloud_trace.LabelProto label = 1;
+}
+

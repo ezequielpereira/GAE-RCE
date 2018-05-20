@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package apphosting.prospective_search;
+
+option java_package = "com.google.appengine.api.prospectivesearch";
+option java_outer_classname = "ErrorPb";
+
+message Error {
+  enum ErrorCode {
+    BAD_REQUEST = 1;
+    INTERNAL_ERROR = 2;
+  }
+}
+

@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package appstats;
+
+option java_package = "com.google.appengine.tools.appstats";
+option java_outer_classname = "InternalProtos";
+option optimize_for = SPEED;
+
+message EmptyProto {
+}
+

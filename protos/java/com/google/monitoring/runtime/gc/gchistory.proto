@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+package com.google.monitoring.runtime.gc;
+
+option java_package = "com.google.monitoring.runtime.gc";
+
+message GcEventSeries {
+  message Event {
+    message Generation {
+      enum GenerationType {
+        YOUNG = 0;
+        TENURED = 1;
+        PERMANENT = 2;
+        UNKNOWN = 127;
+      }
+      required .com.google.monitoring.runtime.gc.GcEventSeries.Event.Generation.GenerationType type = 1;
+      required int64 memory_before = 3;
+      required int64 memory_after = 4;
+      required int64 memory_capacity = 5;
+      optional string msg = 6;
+    }
+    enum CollectionType {
+      MINOR = 0;
+      MAJOR = 1;
+    }
+    required .com.google.monitoring.runtime.gc.GcEventSeries.Event.CollectionType collection_type = 1;
+    repeated .com.google.monitoring.runtime.gc.GcEventSeries.Event.Generation generations = 2;
+    required int64 start_time = 3;
+    required int64 interval = 4;
+    required int64 duration = 5;
+  }
+  enum Collector {
+    UNKNOWN = -1;
+    PARALLEL = 0;
+    SERIAL = 1;
+    CMS = 2;
+    G1 = 3;
+  }
+  required .com.google.monitoring.runtime.gc.GcEventSeries.Collector collector = 1;
+  repeated .com.google.monitoring.runtime.gc.GcEventSeries.Event events = 2;
+}
+

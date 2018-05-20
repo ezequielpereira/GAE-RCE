@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+import "security/loas/l2/proto/credentials.proto";
+import "security/thinmint/proto/core/thinmint_core.proto";
+option java_package = "com.google.net.loas.genfiles";
+
+message LOASCookieSpec {
+  required string cookie_id = 1;
+  required bytes magicvalue = 2;
+  required string username = 3;
+  required string taskname = 4;
+  optional string borg_cell = 5;
+  repeated group Alternate = 6 {
+    required string role = 7;
+  }
+  optional int32 corp_ip_port = 8;
+  optional .LOASCookieAppKeys app_keys = 9;
+  optional .LOASInitKeys init_keys = 10;
+  optional .thinmint.ThinMint idmint = 12;
+  repeated .security_loas_l2.Credentials loas2_credentials = 13;
+  optional .Loas2AppKeys loas2_app_keys = 14;
+}
+
+message LOASCookieAppKeys {
+  required bytes enc_key = 1;
+  optional bytes mac_key = 2;
+}
+
+message LOASInitKeys {
+  required bytes enc_key = 1;
+  required bytes mac_key = 2;
+  required bytes update_authenticator = 3;
+}
+
+message Loas2AppKeys {
+  optional bytes crypt_key = 1;
+  optional bytes mac_key = 2;
+}
+
+

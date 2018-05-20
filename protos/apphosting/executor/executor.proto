@@ -1,0 +1,252 @@
+syntax = "proto2";
+
+import "apphosting/executor/group.proto";
+import "apphosting/executor/queue.proto";
+import "apphosting/executor/task.proto";
+import "logs/proto/apphosting/queue_event.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+option java_outer_classname = "ExecutorPb";
+
+message ExecutorServiceError {
+  enum ErrorCode {
+    OK = 0;
+    UNKNOWN_QUEUE = 1;
+    UNKNOWN_GROUP = 2;
+    UNKNOWN_CUSTOMER = 3;
+    BIGTABLE_ERROR = 4;
+    TASK_ALREADY_EXISTS = 5;
+    TOMBSTONED_TASK = 6;
+    TOMBSTONED_QUEUE = 7;
+    TOMBSTONED_GROUP = 8;
+    OVERLOADED = 9;
+    UNKNOWN_TASK = 10;
+    INVALID_TASK_DEFINITION = 11;
+    UNKNOWN_STRATEGY = 12;
+    SCANNER_ERROR = 13;
+    SCANNER_NOT_FOUND = 14;
+    INSUFFICIENT_QUOTA = 15;
+    UNKNOWN_ERROR = 16;
+    SCANNER_ERROR_BASE = 1000;
+    SCANNER_ERROR_SCANNER_BUSY = 1001;
+    SCANNER_ERROR_IGNORED_PER_THROTTLE_DEPRECATED = 1002;
+    SCANNER_ERROR_QUEUE_NOT_LOADED = 1003;
+    SCANNER_ERROR_FUTURE_ETA = 1004;
+    SCANNER_ERROR_QUEUE_BUSY = 1005;
+    SCANNER_ERROR_INVALID_QUEUE_MODE = 1006;
+    SCANNER_ERROR_QUEUE_PAUSED = 1007;
+    SCANNER_ERROR_TASK_LEASE_EXPIRED = 1008;
+    SCANNER_ERROR_UNKNOWN_TASK = 1009;
+    SCANNER_ERROR_TOMBSTONED_TASK = 1010;
+    SCANNER_ERROR_UNKNOWN_ERROR = 1011;
+    SCANNER_ERROR_TASK_LEASE_PENDING = 1012;
+    SCANNER_ERROR_QUEUE_NOT_STARTED = 1013;
+    SCANNER_ERROR_SCANNER_SHUTTING_DOWN = 1014;
+    SCANNER_ERROR_SCANNER_THROTTLE_EXCEEDED = 1015;
+    SCANNER_ERROR_QUEUE_THROTTLE_EXCEEDED = 1016;
+    SCANNER_ERROR_TASK_LOCKED = 1017;
+    SCANNER_ERROR_UNUSED_TRANSIENT_ERROR_18 = 1018;
+    SCANNER_ERROR_UNUSED_TRANSIENT_ERROR_19 = 1019;
+    SCANNER_ERROR_UNUSED_TRANSIENT_ERROR_20 = 1020;
+    SCANNER_ERROR_UNUSED_TRANSIENT_ERROR_21 = 1021;
+  }
+}
+
+message UpdateTaskRequest {
+  enum Strategy {
+    VERIFY_ALL = 0;
+    VERIFY_QUEUE = 1;
+  }
+  required .apphosting.TaskDefinition task = 1;
+  optional .apphosting.UpdateTaskRequest.Strategy strategy = 2 [default = VERIFY_ALL];
+}
+
+message UpdateTaskResponse {
+}
+
+message AddTasksRequest {
+  enum Strategy {
+    VERIFY_ALL = 0;
+    VERIFY_QUEUE = 1;
+  }
+  repeated group AddTask = 1 {
+    required .apphosting.TaskDefinition task = 2;
+    optional .apphosting.AddTasksRequest.Strategy strategy = 3 [default = VERIFY_ALL];
+  }
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 4;
+}
+
+message AddTasksResponse {
+  repeated group TaskResponse = 1 {
+    required .apphosting.ExecutorServiceError.ErrorCode error = 2;
+    optional int64 creation_time = 3;
+  }
+}
+
+message FetchTaskRequest {
+  required .apphosting.TaskRef task_ref = 1;
+}
+
+message FetchTaskResponse {
+  required .apphosting.TaskDefinition task = 1;
+}
+
+message QueryTasksRequest {
+  required .apphosting.QueueRef queue_ref = 1;
+  required int32 max_num_tasks = 2;
+  required .apphosting.TaskRange task_range = 3;
+}
+
+message QueryTasksResponse {
+  repeated .apphosting.TaskDefinition task = 1;
+}
+
+message DeleteTaskRequest {
+  repeated .apphosting.TaskRef task_ref = 1;
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 2;
+}
+
+message DeleteTaskResponse {
+  message Result {
+    required .apphosting.ExecutorServiceError.ErrorCode error = 1;
+  }
+  repeated .apphosting.DeleteTaskResponse.Result result = 1;
+}
+
+message UpdateQueueRequest {
+  required .apphosting.QueueDefinition queue = 1;
+  optional bool override_system_fields = 2 [default = true];
+}
+
+message UpdateQueueResponse {
+}
+
+message DeleteQueueRequest {
+  required .apphosting.QueueRef queue_ref = 1;
+}
+
+message DeleteQueueResponse {
+}
+
+message PurgeQueueRequest {
+  required .apphosting.QueueRef queue_ref = 1;
+  optional int64 timestamp_us = 2;
+}
+
+message PurgeQueueResponse {
+}
+
+message PauseQueueRequest {
+  required .apphosting.QueueRef queue_ref = 1;
+  required bool pause = 2;
+}
+
+message PauseQueueResponse {
+}
+
+message UpdateGroupRequest {
+  required .apphosting.GroupDefinition group = 1;
+}
+
+message UpdateGroupResponse {
+}
+
+message DeleteGroupRequest {
+  required .apphosting.GroupRef group_ref = 1;
+}
+
+message DeleteGroupResponse {
+}
+
+message FetchQueuesRequest {
+  required .apphosting.QueueRange queue_range = 1;
+  required int32 max_rows = 2;
+}
+
+message FetchQueuesResponse {
+  repeated .apphosting.QueueDefinition queue = 1;
+}
+
+message FetchQueueStatsRequest {
+  repeated .apphosting.QueueRef queue_ref = 1;
+  optional int32 max_num_tasks = 2 [deprecated = true];
+}
+
+message ScannerQueueInfo {
+  required int64 executed_last_minute = 1;
+  required int64 executed_last_hour = 2;
+  required double sampling_duration_seconds = 3;
+  optional bool saturated = 4;
+  optional int32 requests_in_flight = 5;
+  optional int32 locked_task_count = 6;
+  optional int64 executed_total = 7;
+  optional double enforced_rate = 8;
+  optional int64 last_rate_adjustment_ms = 9;
+  optional string scanner_bns = 10;
+  optional int32 average_task_size_bytes = 11;
+}
+
+message FetchQueueStatsResponse {
+  repeated group QueueStats = 1 {
+    required int32 num_tasks = 2;
+    required int64 oldest_eta_usec = 3;
+    optional .apphosting.ScannerQueueInfo scanner_info = 4;
+    optional .apphosting.ExecutorServiceError.ErrorCode error = 5;
+    optional string error_detail = 6;
+  }
+}
+
+message ForceRunTaskRequest {
+  required .apphosting.TaskRef task_ref = 1;
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 2;
+}
+
+message ForceRunTaskResponse {
+}
+
+message QueryAndOwnTasksRequest {
+  required .apphosting.QueueRef queue_ref = 1;
+  required double lease_seconds = 2;
+  required int64 max_tasks = 3;
+  optional int64 max_bytes = 4 [default = 32000000];
+  optional bool group_by_tag = 5 [default = false];
+  optional bytes tag = 6;
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 7;
+}
+
+message QueryAndOwnTasksResponse {
+  repeated .apphosting.TaskDefinition task = 1;
+  optional int64 culled_task_count = 2;
+}
+
+message ModifyTaskLeaseRequest {
+  required .apphosting.TaskRef task_ref = 1;
+  required int64 eta_usec = 2;
+  required double lease_seconds = 3;
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 4;
+}
+
+message ModifyTaskLeaseResponse {
+  required int64 eta_usec = 1;
+}
+
+service ExecutorService {
+  rpc UpdateTask(.apphosting.UpdateTaskRequest) returns (.apphosting.UpdateTaskResponse);
+  rpc AddTasks(.apphosting.AddTasksRequest) returns (.apphosting.AddTasksResponse);
+  rpc FetchTask(.apphosting.FetchTaskRequest) returns (.apphosting.FetchTaskResponse);
+  rpc QueryTasks(.apphosting.QueryTasksRequest) returns (.apphosting.QueryTasksResponse);
+  rpc QueryAndOwnTasks(.apphosting.QueryAndOwnTasksRequest) returns (.apphosting.QueryAndOwnTasksResponse);
+  rpc ModifyTaskLease(.apphosting.ModifyTaskLeaseRequest) returns (.apphosting.ModifyTaskLeaseResponse);
+  rpc DeleteTask(.apphosting.DeleteTaskRequest) returns (.apphosting.DeleteTaskResponse);
+  rpc ForceRunTask(.apphosting.ForceRunTaskRequest) returns (.apphosting.ForceRunTaskResponse);
+  rpc UpdateQueue(.apphosting.UpdateQueueRequest) returns (.apphosting.UpdateQueueResponse);
+  rpc DeleteQueue(.apphosting.DeleteQueueRequest) returns (.apphosting.DeleteQueueResponse);
+  rpc PurgeQueue(.apphosting.PurgeQueueRequest) returns (.apphosting.PurgeQueueResponse);
+  rpc PauseQueue(.apphosting.PauseQueueRequest) returns (.apphosting.PauseQueueResponse);
+  rpc FetchQueues(.apphosting.FetchQueuesRequest) returns (.apphosting.FetchQueuesResponse);
+  rpc FetchQueueStats(.apphosting.FetchQueueStatsRequest) returns (.apphosting.FetchQueueStatsResponse);
+  rpc UpdateGroup(.apphosting.UpdateGroupRequest) returns (.apphosting.UpdateGroupResponse);
+  rpc DeleteGroup(.apphosting.DeleteGroupRequest) returns (.apphosting.DeleteGroupResponse);
+}
+

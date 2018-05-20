@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ConsumerProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message ProjectProperties {
+  repeated .google.api.Property properties = 1;
+}
+
+message Property {
+  enum PropertyType {
+    UNSPECIFIED = 0;
+    INT64 = 1;
+    BOOL = 2;
+    STRING = 3;
+    DOUBLE = 4;
+  }
+  string name = 1;
+  .google.api.Property.PropertyType type = 2;
+  string description = 3;
+}
+
+

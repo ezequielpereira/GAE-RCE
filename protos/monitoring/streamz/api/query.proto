@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+import "monitoring/streamz/api/data_model.proto";
+package streamz;
+
+option cc_enable_arenas = true;
+
+message ReadRequest {
+  optional string entity_name = 1 [default = ""];
+  repeated string metric_name = 2;
+}
+
+message ReadResponse {
+  required .streamz.Entity entity = 1;
+  repeated .streamz.PointSet point_set = 2;
+}
+
+message GetMetricsRequest {
+  optional string entity_name = 1;
+  repeated string metric_name = 2;
+}
+
+message GetMetricsResponse {
+  repeated .streamz.MetricDescriptor metric_descriptor = 1;
+}
+
+message GetEntitiesRequest {
+}
+
+message GetEntitiesResponse {
+  map<string, .streamz.Entity> entities = 1;
+}
+
+service StreamzQuery {
+  rpc Read(.streamz.ReadRequest) returns (.streamz.ReadResponse);
+  rpc GetMetrics(.streamz.GetMetricsRequest) returns (.streamz.GetMetricsResponse);
+  rpc GetEntities(.streamz.GetEntitiesRequest) returns (.streamz.GetEntitiesResponse);
+}
+
+

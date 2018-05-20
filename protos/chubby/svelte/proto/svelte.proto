@@ -1,0 +1,246 @@
+syntax = "proto2";
+
+import "chubby/lib/proto/statinfo.proto";
+import "chubby/lib/proto/timestamp.proto";
+import "net/rpc/empty-message.proto";
+option java_package = "com.google.chubby.svelte.protocol";
+
+message SVFile {
+  enum RESULT {
+    RESULT_SUCCESS = 0;
+    RESULT_BAD_REQUEST = 1;
+    RESULT_UNKNOWN_CLIENT = 2;
+    RESULT_UPDATES_DISABLED = 3;
+    RESULT_SERVER_INITIALIZING = 4;
+    RESULT_SERVER_SHUTDOWN = 5;
+    RESULT_SERVER_SHEDDING_LOAD = 6;
+    RESULT_CLIENT_TIMEOUT = 7;
+    RESULT_CLIENT_END_SESSION = 8;
+    RESULT_MULTI_SERVER_BACKOFF = 9;
+  }
+  optional string Filename = 1;
+  optional bytes Contents = 2;
+  optional uint64 ClientID = 3;
+  optional int64 Sequence = 4;
+  repeated string Refused = 5;
+  optional int64 Generation = 6;
+  optional int32 Error = 7;
+  optional .LockServerWire_StatInfo Info = 8;
+  repeated .LockServerWire_StatInfo DirContents = 9;
+  optional int32 LastSeenError = 10;
+  optional bytes LastSeenContents = 11;
+  repeated string DirContentsDeleted = 12;
+  optional int64 DirContentsOldState = 16;
+  optional int64 DirContentsNewState = 17;
+  optional int32 Timeout = 18;
+  repeated .RedirectEntry redirect_map = 19;
+  optional int32 NumRedirects = 20;
+  repeated .LockServerWire_Timestamp lifetime_timestamp = 21;
+}
+
+message ServerGroup {
+  message Server {
+    optional string cell_name = 1;
+    optional string bns_name = 2;
+  }
+  repeated string server = 1;
+  repeated .ServerGroup.Server servers = 2;
+}
+
+message RedirectEntry {
+  enum STATUS {
+    NOERROR = 0;
+    ERROR = 1;
+    RETRY = 2;
+    QUOTA_EXCEEDED = 3;
+    BLACKLISTED = 4;
+    HERMETICALLY_SEALED = 5;
+  }
+  required string filename = 1;
+  required int32 status = 2;
+  repeated .ServerGroup server_group = 3;
+}
+
+message SVModifyRequest {
+  enum FLAGS {
+    FLAG_GZIP = 1;
+    FLAG_INCREMENTAL_DIRS = 2;
+    FLAG_SUGGEST_SERVER = 4;
+    FLAG_SVELTE_SERVER = 8;
+    FLAG_INTERDC = 16;
+    FLAG_VERBOSE_LOGGING = 32;
+    FLAG_CAN_REDIRECT = 64;
+    FLAG_PREFETCH = 128;
+  }
+  enum CLIENT_VERSION_BASE {
+    CLIENT_VERSION_BASE_CPP = 0;
+    CLIENT_VERSION_BASE_JAVA = 1000000;
+    CLIENT_VERSION_BASE_GO = 2000000;
+    CLIENT_VERSION_BASE_LAST = 3000000;
+  }
+  required fixed64 ClientID = 1;
+  repeated .SVFile ToDelete = 2;
+  repeated .SVFile ToAdd = 3;
+  optional string ClientDescription = 4;
+  optional int32 ClientFlags = 5;
+  optional string ClientHostname = 6;
+  optional int32 ClientVersion = 7;
+  optional string ForgeTestBinary = 8;
+  optional int32 ConnectionAttempts = 9;
+  optional int32 MultiServerPriority = 10;
+}
+
+message SVFiles {
+  repeated .SVFile Files = 1;
+  repeated bytes ZFiles = 2;
+  optional int32 Timeout = 3;
+  optional uint32 ThrottlingDelayMs = 4;
+}
+
+message SVFileInfo {
+  required string filename = 1;
+  required bytes z_svfile = 2;
+  required bool is_file = 3;
+  optional int64 uncompressed_size = 4;
+  optional int64 compressed_size = 5;
+  optional uint64 num_watching_clients = 6;
+  repeated uint64 watching_client_ids = 7;
+}
+
+message SVFileChecksums {
+  repeated group File = 1 {
+    required string Filename = 2;
+    optional string MD5 = 3;
+  }
+}
+
+message SVMultiServerUpdate {
+  required uint32 suggested_concurrency = 1;
+}
+
+message SVCellLocation {
+  required string cell = 1;
+  optional string location = 2;
+}
+
+message SVLoad {
+  required int32 NumClients = 1;
+  required int32 NumOutstandingWaits = 2;
+  optional int32 ActualNumClients = 3;
+  optional bool IsWarm = 4 [default = true];
+  repeated .SVCellLocation CellLocations = 5;
+}
+
+message EndSessionRequest {
+  required uint64 ClientID = 1;
+}
+
+message SVBlacklistRule {
+  optional string hostname_regex = 1 [default = ".*"];
+  optional string binary_regex = 2 [default = ".*"];
+  optional string username_regex = 3 [default = ".*"];
+  optional string borg_job_regex = 4 [default = ".*"];
+  optional string filename_regex = 5 [default = ".*"];
+  optional string forge_test_binary_regex = 6 [default = ".*"];
+}
+
+message SVBlacklistRules {
+  repeated .SVBlacklistRule rules = 1;
+  optional bool distribute_to_peers = 2 [default = false];
+}
+
+message SVClientInfo {
+  optional uint64 client_id = 1;
+  optional string hostname = 3;
+  optional string description = 4;
+  optional string ip_addr = 5;
+  optional string client_cell = 6;
+  optional string username = 7;
+  optional string binary = 8;
+  optional string flags = 9;
+  optional bool has_been_dropped = 10;
+  optional uint64 num_watched_files = 11;
+  repeated .SVFileInfo watched_files = 12;
+}
+
+message SVGetFileMapRequest {
+  optional bool include_gzipped_svfile = 1 [default = false];
+  optional bool include_watching_client_ids = 2 [default = false];
+}
+
+message SVGetFileMapResponse {
+}
+
+message SVGetClientMapRequest {
+  optional bool include_watched_files = 1 [default = false];
+}
+
+message SvelteCellInfo {
+  optional string address = 1;
+  optional string svelte_cell_name = 2;
+}
+
+message SvelteShardMap {
+  required string path_regex = 1;
+  repeated .ServerGroup server_group = 2;
+  repeated .ServerGroup backend_server_group = 3;
+  optional string prober_directory = 4;
+  optional .SvelteCellInfo svelte_cell_info = 5;
+}
+
+message SvelteUserLimits {
+  optional int64 space_limit_in_bytes_low_watermark = 1 [default = 314572800];
+  optional int64 space_limit_in_bytes_high_watermark = 2 [default = 1099511627776];
+  optional int32 session_limit_low_watermark = 3 [default = 1000];
+  optional int32 session_limit_high_watermark = 4 [default = 1000000];
+}
+
+message PerUserSvelteLimits {
+  required string user = 1;
+  required .SvelteUserLimits user_limits = 2;
+}
+
+message ClientVersionCheck {
+  enum CheckAction {
+    TRACK = 0;
+    REJECT = 1;
+  }
+  optional .ClientVersionCheck.CheckAction check_action = 1 [default = TRACK];
+  optional int32 min_cpp_version = 2;
+  optional int32 min_java_version = 3;
+  optional int32 min_go_version = 4;
+}
+
+message SvelteConfiguration {
+  repeated .SvelteShardMap svelte_shard = 1;
+  optional .SvelteUserLimits default_user_limits = 2;
+  repeated .PerUserSvelteLimits per_user_svelte_limits = 3;
+  repeated string dir_trees_to_warm = 4 [deprecated = true];
+  repeated string prefetch_trees = 5;
+  repeated .ClientVersionCheck version_checks = 6;
+}
+
+service SvelteClient {
+  rpc WatchMultiServerUpdates(.EmptyMessage) returns (.EmptyMessage);
+  rpc AwaitChange(.SVFile) returns (.SVFiles);
+  rpc ModifyWaitSet(.SVModifyRequest) returns (.SVFile);
+  rpc GetFileMap(.SVGetFileMapRequest) returns (.SVGetFileMapResponse);
+  rpc GetClientMap(.SVGetClientMapRequest) returns (.EmptyMessage);
+  rpc EndSession(.EndSessionRequest) returns (.EmptyMessage);
+}
+
+service SvelteAdmin {
+  rpc SetStagingBlacklist(.SVBlacklistRules) returns (.EmptyMessage);
+  rpc SetActiveBlacklist(.SVBlacklistRules) returns (.EmptyMessage);
+  rpc GetStagingBlacklist(.EmptyMessage) returns (.SVBlacklistRules);
+  rpc GetActiveBlacklist(.EmptyMessage) returns (.SVBlacklistRules);
+  rpc ClearStagingBlacklist(.EmptyMessage) returns (.EmptyMessage);
+  rpc ClearActiveBlacklist(.EmptyMessage) returns (.EmptyMessage);
+}
+
+service SveltePeer {
+  rpc GetLoad(.EmptyMessage) returns (.SVLoad);
+  rpc OpenFiles(.SVFiles) returns (.EmptyMessage);
+}
+
+

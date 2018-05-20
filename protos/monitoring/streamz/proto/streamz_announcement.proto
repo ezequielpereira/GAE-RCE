@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_outer_classname = "StreamzAnnouncementProtos";
+option optimize_for = CODE_SIZE;
+option java_multiple_files = true;
+
+message StreamzAnnouncement {
+  message Label {
+    required string name = 1;
+    optional string string_value = 2;
+    optional int64 int64_value = 3;
+    optional bool bool_value = 4;
+  }
+  required int64 birth_timestamp = 1;
+  optional int64 announcement_timestamp = 6;
+  required string hostname = 2;
+  repeated int32 rpcserver_port = 3;
+  optional string root = 4 [default = ""];
+  repeated .monitoring.streamz.StreamzAnnouncement.Label label = 5;
+}
+
+

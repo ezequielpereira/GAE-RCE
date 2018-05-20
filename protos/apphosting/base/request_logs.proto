@@ -1,0 +1,58 @@
+syntax = "proto2";
+
+import "logs/eventid/eventid.proto";
+package apphosting;
+
+option java_package = "com.google.appengine.base";
+option java_outer_classname = "RequestLogsPb";
+
+message RequestLogLine {
+  message SourceReference {
+    optional string repository = 1;
+    optional string revision_id = 2;
+  }
+  required .EventIdMessage event_id = 1;
+  required int64 begin_timestamp_usec = 2;
+  required int64 end_timestamp_usec = 3;
+  required string ip = 4;
+  optional string nickname = 5;
+  required int64 mcycles = 6;
+  required string method = 7;
+  required string resource = 8;
+  required string http_version = 9;
+  required int32 status = 10;
+  required int64 size = 11;
+  optional string referrer = 12;
+  optional string user_agent = 13;
+  required string url_map = 14;
+  optional int64 api_mcycles = 15;
+  optional string host = 16;
+  optional double cost = 17;
+  optional string offline_queue_name = 18;
+  optional string offline_task_name = 19;
+  optional int32 clone_exit_reason = 20 [default = 0];
+  optional bool was_loading_request = 21 [default = false];
+  optional double pending_time = 22 [default = 0];
+  optional bool was_wallclock_throttled = 23 [default = false];
+  optional bool was_active_requests_throttled = 24 [default = false];
+  optional double cpu_throttled_time = 25 [default = 0];
+  optional bool finished = 26 [default = true];
+  optional int32 replica_index = 27 [default = -1];
+  optional bytes appserver_task_bns = 28;
+  optional bytes clone_key = 29;
+  optional bytes app_engine_release = 30;
+  optional string trace_id = 31;
+  repeated .apphosting.RequestLogLine.SourceReference source_reference = 32;
+}
+
+message LogsUsage {
+  optional int64 count = 1;
+  optional int64 total_size = 2;
+}
+
+message LogsUsageSummary {
+  optional int32 visibility_timestamp = 1;
+  optional int32 deletion_timestamp = 3;
+  optional int64 total_size = 2;
+}
+

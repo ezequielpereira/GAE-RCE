@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package proto;
+
+option java_outer_classname = "TypedMessageProto";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message TypedMessage {
+  optional int32 type_id = 1;
+  required bytes message = 8 [ctype = CORD];
+}
+
+

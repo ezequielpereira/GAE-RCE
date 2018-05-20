@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "DocumentationProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Documentation {
+  string summary = 1;
+  repeated .google.api.Page pages = 5;
+  repeated .google.api.DocumentationRule rules = 3;
+  string documentation_root_url = 4;
+  string overview = 2;
+}
+
+message DocumentationRule {
+  string selector = 1;
+  string description = 2;
+  string deprecation_description = 3;
+}
+
+message Page {
+  string name = 1;
+  string content = 2;
+  repeated .google.api.Page subpages = 3;
+}
+
+

@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+import "security/loas/l2/internal/handshake/handshake.proto";
+import "security/thinmint/proto/core/thinmint_core.proto";
+package security_loas_l2;
+
+extend .security_loas_l2.Certificate {
+  optional .thinmint.ThinMint thinmint_certificate = 100;
+}
+
+

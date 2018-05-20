@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "SystemParameterProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message SystemParameters {
+  repeated .google.api.SystemParameterRule rules = 1;
+}
+
+message SystemParameterRule {
+  string selector = 1;
+  repeated .google.api.SystemParameter parameters = 2;
+}
+
+message SystemParameter {
+  string name = 1;
+  string http_header = 2;
+  string url_query_parameter = 3;
+}
+
+

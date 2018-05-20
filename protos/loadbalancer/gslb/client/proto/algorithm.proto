@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package loadbalancer_gslb.client;
+
+option cc_enable_arenas = true;
+
+message Algorithm {
+  enum ALGORITHM {
+    UNKNOWN = 0;
+    WATERFALL = 1;
+    GTC_WATERFALL = 2;
+    CAPACITY_WEIGHTED = 3;
+    ASSIGN_ALL = 4;
+    WATERFALL_BY_LOCATION = 5;
+    ASSIGN_ALL_EXCEPT_DRAINED = 6;
+    THERMOSTAT = 7;
+    NON_BALANCED_LOCAL = 8;
+  }
+}
+
+

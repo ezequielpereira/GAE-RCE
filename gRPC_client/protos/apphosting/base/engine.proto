@@ -1,0 +1,61 @@
+syntax = "proto2";
+
+import "apphosting/base/common.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "EnginePb";
+
+message EngineConfig {
+  optional string engine_id = 1 [default = "default"];
+  optional string default_version_id = 2;
+  repeated .apphosting.VersionConfig versions = 3;
+  optional .apphosting.SchedulerOverride scheduler_override = 4;
+  optional string vmimage_override = 5;
+}
+
+message VersionConfig {
+  required string major_version_id = 1;
+  optional int32 num_reserved_clones = 2;
+  optional int32 min_instances = 6;
+  optional int32 desired_max_idle_clones = 3;
+  optional int32 instance_class = 4 [default = 4];
+  optional .apphosting.SchedulerOverride scheduler_override = 5;
+}
+
+message SchedulerOverride {
+  message Attributes {
+    repeated string hard = 1;
+    repeated string medium = 2;
+    repeated string soft = 3;
+  }
+  optional string scheduler_hint = 1 [default = "default"];
+  optional .apphosting.LoadBalancingPolicy.Enum lb_policy = 2;
+  optional .apphosting.LoadBalancingPolicy.Enum secondary_lb_policy = 3;
+  optional int32 min_appservers = 4;
+  optional int32 num_appservers = 5;
+  optional int32 max_appservers = 6;
+  optional int32 min_clones = 27;
+  optional int32 max_clones = 26;
+  optional .apphosting.SchedulerOverride.Attributes attributes = 7;
+  optional string attribute_profile = 8;
+  optional double target_mcycles_per_appserver = 9;
+  optional double target_active_mb_per_appserver = 10;
+  optional double target_active_clones_per_appserver = 11;
+  optional double target_qps_per_appserver = 12;
+  optional double target_num_reserved_clones_per_appserver = 13;
+  optional double target_min_instances_per_appserver = 18;
+  optional double throttle_shrinkage_window_s = 14;
+  optional double throttle_shrinkage_max_ratio = 15;
+  optional double throttle_growth_window_s = 16;
+  optional double throttle_growth_max_ratio = 17;
+  optional int32 move_priority = 19 [default = 0];
+  optional double target_utilization = 20;
+  optional double target_cpu_utilization = 22;
+  optional double target_throughput_utilization = 23;
+  optional double pending_queue_clearance_fraction = 25 [default = 0];
+  optional bool enable_whole_cell_scheduling = 21 [default = false];
+  optional double local_load_fraction_headroom = 24;
+}
+
+

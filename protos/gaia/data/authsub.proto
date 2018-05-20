@@ -1,0 +1,306 @@
+syntax = "proto2";
+
+import "gaia/data/dusi.proto";
+import "gaia/insclient/ins_clientinfo.proto";
+import "logs/proto/gaia/dusi.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+import "storage/googlesql/public/proto/type_annotation.proto";
+package gaia_data;
+
+option java_package = "com.google.gaia.client.proto";
+option cc_enable_arenas = true;
+
+enum OAuthPolicy {
+  UNKNOWN_POLICY = 0;
+  GAMES_AUTO_SIGN_IN = 1;
+}
+
+message AuthType {
+  enum Value {
+    AUTHSUB = 0;
+    OAUTH = 1;
+    OAUTH_TWO_LEGGED = 2;
+    WRAP = 3;
+    OAUTH2 = 4;
+    AUTHSUBJS = 5;
+    NONE = 99;
+  }
+}
+
+message AuthSubTarget {
+  required string Domain = 1;
+  optional int64 DomainID = 20;
+  optional string Description = 23;
+  optional bool Initialized = 24 [default = false];
+  optional bool Disabled = 16 [default = false];
+  optional string ConsumerSecret = 26;
+  optional bool TwoLeggedEnabled = 27 [default = false];
+  reserved 2 to 7, 17 to 19, 21, 22, 25, 28 to 39;
+}
+
+message AuthSubActions {
+  repeated string HTTPMethod = 1;
+}
+
+message HostedAppsOAuthACLs {
+  repeated group Rule = 1 {
+    optional string Scope = 2;
+    repeated int64 UserGroups = 3;
+    required .gaia_data.AuthSubActions Actions = 4;
+  }
+}
+
+message ServiceInfo {
+  required int32 ServiceId = 1;
+  required .proto2.bridge.MessageSet Info = 2;
+}
+
+message DeviceInfo {
+  enum DeviceType {
+    ANDROID = 0;
+    IOS = 1;
+    UNSPECIFIED = 2;
+    WINDOWS = 3;
+    BLACKBERRY = 4;
+    CHROME = 5;
+    SERVICE_ACCOUNT = 6;
+    SONY_PSN = 7;
+    CHROME_PLAYPEN = 8;
+    OSX_SYSTEM = 9;
+    IOS_SYSTEM = 10;
+    ROKU = 11;
+    FIBER_VOICE = 12;
+    GOOGLE_CLOUD_DEVICE = 13;
+    ARC_PLUS_PLUS = 14;
+    JAMBOARD = 15;
+  }
+  required int32 Type = 1;
+  optional string DeviceId = 2;
+  optional string DeviceName = 3;
+  optional string DeviceModel = 4;
+}
+
+message AuthSubTokenRecord {
+  enum TokenUsageEnum {
+    MULTIPLE_USE = 0;
+    ONE_TIME_USE = 1;
+    UPGRADEABLE = 2;
+    REQUEST_TOKEN = 3;
+    WRAP_REFRESH_TOKEN = 4;
+    IMPLICIT_CHILD = 5;
+    IMPLICIT = 6;
+    APPROVAL_POLICY = 7;
+  }
+  enum StorageStatus {
+    ONLY_GSS = 1;
+    ONLY_KANSAS = 2;
+    GSS_AND_KANSAS = 3;
+    GSS_AND_KANSAS_INCONSISTENT = 4;
+  }
+  enum DelegationTypeEnum {
+    UNKNOWN_DELEGATION_TYPE = 0;
+    UNICORN_CHILD_MANAGEMENT = 1;
+  }
+  enum CreationFlowEnum {
+    CREATIONFLOW_UNSPECIFIED = 0;
+    SAFARI_VIEW_CONTROLLER = 1;
+    PER_DUSI_ANDROID_THIRD_PARTY_EXISTING_GRANT = 2;
+  }
+  required string Token = 1;
+  optional string TokenIndex = 53;
+  optional int64 bt_timestamp_micros = 59;
+  optional bytes TokenHash = 54;
+  optional bytes SigningKey = 56;
+  optional int32 MetroCodeOfIssuance = 55;
+  required string IssueDomain = 2;
+  required int64 IssueTimeSec = 3;
+  optional int64 ExpirationTime = 4;
+  optional .gaia_data.AuthSubTokenRecord.TokenUsageEnum TokenUsage = 5 [default = MULTIPLE_USE];
+  repeated string Scope = 6;
+  repeated group ServiceInfo = 12 {
+    required int32 ServiceId = 13;
+    required .proto2.bridge.MessageSet Info = 14;
+  }
+  optional bool Revoked = 8 [default = false];
+  optional int64 RevokeTimeSec = 51;
+  optional bool Evicted = 32 [default = false];
+  optional bool Secure = 9 [default = false];
+  optional int64 AuthorizedBy = 10;
+  optional string TokenSecret = 11;
+  optional bool ForNativeApp = 16 [default = false];
+  optional string NativeAppName = 17;
+  optional int64 ApplicationResourceId = 18;
+  optional string OAuthCallbackUrl = 19;
+  optional string OAuthVerifierToken = 20;
+  optional .gaia_data.CodeChallengeRecord CodeChallenge = 49;
+  optional string LoasRole = 21;
+  optional fixed64 AndroidDeviceId = 25;
+  optional int32 OAuthLoginId = 26;
+  optional .logs.proto.gaia.DeviceUserSessionIdProto DeviceUserSessionId = 45;
+  optional bool OfflineAccess = 27 [default = true];
+  optional string ParentTokenString = 28;
+  optional bool RevokeOnPasswordChange = 29;
+  optional int64 RevokeOnPasswordChangeTimeSec = 50;
+  optional int32 AccessCodeId = 30;
+  optional bool ClientManagedRevocation = 31;
+  optional .gaia_data.DeviceInfo Device = 33;
+  optional bool InBundle = 34;
+  optional int64 TlsChannelId = 39;
+  optional int64 ProjectId = 41;
+  optional int64 ClientId = 42;
+  optional .gaia_data.AuthSubTokenRecord.StorageStatus Status = 38;
+  optional bool Sidescoped = 43;
+  optional bool AllowDisabledUser = 44;
+  optional .gaia_data.AuthSubTokenRecord.DelegationTypeEnum DelegationType = 46;
+  optional int64 DelegatingUser = 35;
+  optional string Zookie = 47;
+  optional .gaia_data.OAuthPolicy OAuthPolicy = 48;
+  optional .gaia_data.AuthSubTokenRecord.CreationFlowEnum CreationFlow = 52;
+  optional .gaia_data.RecordMetadata metadata = 57;
+  optional string x509_certificate_pem = 60;
+  optional bytes cryptauth_key_id = 61;
+  optional string x5t_s256 = 62;
+  reserved 7, 15, 22 to 24, 36, 40;
+}
+
+message RecordMetadata {
+  enum CreationCauseEnum {
+    CREATION_CAUSE_UNSPECIFIED = 0;
+    USER_CONSENT = 1;
+    INCREMENTAL_AUTH = 2;
+    OAUTH_POLICY = 3;
+    TEST_ACCOUNT = 4;
+    SERVICE_ACCOUNT = 5;
+    AUTO_APPROVAL_FIRST_PARTY = 6;
+    OAUTH_CLIENT_DELEGATION = 7;
+    AUTO_APPROVAL_D3_POLICY = 8;
+    D3_POLICY_DOMAIN_WIDE_DELEGATION = 9;
+    CLIENT_MANAGED = 10;
+  }
+  optional .gaia_data.RecordMetadata.CreationCauseEnum CreationCause = 1;
+}
+
+message CodeChallengeRecord {
+  enum CodeChallengeMethod {
+    UNKNOWN_CHALLENGE_METHOD = 0;
+    PLAIN = 1;
+    SHA_256 = 2;
+  }
+  optional string CodeChallenge = 1;
+  optional .gaia_data.CodeChallengeRecord.CodeChallengeMethod Method = 2;
+}
+
+message TokenCacheListEntry {
+}
+
+message TokenRecordEnvelope {
+  optional .gaia_data.AuthSubTokenRecord TokenRecord = 1;
+}
+
+message InactiveTokenRecordEnvelope {
+  enum InactiveType {
+    REVOKED = 1;
+    EXPIRED = 2;
+    EVICTED_BY_USER_BYTE_LIMIT = 3;
+    EVICTED_BY_APP_BYTE_LIMIT = 4;
+    EVICTED_IN_GSS = 5;
+    EVICTED_BY_RPC = 6;
+  }
+  optional .gaia_data.TokenRecordEnvelope Envelope = 1;
+  optional .gaia_data.InactiveTokenRecordEnvelope.InactiveType Type = 2;
+  optional int64 EvictionTime = 3;
+}
+
+message ExtendedTokenRecordEnvelope {
+  optional int64 LastAccessTimeSec = 1;
+}
+
+message AuthSubTokens {
+  repeated .gaia_data.AuthSubTokenRecord Token = 1;
+  optional int32 NextOAuthLoginId = 2;
+  optional int64 ModificationTimestampMicros = 3;
+  repeated int32 OAuthLoginId = 4;
+}
+
+message InactiveTokenRecord {
+  optional .gaia_data.AuthSubTokenRecord Token = 1;
+  optional .gaia_data.InactiveTokenRecordEnvelope.InactiveType Type = 2;
+  optional int64 EvictionTime = 3;
+}
+
+message UserAuthSubTokens {
+  message TokenUsage {
+    optional string TokenIndex = 1;
+    optional int64 TimestampSecs = 2;
+  }
+  required int64 UserID = 1;
+  required .gaia_data.AuthSubTokens AuthSubTokens = 2;
+  repeated .gaia_data.UserAuthSubTokens.TokenUsage LastTokenUsage = 16;
+  repeated .gaia_data.InactiveTokenRecord InactiveTokens = 3;
+  optional bool IsRobotUser = 5;
+  optional bool IsDeletedUser = 6;
+  optional .ClientUserInfo UserInfo = 8;
+  repeated group GoogleAccessCodes = 9 {
+    required int32 CodeID = 10;
+    required string Name = 11;
+    required int64 CreationTimeUsec = 12;
+    optional int64 LastTimeUsedUsec = 13;
+  }
+  optional string DomainName = 14;
+  optional bool DEPRECATED_IsNonUser = 4;
+  optional bool DEPRECATED_IsDisabledUser = 7;
+  reserved 15;
+}
+
+message DeviceUserSessionDatadump {
+  optional int64 UserID = 1;
+  repeated .gaia_data.DeviceUserSession Sessions = 2;
+}
+
+message AuthSubTokenRecordMatchPrototype {
+  optional string IssueDomain = 1;
+  optional string DisplayDomain = 2;
+  repeated string Scope = 3;
+  optional bool ForNativeApp = 4;
+  optional string NativeAppName = 5;
+  optional int64 ApplicationResourceId = 6;
+  optional int64 IssueTimeSec = 7;
+  optional fixed64 AndroidDeviceId = 8;
+  optional .gaia_data.DeviceInfo Device = 14;
+  repeated .gaia_data.DeviceInfo Devices = 13;
+  optional bool OfflineAccess = 10;
+  repeated .gaia_data.ServiceInfo ServiceInfo = 11;
+  optional bool InBundle = 15;
+  optional string ProjectId = 16;
+  optional int64 ProjectId2 = 19;
+  optional int64 DelegatingUser = 17;
+  repeated int64 OAuthLoginId = 21;
+  repeated string DeviceUserSessionId = 23;
+  repeated .gaia_data.OAuthPolicy OAuthPolicy = 24;
+  repeated string OAuthCallbackUrl = 25;
+  optional int32 TokenUsage = 9;
+  optional bool ClientManagedRevocation = 12;
+  optional string TokenPrefix = 20;
+  reserved 22, 18;
+}
+
+message AuthSubToken {
+  required int64 UserID = 1;
+  required int32 TokenID = 2;
+  optional int32 TokenID2 = 3;
+  optional int32 NotValidAfterDeltaSeconds = 4;
+  optional int32 ExtendedBearerTokenLifetimeSec = 6;
+  optional int32 metro_code_of_issuance = 7;
+  optional fixed32 minute_of_issuance = 8;
+  reserved 5, 9, 10, 11;
+}
+
+message AuthSubApphostingAppInfo {
+  required string HostAndDomain = 1;
+  required string Title = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .gaia_data.AuthSubApphostingAppInfo message_set_extension = 5238355;
+  }
+}
+
+

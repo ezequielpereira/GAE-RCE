@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+import "security/loas/lib/proto/loas.proto";
+import "net/rpc/empty-message.proto";
+option java_package = "com.google.net.loas.genfiles";
+
+service LocAS {
+  rpc ClientGetLocASHint(.ClientGetLocASHintReq) returns (.ClientGetLocASHintResp);
+  rpc ServerGetNewSessionKey(.ServerGetNewSessionKeyReq) returns (.ServerGetNewSessionKeyResp);
+  rpc ClientGetSessionKey(.ClientGetSessionKeyReq) returns (.ClientGetSessionKeyResp);
+  rpc GetCert(.CertReq) returns (.CertResp);
+  rpc GetLocASInfo(.LocASInfoReq) returns (.LocASInfoResp);
+  rpc WarmupLocAS2LocAS(.WarmupLocAS2LocASReq) returns (.EmptyMessage);
+  rpc BakeCookie(.BakeCookieReq) returns (.LOASProtoStatus);
+  rpc RegisterKey(.RegisterKeyReq) returns (.LOASProtoStatus);
+  rpc DestroyKey(.DestroyKeyReq) returns (.LOASProtoStatus);
+  rpc GenerateCsr(.GenerateCsrReq) returns (.GenerateCsrResp);
+  rpc InstallCert(.InstallCertReq) returns (.LOASProtoStatus);
+  rpc GetRevocationStatus(.GetRevocationStatusReq) returns (.GetRevocationStatusResp);
+  rpc GenerateKeypair(.GenerateKeypairReq) returns (.GenerateKeypairResp);
+  rpc InstallMachineCert(.InstallMachineCertReq) returns (.LOASProtoStatus);
+}
+
+service LOASHostKeySetup {
+  rpc NewLocAS2LocASKey(.LocAS2LocASKeyReq) returns (.LocAS2LocASKeyResp);
+  rpc ReverseLocAS2LocASKey(.LocAS2LocASReverseKeyReq) returns (.LocAS2LocASReverseKeyResp);
+  rpc Ping(.EmptyMessage) returns (.EmptyMessage);
+}
+

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "LabelProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/label;label";
+option cc_enable_arenas = true;
+option objc_class_prefix = "GAPI";
+
+message LabelDescriptor {
+  enum ValueType {
+    STRING = 0;
+    BOOL = 1;
+    INT64 = 2;
+  }
+  string key = 1;
+  .google.api.LabelDescriptor.ValueType value_type = 2;
+  string description = 3;
+}
+
+

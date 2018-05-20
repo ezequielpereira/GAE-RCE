@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package tech.file;
+
+option java_outer_classname = "BlobTypes";
+
+message BlobV2BucketStat {
+  optional int64 metadata_generation = 1;
+  optional string project = 2;
+  optional string location = 3;
+  optional string storage_class = 4;
+}
+
+message BlobV2ObjectStat {
+  enum ObjectState {
+    OBJECT_STATE_UNSPECIFIED = 0;
+    NOT_FINALIZED = 1;
+    CURRENT = 2;
+    ARCHIVED = 3;
+  }
+  optional int64 generation = 1;
+  optional int64 metadata_generation = 2;
+  optional string md5_hash = 3;
+  map<string, string> custom_metadata = 4;
+  optional .tech.file.BlobV2ObjectStat.ObjectState object_state = 5;
+}
+
+

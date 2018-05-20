@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+import "apphosting/base/clone.proto";
+import "apphosting/sandbox/udrpc/udrpc.proto";
+import "net/rpc/empty-message.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.sandbox";
+option java_outer_classname = "ModelClonePb";
+
+message DeadlineInfo {
+  required string security_ticket = 1;
+  required bool hard = 2;
+}
+
+message PerformanceDataRequest {
+  optional .apphosting.PerformanceData.Type type = 1 [default = PERIODIC_SAMPLE];
+}
+
+service CloneController {
+  rpc WaitForSandbox(.EmptyMessage) returns (.EmptyMessage);
+  rpc ApplyCloneSettings(.apphosting.CloneSettings) returns (.EmptyMessage);
+  rpc SendDeadline(.apphosting.DeadlineInfo) returns (.EmptyMessage);
+  rpc GetPerformanceData(.apphosting.PerformanceDataRequest) returns (.apphosting.PerformanceData);
+  rpc UpdateActiveBreakpoints(.apphosting.CloudDebuggerBreakpoints) returns (.apphosting.CloudDebuggerBreakpoints);
+  rpc GetDebuggeeInfo(.apphosting.DebuggeeInfoRequest) returns (.apphosting.DebuggeeInfoResponse);
+}
+

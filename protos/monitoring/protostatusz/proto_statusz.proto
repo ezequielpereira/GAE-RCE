@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+import "logs/java/logmessage.proto";
+import "monitoring/protostatusz/thread_dump.proto";
+import "monitoring/protostatusz/varz_dump.proto";
+import "monitoring/stacktrace/event_stack_trace.proto";
+option java_package = "com.google.monitoring.protostatusz";
+option java_multiple_files = true;
+
+message StatuszBeginProto {
+  optional bytes DataVersion = 1;
+}
+
+message StatuszNewServerProto {
+  required bytes Spec = 1;
+  required .BuildDataProto CurrentBuildData = 2;
+  optional .monitoring_stacktrace.BorgData CurrentBorgData = 3;
+  optional int64 ServiceId = 4;
+  optional bytes Hostname = 5;
+  optional bytes IpAddress = 6;
+}
+
+message StatuszPositionProto {
+  enum Type {
+    EXCEPTION = 1;
+    THREADS = 2;
+    VARZ = 3;
+  }
+  required bytes Position = 1;
+  required int32 type = 2;
+}
+
+message StatuszEndProto {
+  required bytes Position = 1;
+}
+
+message StatuszProto {
+  optional .StatuszBeginProto Begin = 1;
+  optional .StatuszNewServerProto NewServer = 5;
+  optional .LogMessageProto LogMessage = 2;
+  optional .ThreadDumpProto Dump = 4;
+  optional .VarzDumpProto Varzees = 6;
+  optional .LogMessageProto Error = 7;
+  optional .StatuszPositionProto Position = 50;
+  optional .StatuszEndProto End = 3;
+}
+

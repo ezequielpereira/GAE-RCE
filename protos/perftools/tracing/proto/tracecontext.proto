@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+
+message TraceContextProto {
+  required fixed64 trace_id = 1;
+  required fixed64 span_id = 2;
+  optional fixed64 parent_span_id = 4 [default = 0];
+  required fixed32 trace_mask = 3;
+  optional double inverse_sampling_probability = 5;
+}
+
+

@@ -1,0 +1,313 @@
+syntax = "proto2";
+
+import "apphosting/base/common.proto";
+import "apphosting/base/container.proto";
+import "apphosting/base/server.proto";
+import "google/devtools/source/v1/source_context.proto";
+import "logs/eventid/eventid.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "ClonePb";
+
+message CloneMinuteHourAvgStat {
+  optional double rate1m = 1;
+  optional double average1m = 2;
+  optional double total = 3;
+}
+
+message CloneHighResolutionAvgStat {
+  optional double rate1s = 1;
+  optional double rate10s = 2;
+  optional double rate1m = 3;
+  optional double rate10m = 4;
+  optional double rate_total = 5;
+  optional double total = 6;
+}
+
+message CloneMinuteTenMinuteHourAvgStat {
+  optional double average1m = 1;
+  optional double average10m = 2;
+  optional double average1h = 3;
+}
+
+message CloneKey {
+  required uint32 appserver_task_index = 1;
+  required uint32 clone_pid = 2 [deprecated = true];
+  optional string clone_id = 5;
+  optional int64 timestamp_usec = 6;
+  optional string borg_cell = 3;
+  optional string pool = 4;
+}
+
+message CloneHealth {
+  optional double last_ok_time_s = 1 [default = 0];
+  optional double last_fail_time_s = 2;
+  optional int64 last_ok_latency_usec = 3;
+  optional bool severe_request_error = 4 [default = false];
+  optional string last_request_error = 5;
+}
+
+message CloneStats {
+  enum State {
+    NEW = 0;
+    ACTIVE = 1;
+    IDLE = 2;
+    DYING = 3;
+    DEAD = 4;
+    SHUTDOWN = 5;
+    SHUTDOWN_COMPLETE = 6;
+    SANDBOXING = 7;
+  }
+  optional string app_id = 1;
+  optional string version_id = 2;
+  optional .EventIdMessage clone_start_eventid = 54;
+  optional bytes clone_key = 55;
+  optional int32 replica_index = 35;
+  optional int32 frontend_index = 56;
+  optional bytes appserver_task_bns = 57;
+  optional string runtime_id = 32;
+  optional string runtime_specialization = 99;
+  optional string source_language = 70;
+  optional .apphosting.CloneStats.State state = 3;
+  optional int32 pid = 4 [deprecated = true];
+  optional int32 port = 5;
+  optional string clone_id = 82;
+  optional string uds_address = 100;
+  optional double last_use_time_s = 6;
+  optional double last_request_end_time_s = 91;
+  optional double last_nonshutdown_request_end_time_s = 92;
+  optional double shutdown_time_s = 52;
+  optional .apphosting.CloneMinuteHourAvgStat rpcs = 7;
+  optional .apphosting.CloneMinuteHourAvgStat successful_requests = 8;
+  optional .apphosting.CloneMinuteHourAvgStat errors = 9;
+  optional int32 sequential_errors = 10;
+  optional .apphosting.CloneMinuteHourAvgStat num_syscalls = 11;
+  optional .apphosting.CloneMinuteHourAvgStat mcycles_used = 12;
+  optional .apphosting.CloneMinuteHourAvgStat loading_mcycles_used = 83;
+  optional .apphosting.CloneMinuteHourAvgStat request_latency_ms = 34;
+  optional .apphosting.CloneMinuteHourAvgStat loading_request_latency_ms = 84;
+  optional .apphosting.CloneMinuteHourAvgStat ms_running = 13;
+  optional .apphosting.CloneMinuteHourAvgStat ms_slept = 14;
+  optional .apphosting.CloneMinuteHourAvgStat ms_slept_while_idle = 15;
+  optional .apphosting.CloneMinuteHourAvgStat throttled_requests = 16;
+  optional .apphosting.CloneMinuteHourAvgStat offline_requests = 17;
+  optional string death_message = 19;
+  optional int32 clone_exit_reason = 77;
+  optional double creation_time_s = 20;
+  optional double start_time_s = 51;
+  optional double resident_mem_mb = 22;
+  optional double virtual_mem_mb = 23;
+  optional double private_mem_mb = 24;
+  optional .apphosting.CloneMinuteTenMinuteHourAvgStat private_mem_mb_avg = 48;
+  optional double shared_mem_mb = 25;
+  optional double proc_mem_mb = 85;
+  optional double gcontainer_mem_mb = 86;
+  optional int64 gofer_cgroup_mem_b = 93;
+  optional int64 gofer_rss_mem_b = 94;
+  optional int64 guest_app_mem_b = 95;
+  optional int64 guest_sentry_mem_b = 96;
+  repeated .apphosting.ContainerResourceStats container_resource_stats = 98;
+  repeated int32 process_ids = 90;
+  optional int32 soft_private_memory_limit_mb = 87;
+  optional int32 medium_private_memory_limit_mb = 88;
+  optional int32 hard_private_memory_limit_mb = 89;
+  optional string syscall_policy = 30;
+  optional bool reserved = 31;
+  optional bool min_instance = 75;
+  optional int32 max_concurrent_requests = 33;
+  optional int32 dynamic_max_concurrent_requests = 67;
+  optional int32 max_background_requests = 65;
+  optional double max_cpu_rate = 37;
+  optional double startup_cpu_rate = 80;
+  optional double max_accepting_cpu = 42;
+  optional int32 cpu_shares = 79;
+  optional int32 num_active_requests = 38;
+  optional int32 num_active_requests_max_1s = 68;
+  optional int32 num_active_background_requests = 66;
+  repeated group RequestInfo = 39 {
+    required string security_ticket = 40;
+    optional string status_line = 41;
+  }
+  optional .apphosting.CloneHighResolutionAvgStat cpu_usage = 43;
+  optional .apphosting.CloneHighResolutionAvgStat active_time = 59;
+  optional .apphosting.CloneMinuteHourAvgStat soft_deadlines = 44;
+  optional .apphosting.CloneMinuteHourAvgStat hard_deadlines = 45;
+  optional .apphosting.ServerConfig server_config = 50;
+  optional double frontend_instance_weight = 63 [default = 1];
+  optional int32 frontend_instance_class = 64 [default = 4];
+  optional bool is_backup_appserver = 69;
+  optional bool has_been_removed = 53;
+  optional bool consuming_instance_quotas = 58;
+  optional int32 desired_max_idle_clones = 60;
+  optional double engine_default_instance_weight = 73 [default = 1];
+  optional int64 now_usec = 61;
+  optional double predicted_vacancy_s = 62;
+  optional .apphosting.CloneHealth vm_usercode_health = 71;
+  optional .apphosting.CloneHealth vm_agent_health = 72;
+  optional string app_engine_release = 76;
+  optional string instance_definition_id = 81;
+  repeated string extra_instance_definition_ids = 97;
+  extend .proto2.bridge.MessageSet {
+    optional .apphosting.CloneStats message_set_extension = 13916411;
+  }
+  reserved 18, 28, 29, 46, 47, 49, 74, 78;
+}
+
+message ProfilerData {
+  optional .apphosting.ProfilerSettings settings = 1;
+  repeated .apphosting.ProfilerResults results = 2;
+}
+
+message PerformanceData {
+  message Entry {
+    optional .apphosting.PerformanceData.Format format = 1;
+    optional bytes payload = 2;
+  }
+  enum Type {
+    UNKNOWN = 0;
+    AFTER_LOADING = 1;
+    PERIODIC_SAMPLE = 2;
+  }
+  enum Format {
+    HUMAN_READABLE_TEXT = 1;
+    JAVA_HOTSPOT_HSPERFDATA = 2;
+  }
+  repeated .apphosting.PerformanceData.Entry entries = 1;
+  optional .apphosting.PerformanceData.Type type = 2 [default = PERIODIC_SAMPLE];
+}
+
+message ApiPackageDeadlines {
+  required string api_package = 1;
+  optional double default_deadline_s = 2;
+  optional double max_deadline_s = 3;
+  optional int64 min_content_size_for_buffer = 4;
+  optional int64 max_request_size = 5;
+}
+
+message CloneSettings {
+  optional int32 max_virtual_memory_mb = 1;
+  optional int32 max_cpu_seconds = 2;
+  optional int32 max_outstanding_api_rpcs = 3;
+  repeated .apphosting.ApiPackageDeadlines api_call_deadlines = 4;
+  repeated .apphosting.ApiPackageDeadlines offline_api_call_deadlines = 6;
+  optional int32 server_replica_index = 5;
+  optional int32 max_num_buffers = 7 [deprecated = true];
+  optional int64 default_min_content_size_for_buffer = 9;
+  optional int64 default_max_request_size = 10;
+  optional bool background_threads_enabled = 12;
+  optional int64 max_http_response_size = 11;
+  optional int32 soft_private_memory_limit_mb = 13;
+  optional bytes clone_key = 14;
+  optional int32 app_log_line_size = 15;
+  optional int32 app_log_group_size = 16;
+  optional bytes entropy_string = 17;
+  optional bool obsolete_app_log_source_location = 18 [deprecated = true];
+  optional bool truncate_log_line_in_runtime = 19 [default = false];
+  reserved 8;
+}
+
+message SupervisorSettings {
+  enum JavaVmType {
+    CLIENT = 0;
+    SERVER = 1;
+  }
+  optional int32 soft_virtual_memory_limit_mb = 3;
+  optional int32 soft_private_memory_limit_mb = 8;
+  optional int32 medium_private_memory_limit_mb = 35;
+  optional int32 hard_private_memory_limit_mb = 9;
+  optional int32 java_clone_heap_size_mb = 29;
+  optional int32 java_clone_perm_gen_size_mb = 62;
+  optional .apphosting.SupervisorSettings.JavaVmType java_vm_type = 34;
+  optional double wait_for_active_clones_min_pending_time_s = 39;
+  optional double wait_for_active_clones_max_pending_time_s = 41;
+  optional int32 max_clone_successful_requests = 5;
+  optional int32 max_clone_sequential_errors = 6;
+  optional int32 max_active_requests = 7;
+  optional int32 max_active_clones = 27;
+  optional bool throttle_loading_requests = 26;
+  optional int32 max_loading_requests = 19;
+  optional double request_deadline_s = 11;
+  optional double offline_request_deadline_s = 18;
+  optional double warming_request_deadline_s = 20;
+  optional double loading_request_deadline_s = 32;
+  optional double shutdown_request_deadline_s = 33;
+  optional double max_pending_delay_s = 12;
+  optional double max_pending_delay_boost_limit_factor = 70;
+  optional int32 push_back_max_pending_requests = 16;
+  optional double max_cpu_rate = 21;
+  optional double cpu_rate_padding = 71;
+  optional double startup_cpu_rate = 69;
+  optional int32 max_concurrent_requests = 23;
+  optional int32 cpu_shares = 68;
+  optional int32 min_concurrent_requests = 54;
+  optional int32 max_background_requests = 53;
+  optional int64 max_concurrent_requests_total_size = 36;
+  optional bool use_dynamic_max_concurrent_requests = 55;
+  optional double dynamic_max_concurrent_requests_max_cpu_fraction = 56;
+  optional double dynamic_max_concurrent_requests_min_cpu_fraction = 57;
+  optional int64 max_pending_requests_total_size = 37;
+  optional int64 push_back_max_pending_requests_total_size = 38;
+  optional double max_accepting_cpu = 25;
+  optional int32 clone_lb_policy = 24 [default = 0];
+  optional .apphosting.ProfilerSettings profiler_settings = 48;
+  optional double multi_queue_warm_latency_multiplier = 50;
+  optional double multi_queue_min_predicted_time_s = 51;
+  optional double multi_queue_max_predicted_time_s = 52;
+  optional bool enable_sliding_scale_routing = 58;
+  optional int32 sliding_scale_ready_clone_attempts = 59;
+  optional int32 sliding_scale_low_predicted_time_attempts = 60;
+  optional double sliding_scale_max_predicted_time_s = 61;
+  optional int32 sliding_scale_max_active_clones = 63;
+  optional bool enable_clone_reducer = 64;
+  optional int32 clone_reducer_min_age_s = 65;
+  optional double clone_reducer_min_utilization_1m = 66;
+  optional int32 clone_reducer_min_clones = 67;
+  reserved 1, 2, 4, 10, 13, 14, 15, 17, 22, 30, 31, 40, 42, 44, 45, 46, 47;
+}
+
+message CloudDebuggerBreakpoints {
+  repeated bytes breakpoint_data = 1;
+}
+
+message DebuggeeInfo {
+  optional .google.devtools.source.v1.SourceContext source_context = 1;
+}
+
+message DebuggeeInfoRequest {
+  required string app_version_id = 1;
+}
+
+message DebuggeeInfoResponse {
+  optional .apphosting.DebuggeeInfo debuggee_info = 1;
+}
+
+message AppMemStats {
+  message SentryMemData {
+    optional int64 anon = 1 [deprecated = true];
+    optional int64 tmpfs = 2 [deprecated = true];
+    optional int64 page_cache = 3 [deprecated = true];
+    optional int64 host_map = 4;
+    optional int64 unknown = 5;
+  }
+  enum Style {
+    FAST = 0;
+    DETAILED = 1;
+  }
+  optional .apphosting.AppMemStats.SentryMemData sentry_reported_mem_data = 1;
+  optional int64 proc_mem = 2;
+  optional int64 gcontain_mem = 3;
+  optional int64 app_mem = 4;
+  optional .apphosting.AppMemStats.Style style = 5 [deprecated = true];
+}
+
+message ContainerResourceStats {
+  optional string container_name = 1;
+  optional int64 sentry_mem = 2;
+  optional .apphosting.AppMemStats app_mem_stats = 3;
+  repeated .riptide.ContainerCapability capabilities = 4;
+  optional int64 cpu_usage = 5;
+}
+
+

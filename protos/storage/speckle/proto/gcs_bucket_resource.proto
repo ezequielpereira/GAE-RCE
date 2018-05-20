@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "storage/speckle/proto/enums.proto";
+package speckle;
+
+message GcsBucketResourceProto {
+  optional string bucket_id = 1;
+  optional string project_id = 2;
+  optional .speckle.Region region = 3;
+  optional int64 authorized_group_gaia_id = 4;
+}
+
+

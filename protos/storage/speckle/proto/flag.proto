@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package speckle;
+
+message StartupFlag {
+  optional string name = 1;
+  optional string value = 2;
+}
+
+

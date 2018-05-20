@@ -1,0 +1,89 @@
+syntax = "proto2";
+
+import "security/credentials/proto/principal.proto";
+import "security/loas/l2/proto/common.proto";
+import "security/util/proto/permission.proto";
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+
+message RoleIdentity {
+  optional .security.credentials.PrincipalProto primary = 1;
+  repeated uint64 revocation_id = 2;
+  optional .AcctRestrictions restrictions = 3;
+  repeated string next_protocol = 4;
+  repeated string security_realms = 5;
+  repeated uint64 non_contagious_revocation_id = 6;
+}
+
+message HostIdentity {
+  optional string fqdn = 1;
+}
+
+message UnauthenticatedHostIdentity {
+  optional string fqdn = 1;
+  extend .security_loas_l2.AuthenticatedOptions {
+    optional .security_loas_l2.UnauthenticatedHostIdentity unauthenticated_host_identity = 1001;
+  }
+}
+
+message ProcessIdentity {
+  optional string local_username = 1;
+}
+
+message BorgCellIdentity {
+  optional string cell = 1;
+}
+
+message BorgTaskIdentity {
+  optional string jobname = 1;
+  optional int32 id = 2;
+  extend .security_loas_l2.AuthenticatedOptions {
+    optional .security_loas_l2.BorgTaskIdentity borg_task_identity = 1000;
+  }
+}
+
+message CertificateComment {
+  optional string text = 1;
+}
+
+message UnauthenticatedProgramNameIdentity {
+  optional string program_name = 1;
+  extend .security_loas_l2.AuthenticatedOptions {
+    optional .security_loas_l2.UnauthenticatedProgramNameIdentity unauthenticated_program_name_identity = 1003;
+  }
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.RoleIdentity role_identity = 100;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.HostIdentity host_identity = 101;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.ProcessIdentity process_identity = 102;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.BorgCellIdentity borg_cell_identity = 103;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.BorgTaskIdentity borg_task_identity = 104;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.CertificateComment certificate_comment = 105;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.UnauthenticatedHostIdentity unauthenticated_host_identity = 106;
+}
+
+extend .security_loas_l2.Identity {
+  optional .security_loas_l2.UnauthenticatedProgramNameIdentity unauthenticated_program_name_identity = 107;
+}
+
+

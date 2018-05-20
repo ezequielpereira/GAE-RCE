@@ -1,0 +1,37 @@
+syntax = "proto2";
+
+import "security/credentials/proto/authenticator.proto";
+import "security/credentials/proto/end_user_credentials.proto";
+import "security/credentials/proto/iam_request_attributes.proto";
+package rpc;
+
+option java_package = "com.google.net.rpc.proto";
+option java_multiple_files = true;
+
+message RpcAuthorityProto {
+  message Self {
+    repeated .security.credentials.DataAccessReason reason = 1;
+    optional .security.credentials.IAMRequestAttributes iam_attributes = 2;
+  }
+  message FromContext {
+  }
+  message Legacy {
+    optional string call_site = 1;
+  }
+  oneof authority {
+    .rpc.RpcAuthorityProto.Self self = 1;
+    .rpc.RpcAuthorityProto.FromContext from_context = 2;
+    .security.credentials.EndUserCredentialsProto end_user_creds = 3;
+    .rpc.RpcAuthorityProto.Legacy legacy = 4;
+  }
+}
+
+message AuthorityFromEnvironment {
+  enum EnvVars {
+    END_USER_CREDS_FILE = 1;
+    IAM_REQUEST_ATTRS_FILE = 2;
+    DATA_ACCESS_REASON_FILE = 3;
+  }
+}
+
+

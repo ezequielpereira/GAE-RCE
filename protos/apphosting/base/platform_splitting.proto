@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+import "apphosting/base/common.proto";
+package apphosting.platform_splitting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "PlatformSplittingPb";
+
+message Configuration {
+  message Weights {
+    message PlatformWeights {
+      optional double ptrace_sandbox_platform_weight = 1;
+      optional double compute_engine_platform_weight = 2;
+    }
+    optional .apphosting.platform_splitting.Configuration.Weights.PlatformWeights engine_base_weights = 1;
+    optional .apphosting.platform_splitting.Configuration.Weights.PlatformWeights default_version_weights = 2;
+  }
+  optional .apphosting.platform_splitting.Configuration.Weights app_base_weights = 1;
+  map<string, .apphosting.platform_splitting.Configuration.Weights> engine_weights = 2;
+}
+
+message Platform {
+  enum Type {
+    PTRACE_SANDBOX = 1;
+    COMPUTE_ENGINE = 2;
+  }
+  required .apphosting.platform_splitting.Platform.Type type = 1 [default = PTRACE_SANDBOX];
+}
+
+

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "stats/census/proto/google-rpc-status.proto";
+package stats_census;
+
+option java_package = "com.google.tracing";
+option java_outer_classname = "GoogleTraceProto";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message TraceId {
+  string hex_encoded = 1;
+}
+
+message Module {
+  string module = 1;
+  string build_id = 2;
+}
+
+message StackTrace {
+  message StackFrame {
+    string function_name = 1;
+    string orig_function_name = 2;
+    string file_name = 3;
+    int64 line_number = 4;
+    int64 column_number = 5;
+    .stats_census.Module load_module = 6;
+    string source_version = 7;
+  }
+  repeated .stats_census.StackTrace.StackFrame stack_frame = 1;
+  uint64 stack_trace_hash_id = 2;
+}
+
+message LabelValue {
+  oneof value {
+    string string_value = 1;
+    int64 int_value = 2;
+    bool bool_value = 3;
+  }
+}
+
+message Span {
+  message TimeEvent {
+    message Annotation {
+      string description = 1;
+      map<string, .stats_census.LabelValue> labels = 2;
+    }
+    message NetworkEvent {
+      enum Type {
+        UNSPECIFIED = 0;
+        SENT = 1;
+        RECV = 2;
+      }
+      .google.protobuf.Timestamp kernel_time = 1;
+      .stats_census.Span.TimeEvent.NetworkEvent.Type type = 2;
+      uint64 message_id = 3;
+      uint64 message_size = 4;
+    }
+    .google.protobuf.Timestamp local_time = 1;
+    oneof value {
+      .stats_census.Span.TimeEvent.Annotation annotation = 2;
+      .stats_census.Span.TimeEvent.NetworkEvent network_event = 3;
+    }
+  }
+  message Link {
+    enum Type {
+      UNSPECIFIED = 0;
+      CHILD = 1;
+      PARENT = 2;
+    }
+    .stats_census.TraceId trace_id = 1;
+    fixed64 span_id = 2;
+    .stats_census.Span.Link.Type type = 3;
+  }
+  fixed64 id = 1;
+  string name = 2;
+  fixed64 parent_id = 3;
+  .google.protobuf.Timestamp local_start_time = 4;
+  .google.protobuf.Timestamp local_end_time = 5;
+  map<string, .stats_census.LabelValue> labels = 6;
+  .stats_census.StackTrace stack_trace = 7;
+  repeated .stats_census.Span.TimeEvent time_events = 8;
+  repeated .stats_census.Span.Link links = 9;
+  .stats_census.Status status = 10;
+  bool has_remote_parent = 11;
+}
+
+message Trace {
+  .stats_census.TraceId trace_id = 1;
+  repeated .stats_census.Span spans = 2;
+}
+
+

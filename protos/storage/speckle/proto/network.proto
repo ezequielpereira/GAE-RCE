@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package speckle;
+
+message NetworkProto {
+  optional string id = 1;
+  optional string name = 2;
+  optional string peer_network = 3;
+}
+
+message Subnet {
+  optional string id = 1;
+  optional string name = 2;
+  optional int64 project_number = 3;
+  optional string network_id = 4;
+  optional string ip_range = 5;
+}
+
+

@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+import "monitoring/streamz/proto/streamz.proto";
+package monitoring.streamz;
+
+option java_outer_classname = "MonarchAnnotationsProto";
+
+message MonarchAnnotations {
+  optional bool is_constant = 1;
+  optional bool is_public = 2;
+  optional string denominator_metric = 3;
+  optional string promotion_field_name = 4;
+  optional string varz_name = 5;
+  optional .monitoring.streamz.ExtendedAnnotations extended_annotations = 16;
+}
+
+

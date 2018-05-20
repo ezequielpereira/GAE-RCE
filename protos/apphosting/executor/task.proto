@@ -1,0 +1,232 @@
+syntax = "proto2";
+
+import "apphosting/executor/queue.proto";
+import "apphosting/executor/retry.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+
+message TaskRef {
+  required .apphosting.QueueRef queue_ref = 1;
+  required bytes name = 2;
+}
+
+message TaskIndexRef {
+  optional int32 shard_num = 1 [default = -1];
+  required .apphosting.QueueRef queue_ref = 2;
+  required int64 eta_usec = 3;
+  required bytes name = 4;
+  optional bytes tag = 5;
+}
+
+message TaskRange {
+  option message_set_wire_format = true;
+  extensions 100 to 2147483646;
+}
+
+message TaskEtaBorder {
+  required int64 eta_usec = 1;
+  optional bytes name = 2;
+}
+
+message TaskTagBorder {
+  required bytes tag = 1;
+  optional int64 eta_usec = 2;
+  optional bytes name = 3;
+}
+
+message TaskRangeByEta {
+  optional .apphosting.TaskEtaBorder start = 1;
+  optional .apphosting.TaskEtaBorder limit = 2;
+  extend .apphosting.TaskRange {
+    optional .apphosting.TaskRangeByEta range_def = 100;
+  }
+}
+
+message TaskRangeByName {
+  optional bytes start = 1;
+  optional bytes limit = 2;
+  extend .apphosting.TaskRange {
+    optional .apphosting.TaskRangeByName range_def = 101;
+  }
+}
+
+message TaskRangeByTag {
+  optional .apphosting.TaskTagBorder start = 1;
+  optional .apphosting.TaskTagBorder limit = 2;
+  extend .apphosting.TaskRange {
+    optional .apphosting.TaskRangeByTag range_def = 102;
+  }
+}
+
+message TaskRunnerInfo {
+  option message_set_wire_format = true;
+  extensions 200 to 2147483646;
+}
+
+message HttpTaskRunnerInfo {
+  required int64 response_code = 1;
+  optional string retry_reason = 2;
+  extend .apphosting.TaskRunnerInfo {
+    optional .apphosting.HttpTaskRunnerInfo info = 200;
+  }
+}
+
+message TaskRunnerStats {
+  required int64 dispatched_usec = 1;
+  required int64 lag_usec = 2;
+  required int64 elapsed_usec = 3;
+  optional .apphosting.TaskRunnerInfo info = 4;
+}
+
+message TaskRunnerPayload {
+  option message_set_wire_format = true;
+  extensions 10 to 2147483646;
+}
+
+message HttpTaskRunnerPayload {
+  enum RequestMethod {
+    GET = 1;
+    POST = 2;
+    HEAD = 3;
+    PUT = 4;
+    DELETE = 5;
+  }
+  optional .apphosting.HttpTaskRunnerPayload.RequestMethod method = 1 [default = POST];
+  required bytes url = 2;
+  repeated group Header = 3 {
+    required bytes key = 4;
+    required bytes value = 5;
+  }
+  optional bytes body = 6 [ctype = CORD];
+  extend .apphosting.TaskRunnerPayload {
+    optional .apphosting.HttpTaskRunnerPayload http_payload = 10;
+  }
+}
+
+message CronTaskRunnerPayload {
+  required string schedule = 1;
+  required string timezone = 2;
+  required .apphosting.TaskRunnerPayload delegated_payload = 3;
+  optional int64 skip_num_iterations = 4;
+  extend .apphosting.TaskRunnerPayload {
+    optional .apphosting.CronTaskRunnerPayload cron_payload = 11;
+  }
+}
+
+message StubbyTaskRunnerPayload {
+  message StubbyChannel {
+    enum LoadBalancingPolicy {
+      LEAST_LOADED = 1;
+      ROUND_ROBIN = 2;
+      FIRST_REACHABLE = 3;
+      AFFINITY_SCHEDULING = 4;
+      ERROR_ADVERSE = 5;
+      FIRST_LEAST_LOADED = 6;
+      INVERSE_RTT = 7;
+      LATENCY_DRIVEN_RR = 8;
+    }
+    enum TargetSelectionPolicy {
+      NO_FILTER = 1;
+      RANDOM_SUBSET = 2;
+      NETWORK_AWARE = 3;
+    }
+    required string host = 1;
+    optional .apphosting.StubbyTaskRunnerPayload.StubbyChannel.LoadBalancingPolicy load_balancing_policy = 2 [default = LEAST_LOADED];
+    optional string security_protocol = 3 [default = "loas"];
+    optional int32 min_security_level = 4;
+    optional .apphosting.StubbyTaskRunnerPayload.StubbyChannel.TargetSelectionPolicy target_selection_policy = 5 [default = NO_FILTER];
+    optional int32 max_targets = 6 [default = 5];
+    optional int32 max_outstanding_rpcs = 7;
+  }
+  message RpcOptions {
+    enum RPCProtocol {
+      TCP = 0;
+      UDP = 1;
+    }
+    enum Format {
+      UNCOMPRESSED = 0;
+      ZIPPY_COMPRESSED = 1;
+    }
+    optional double deadline = 1;
+    optional bool fail_fast = 2;
+    optional bool duplicate_suppression = 3;
+    optional uint64 scheduling_hash = 4;
+    optional .apphosting.StubbyTaskRunnerPayload.RpcOptions.RPCProtocol protocol = 5;
+    optional .apphosting.StubbyTaskRunnerPayload.RpcOptions.Format response_format = 6;
+    optional .apphosting.StubbyTaskRunnerPayload.RpcOptions.Format request_format = 7;
+  }
+  required .apphosting.StubbyTaskRunnerPayload.StubbyChannel channel = 1;
+  required string method = 2;
+  required bytes request = 3 [ctype = CORD];
+  optional .apphosting.StubbyTaskRunnerPayload.RpcOptions rpc_options = 4;
+  optional bool request_task_definition = 5 [default = false];
+  extend .apphosting.TaskRunnerPayload {
+    optional .apphosting.StubbyTaskRunnerPayload stubby_payload = 12;
+  }
+}
+
+message StubbyTaskRunnerInfo {
+  required int64 status = 1;
+  optional int64 application_error = 2;
+  optional bytes error_message = 3;
+  extend .apphosting.TaskRunnerInfo {
+    optional .apphosting.StubbyTaskRunnerInfo info = 201;
+  }
+}
+
+message PullTaskPayload {
+  required bytes content = 1 [ctype = CORD];
+  extend .apphosting.TaskRunnerPayload {
+    optional .apphosting.PullTaskPayload pull_payload = 13;
+  }
+}
+
+message PubsubTaskRunnerPayload {
+  optional bytes pubsub_message = 1 [ctype = CORD];
+  optional string internal_topic_name = 2;
+  extend .apphosting.TaskRunnerPayload {
+    optional .apphosting.PubsubTaskRunnerPayload pubsub_payload = 14;
+  }
+}
+
+message ApiSource {
+  enum Type {
+    UNKNOWN = 0;
+    APP_ENGINE_RUNTIME = 1;
+    TASK_QUEUE_BRIDGE = 2;
+    CLOUD_TASKS_FRONTEND = 3;
+    CLOUD_SCHEDULER_FRONTEND = 4;
+  }
+}
+
+message TaskDefinition {
+  required .apphosting.TaskRef task_ref = 1;
+  required int64 eta_usec = 2;
+  required .apphosting.TaskRunnerPayload payload = 3;
+  optional int64 retry_count = 4 [default = 0];
+  optional int64 store_timestamp = 5;
+  optional .apphosting.TaskRunnerStats last_invocation_stats = 6;
+  optional bytes description = 7;
+  optional .apphosting.RetryParameters retry_parameters = 8;
+  optional int64 first_try_usec = 9;
+  optional bytes tag = 10;
+  optional int64 execution_count = 11;
+  optional int32 index_shard_number = 12 [default = 0];
+  optional .apphosting.RetryParameters cron_retry_parameters = 13;
+  optional int64 cron_retry_count = 14 [default = 0];
+  optional int64 cron_run_start_usec = 15;
+  optional .apphosting.NotifyRoutingRecord notify_record = 16;
+  optional .apphosting.ApiSource.Type creation_source_type = 17;
+}
+
+message TaskGoldenVersion {
+  required int64 store_timestamp = 1;
+}
+
+message NotifyRoutingRecord {
+  optional bool sent = 1 [default = true];
+  optional string scanner_bns = 2;
+  optional int64 queue_map_timestamp_usec = 3;
+}
+

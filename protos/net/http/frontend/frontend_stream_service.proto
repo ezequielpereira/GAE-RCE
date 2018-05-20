@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+package net_http.frontend;
+
+option java_package = "com.google.gse.internal.frontend";
+
+message StreamMetadata {
+  required int32 key = 1;
+  required bytes value = 2;
+}
+
+message ByteMessage {
+  enum ProtocolParameters {
+    option allow_alias = true;
+    MAX_DATA_SIZE = 16384;
+    MAX_METADATA_SIZE = 16384;
+  }
+  repeated .net_http.frontend.StreamMetadata headers = 1;
+  optional bytes data = 2;
+}
+
+message ServerVersion {
+  optional int64 min_version = 1;
+  optional int64 max_version = 2;
+}
+
+message EmptyMessage {
+}
+
+service FrontEndStreamService {
+  rpc GetServerVersion(.net_http.frontend.EmptyMessage) returns (.net_http.frontend.ServerVersion);
+}
+
+

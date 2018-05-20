@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package security.context;
+
+option java_package = "com.google.security.context";
+option java_outer_classname = "AuditRequirementsProtoFile";
+option java_multiple_files = true;
+
+message AuditRequirements {
+  enum UnauditedDisposition {
+    REJECT = 0;
+    WARN = 1;
+    IGNORE = 2;
+  }
+  optional bool audit_person_clients = 1 [default = false];
+  repeated string code_audited_clients = 2;
+  optional .security.context.AuditRequirements.UnauditedDisposition unaudited_disposition = 3 [default = IGNORE];
+  optional .security.context.JustificationRequirements justification_requirements = 4;
+}
+
+message JustificationRequirements {
+  enum JustificationType {
+    JUSTIFICATION_TYPE_UNSPECIFIED = 0;
+    MANUAL_STRING = 1;
+    BUG_ID = 2;
+  }
+  repeated .security.context.JustificationRequirements.JustificationType acceptable_justifications = 1;
+}
+
+

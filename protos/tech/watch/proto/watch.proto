@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+import "net/proto2/proto/empty.proto";
+import "tech/type/proto/any.proto";
+package tech.watch;
+
+option java_outer_classname = "WatchApi";
+
+message Request {
+  required string target = 1;
+  optional bytes resume_marker = 2;
+}
+
+message ChangeBatch {
+  repeated .tech.watch.Change change = 1;
+}
+
+message Change {
+  enum State {
+    EXISTS = 0;
+    DOES_NOT_EXIST = 1;
+    INITIAL_STATE_SKIPPED = 2;
+    ERROR = 3;
+  }
+  required string element = 1;
+  optional .tech.watch.Change.State state = 2 [default = EXISTS];
+  optional .tech.watch.Value value = 3;
+  optional .tech.type.Any data = 6;
+  optional bytes resume_marker = 4;
+  optional bool continued = 5 [default = false];
+}
+
+message Value {
+  optional bytes byte_value = 1;
+}
+
+service Watcher {
+  rpc Watch(.tech.watch.Request) returns (stream .tech.watch.ChangeBatch);
+}
+
+service Service {
+  rpc Watch(.tech.watch.Request) returns (stream .tech.watch.ChangeBatch);
+}
+
+

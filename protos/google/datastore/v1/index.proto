@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package google.datastore.v1;
+
+option java_package = "com.google.datastore.v1";
+option java_outer_classname = "IndexProto";
+option java_multiple_files = true;
+option csharp_namespace = "Google.Cloud.Datastore.V1";
+
+message IndexedPropertyDefinition {
+  enum Mode {
+    MODE_UNSPECIFIED = 0;
+    UNORDERED = 1;
+    ASCENDING = 2;
+    DESCENDING = 3;
+    KEY_ANCESTRY = 4;
+    GEO = 5;
+  }
+  string name = 1;
+  .google.datastore.v1.IndexedPropertyDefinition.Mode mode = 2;
+}
+
+message IndexDefinition {
+  string kind = 1;
+  repeated .google.datastore.v1.IndexedPropertyDefinition properties = 2;
+}
+
+message Index {
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    OFF = 1;
+    SERVING = 2;
+    BUILDING = 3;
+    CLEARING = 4;
+    ERROR = 5;
+  }
+  string project_id = 1;
+  string database_id = 2;
+  string index_id = 3;
+  .google.datastore.v1.IndexDefinition index_definition = 4;
+  .google.datastore.v1.Index.State state = 5;
+}
+

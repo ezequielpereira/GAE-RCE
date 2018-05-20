@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+import "security/keymaster/key_format.proto";
+import "security/keymaster/keymaster.proto";
+package security.keymaster;
+
+option java_package = "com.google.security.keymaster";
+option java_outer_classname = "UnusedRotationProtoOuterName";
+option java_multiple_files = true;
+option go_package = "keymaster";
+option cc_enable_arenas = true;
+
+message KeyRotationPolicyProto {
+  required int32 max_active_keys = 1;
+  optional .security.keymaster.KeyFormat new_key_format = 3;
+  optional .security.KeyTemplateProto new_key_template = 2;
+}
+

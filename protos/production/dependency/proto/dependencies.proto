@@ -1,0 +1,37 @@
+syntax = "proto2";
+
+import "production/dependency/proto/health.proto";
+package production.dependency.proto;
+
+option java_package = "com.google.prod.dependency.proto";
+option java_outer_classname = "DependenciesProto";
+
+message Dependencies {
+  repeated .production.dependency.proto.Dependency dependency = 1;
+}
+
+message Dependency {
+  optional string name = 1;
+  repeated .production.dependency.proto.Configuration inline_configuration = 2;
+  optional string owner = 3;
+  optional string domain = 4;
+  optional .production.dependency.proto.ResourceImportance importance = 5;
+}
+
+message Configurations {
+  repeated .production.dependency.proto.Configuration configuration = 1;
+}
+
+message Configuration {
+  repeated .production.dependency.proto.Filters filters = 1;
+  extensions 1000 to 536870911;
+}
+
+message Filters {
+  optional string user = 1;
+  optional string cell = 2;
+  optional string job = 3;
+  extensions 1000 to 536870911;
+}
+
+

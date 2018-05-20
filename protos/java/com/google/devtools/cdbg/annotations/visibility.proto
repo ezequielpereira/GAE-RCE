@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package devtools.cdbg.configuration;
+
+option java_outer_classname = "CloudDebuggerVisibility";
+
+message Root {
+  repeated .devtools.cdbg.configuration.Package packages = 1;
+}
+
+message Package {
+  string binary_name = 1;
+  bool invisible = 2;
+  repeated .devtools.cdbg.configuration.Class classes = 3;
+}
+
+message Class {
+  string name = 1;
+  bool invisible = 2;
+  repeated .devtools.cdbg.configuration.Field fields = 3;
+  repeated .devtools.cdbg.configuration.Method methods = 4;
+  repeated .devtools.cdbg.configuration.Class nested_classes = 5;
+}
+
+message Field {
+  string name = 1;
+  bool invisible = 2;
+}
+
+message Method {
+  string name = 1;
+  string signature = 2;
+  repeated .devtools.cdbg.configuration.Variable variables = 3;
+}
+
+message Variable {
+  string name = 1;
+  bool invisible = 2;
+}
+
+

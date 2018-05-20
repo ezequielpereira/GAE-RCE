@@ -1,0 +1,51 @@
+syntax = "proto2";
+
+import "tech/log/proto/entity.proto";
+import "tech/log/proto/log_entry.proto";
+import "tech/log/proto/log_options.proto";
+import "util/task/status.proto";
+package tech.log;
+
+option java_package = "com.google.tech.log";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message LogHandle {
+  required string name = 1;
+  required bytes handle = 2;
+  optional bytes continuation_token = 3;
+}
+
+message OpenRequest {
+  required string name = 1;
+  optional .tech.log.Entity producer = 3;
+  optional .tech.log.LogOptions options = 2;
+}
+
+message OpenResponse {
+  required .tech.log.LogHandle log = 1;
+}
+
+message PutRequest {
+  required .tech.log.LogHandle log = 1;
+  required .tech.log.LogEntry record = 2;
+}
+
+message MultiPutRequest {
+  optional .tech.log.LogHandle log = 1;
+  repeated .tech.log.LogEntry record = 2;
+}
+
+message PutResponse {
+  optional .tech.log.LogHandle log = 1;
+  repeated .util.StatusProto result = 2;
+}
+
+message CloseRequest {
+  required .tech.log.LogHandle log = 1;
+}
+
+message CloseResponse {
+}
+
+

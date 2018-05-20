@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/credentials/proto/principal.proto";
+import "security/util/proto/permission.proto";
+package security_loas_l2;
+
+message LOAS2Policy {
+  repeated .security_loas_l2.MasterPolicy whitelisted_master = 1;
+  repeated .security.credentials.PrincipalProto blacklisted_role = 2;
+  repeated .security_loas_l2.LOAS2PolicyCustomization customization = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.LOAS2Policy message_set_extension = 44581891;
+  }
+}
+
+message LOAS2PolicyCustomization {
+  optional .security.credentials.PrincipalProto policy_decision_point = 1;
+  repeated .security_loas_l2.MasterPolicy whitelisted_master = 2;
+}
+
+message MasterPolicy {
+  optional .security.credentials.PrincipalProto master = 1;
+  optional .proto2.bridge.MessageSet expected_assertions = 2;
+  optional .AcctRestrictions most_permissive_restrictions = 3;
+  repeated .security.credentials.PrincipalProto.PrincipalScope whitelisted_scope = 4;
+  repeated .security.credentials.PrincipalProto whitelisted_role = 5;
+  repeated string whitelisted_mdb_role_prefix = 6;
+  repeated .security.credentials.PrincipalProto blacklisted_role = 7;
+  optional .security.credentials.PrincipalProto fallback_role = 9;
+  extensions 8 to 8;
+}
+
+

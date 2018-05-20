@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/api/experimental/analytics_config.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ServiceControlConfigProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+enum ServiceControlAclModel {
+  DEFAULT = 0;
+  EXPLICIT = 1;
+  SKIP = 2;
+}
+
+message ServiceControlConfig {
+  repeated .google.api.Destination destinations = 11;
+  .google.api.AnalyticsConfig analytics = 16;
+}
+
+message ServiceControlAcl {
+  .google.api.ServiceControlAclModel model = 1;
+  string label_key = 2;
+}
+
+message Destination {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    MONITORING = 1;
+    BILLING = 2;
+    LOGGING = 3;
+    QUOTA = 4;
+  }
+  enum Owner {
+    OWNER_UNSPECIFIED = 0;
+    PRODUCER_PROJECT = 1;
+    CONSUMER_PROJECT = 2;
+  }
+  .google.api.Destination.Type type = 1;
+  .google.api.Destination.Owner owner = 2;
+  .google.api.ServiceControlAcl acl = 3;
+  string label_key_transformation_name = 4;
+  repeated string metric_names = 5;
+  repeated string log_names = 6;
+}
+
+

@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+import "tech/log/proto/entity.proto";
+import "google/protobuf/any.proto";
+package tech.log;
+
+option java_package = "com.google.tech.log";
+option cc_enable_arenas = true;
+
+message Metadata {
+  optional int64 timestamp_ns = 1;
+  optional .tech.log.Entity producing_entity = 2;
+}
+
+message LogEntry {
+  optional .tech.log.Metadata metadata = 3;
+  optional .google.protobuf.Any data = 4;
+}
+
+

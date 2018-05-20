@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "logs/proto/apphosting/app_extensions/app_extensions_annotations.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package appengine_proto;
+
+option java_outer_classname = "GAETeamsLogs";
+option java_multiple_files = true;
+
+message TeamsLog {
+  optional string username = 1 [deprecated = true];
+  optional string teams_page = 2;
+  optional string ip_address = 3 [deprecated = true];
+  optional string user_agent = 4 [deprecated = true];
+  optional int64 timestamp = 5 [deprecated = true];
+}
+

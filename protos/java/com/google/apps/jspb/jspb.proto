@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package jspb;
+
+option java_package = "com.google.apps.jspb";
+option cc_enable_arenas = true;
+
+enum JsType {
+  INT52 = 0;
+  NUMBER = 1;
+  STRING = 2;
+  INTEGER = 100 [deprecated = true];
+}
+
+extend .proto2.FieldOptions {
+  optional string encoding = 17701;
+}
+
+extend .proto2.FieldOptions {
+  optional bool ignore = 17702;
+}
+
+extend .proto2.FieldOptions {
+  optional .jspb.JsType jstype = 17703;
+}
+
+extend .proto2.FieldOptions {
+  optional string map_key = 17704;
+}
+
+extend .proto2.MessageOptions {
+  optional string message_id = 17701;
+}
+
+extend .proto2.MessageOptions {
+  optional bool generate_xid = 78050980;
+}
+
+extend .proto2.MessageOptions {
+  optional bool generate_from_object = 81874859;
+}
+
+extend .proto2.MessageOptions {
+  optional bool namespace_only = 17702;
+}
+
+extend .proto2.MessageOptions {
+  optional bool builder = 22366751;
+}
+
+extend .proto2.FileOptions {
+  optional bool response_proto = 17701;
+}
+
+extend .proto2.FileOptions {
+  optional string js_namespace = 17702;
+}
+
+extend .proto2.FileOptions {
+  optional bool treat_maps_as_repeated_fields = 128850618 [default = false];
+}
+
+extend .proto2.FileOptions {
+  optional bool use_broken_proto2_semantics = 129271686 [default = true];
+}
+
+

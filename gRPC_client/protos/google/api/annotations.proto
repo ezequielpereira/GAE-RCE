@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import public "google/api/error.proto";
+import public "google/api/http.proto";
+import public "google/api/visibility.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "AnnotationsProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/annotations;annotations";
+option objc_class_prefix = "GAPI";
+
+

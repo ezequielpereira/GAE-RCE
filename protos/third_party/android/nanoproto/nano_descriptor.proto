@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package proto2.nano;
+
+option java_package = "com.google.protobuf.nano";
+option cc_enable_arenas = true;
+
+enum Munger {
+  NONE = 0;
+  REDUCED_NANO_PROTO = 1;
+  AGSA_PROTO = 2;
+  FIXED_CORRECT_PROTO_PLAY_ENTERTAINMENT = 3;
+  FIXED_CORRECT_PROTO_PLAY_STORE = 4;
+  WASP = 5;
+  COMMERCE_PAYMENTS_INSTORE_TOOLS_CONVERT_TO_NANO_PROTOS = 6;
+  ANDROID_UTIL_CONVERT_TO_NANO_PROTOS = 7;
+  SIMUX = 8;
+  KIDS_MANAGEMENT = 9;
+  ADS_EXPRESS_MOBILEAPP = 10;
+  INNERTUBE = 11;
+  HANGOUTS = 12;
+  TVSEARCH = 13;
+  FIXED_CORRECT_PROTO_PLAY_COMMON = 14;
+}
+
+extend .proto2.MessageOptions {
+  optional bool legacy_oneof = 147618788;
+}
+
+extend .proto2.MessageOptions {
+  optional bool message_as_lite = 149418587;
+}
+
+extend .proto2.EnumOptions {
+  optional bool enum_as_lite = 149419467;
+}
+
+extend .proto2.FileOptions {
+  optional .proto2.nano.Munger munger = 155465253 [default = NONE];
+}
+
+extend .proto2.FileOptions {
+  optional bytes encoded_mungee = 157245250;
+}
+
+

@@ -1,0 +1,1177 @@
+syntax = "proto2";
+
+import "borg/common/fs_dir.proto";
+import public "borg/common/pcpu.proto";
+import "borg/common/remote_resource.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/thinmint/proto/core/thinmint_core.proto";
+import "security/thinmint/proto/thinmint.proto";
+import "tech/label/proto/label.proto";
+package borg;
+
+option java_package = "com.google.borg.rpc";
+option java_outer_classname = "Common";
+option cc_enable_arenas = true;
+
+enum RawSSDSecurityMode {
+  UNSPECIFIED_RAW_SSD_SECURITY = 0;
+  BORG_MANAGED_RAW_SSD_SECURITY = 1;
+  TASK_MANAGED_RAW_SSD_SECURITY = 2;
+  NO_RAW_SSD_SECURITY = 3;
+}
+
+enum ResourceStateIntent {
+  UP = 0;
+  DOWN = 1;
+}
+
+enum Outlook {
+  NEVER = 0;
+  IN_FUTURE = 1;
+  NOW = 2;
+}
+
+enum AllocChildDiskState {
+  CHILD_DISK_PRESENT = 0;
+  CHILD_DISK_REMOVED = 1;
+}
+
+enum BorgPackageType {
+  UNSPECIFIED = 0;
+  LEGACY = 1;
+  REMOTE = 2;
+  LOCAL_RAM_FS_DIR = 3;
+}
+
+enum CredentialType {
+  TASK_CREDENTIALS = 0;
+  MACHINE_CREDENTIALS = 1;
+}
+
+enum DisableReason {
+  NONE = 0;
+  UNKNOWN_REASON = 1;
+  CHANGE_SCHEDULABILITY_RPC = 2;
+  MAINTENANCE_EVENT = 3;
+  BATCH_QUEUED = 4;
+  WAITING_FOR_AUTOPILOT = 5;
+  CONGESTION = 6;
+}
+
+message StorageType {
+  enum E {
+    DISK = 0;
+    SSD_FS = 1;
+  }
+  optional .borg.StorageType.E e = 10 [default = DISK];
+}
+
+message DiskIds {
+  repeated int32 id = 1;
+}
+
+message DiskPriority {
+  enum E {
+    NORMAL = 1;
+    PRIORITY = 2;
+    EXCLUSIVE = 3;
+  }
+  optional .borg.DiskPriority.E e = 10 [default = NORMAL];
+}
+
+message StorageSpec {
+  optional int32 min_devices = 1;
+  optional int32 max_devices = 2;
+  optional int64 space = 3;
+  optional float time_fraction = 4;
+  optional int32 external_user_foes = 5;
+  optional .borg.DiskPriority.E priority = 6 [default = NORMAL];
+  optional int32 required_features = 7;
+  optional int32 prohibited_features = 8;
+}
+
+message RawSSDSpec {
+  optional int64 size = 1;
+  optional .borg.RawSSDSecurityMode security_mode = 2 [default = UNSPECIFIED_RAW_SSD_SECURITY];
+}
+
+message ScalarResource {
+  enum Key {
+    GPU = 0;
+    SEASTAR = 1;
+    PONYEXPRESS = 2;
+    JELLYFISH = 3;
+    HOST_IPV4 = 4;
+    NVM = 5;
+    HPN_BANDWIDTH = 6;
+    SWINETREK = 7;
+    ARGOS = 8;
+    GPU_GRID_K2 = 9;
+    GPU_FIREPRO_S9300X2 = 10;
+    GPU_TESLA_K20 = 11;
+    GPU_TESLA_K40 = 12;
+    GPU_TESLA_K80 = 13;
+    GPU_TESLA_P100 = 14;
+    GPU_MI25_16TH = 15;
+  }
+  optional .borg.ScalarResource.Key key = 1;
+  optional int64 value = 3;
+}
+
+message LocalRamFsDirSpec {
+  optional int64 size = 1;
+  optional string name = 2;
+  optional .borg.PrimaryFsDirEligible primary_eligible = 4;
+  optional .borg.FsDirUpdatePolicy update_policy = 5;
+  reserved 3;
+}
+
+message ResSpec {
+  message Pcpu {
+    optional .borg.PlatformSpecification platform = 15;
+    optional int64 millicores = 16;
+  }
+  required int64 memory = 1;
+  required int64 disk = 5;
+  optional float disk_time_fraction = 11;
+  optional int32 num_disks = 6 [default = 1];
+  optional int32 min_disks = 7 [default = 1];
+  optional .borg.DiskPriority disk_priority = 10;
+  optional .borg.StorageSpec ssd_fs = 12;
+  repeated .borg.RawSSDSpec raw_ssds = 19;
+  optional float cpu_rate = 2;
+  optional int64 milligcu = 13;
+  optional int64 network_rate = 8;
+  repeated .borg.ResSpec.Pcpu pcpu = 17;
+  repeated .borg.ScalarResource scalar = 18;
+  repeated .borg.LocalRamFsDirSpec local_ram_fs_dir = 20;
+  reserved 9;
+}
+
+message DiskAlloc {
+  enum ExternalUser {
+    SWAP = 1;
+    STORAGE = 2;
+    LOGS = 4;
+    ROOT = 8;
+  }
+  required int32 id = 3;
+  optional int32 storage_id = 12 [default = -1];
+  required int64 space = 2;
+  optional float time_fraction = 6;
+  optional bool priority = 7 [default = false];
+  optional int32 external_users = 4;
+  optional string path = 1;
+  optional int32 files = 5;
+}
+
+message RawSSDAlloc {
+  optional string name = 1;
+  optional int64 size = 2;
+  optional .borg.RawSSDSecurityMode security_mode = 3 [default = UNSPECIFIED_RAW_SSD_SECURITY];
+}
+
+message FsDirState {
+  optional .borg.ResourceStateIntent intent = 1;
+  optional .borg.Outlook outlook = 2;
+}
+
+message FsDirError {
+  enum ErrorCode {
+    NO_ERROR = 0;
+    OUT_OF_SPACE = 1;
+    UNKNOWN_ERROR = 2;
+    OUT_OF_MEMORY = 3;
+  }
+  optional .borg.FsDirError.ErrorCode error_code = 1;
+  optional string error_msg = 2;
+}
+
+message ScratchFsDirInfo {
+  enum Type {
+    LOCAL_HDD_FS_DIR = 0;
+    LOCAL_SSD_FS_DIR = 1;
+    LOCAL_RAM_FS_DIR = 2;
+    REMOTE_HDD_FS_DIR = 3;
+  }
+  optional string nickname = 1;
+  optional string in_context_name = 2;
+  optional string path = 3;
+  optional int64 size = 4;
+  optional int64 usage = 6;
+  optional .borg.ScratchFsDirInfo.Type type = 5;
+  optional .borg.FsDirState state = 7;
+  optional string infrastructure_container_name = 8;
+  optional int64 memory_usage = 9;
+  optional int64 memory_reservation = 10;
+  optional float cpurate = 11;
+  optional string device_name = 12;
+}
+
+message ScratchFsDirs {
+  repeated .borg.ScratchFsDirInfo scratch_fs_dir = 1;
+  optional string primary_fs_dir_nickname = 2;
+  optional string primary_fs_dir_in_context_name = 3;
+}
+
+message CliqueSsdInfo {
+  optional string d_cell = 3;
+  optional int64 volume_id = 1;
+  optional int64 size = 2;
+}
+
+message BorgletDapSupport {
+  enum E {
+    NONE = 0;
+    SIMPLE = 1;
+    FRACTION = 2;
+  }
+  required .borg.BorgletDapSupport.E e = 1;
+}
+
+message MemLimitMode {
+  enum E {
+    STRICT = 1;
+    ELASTIC = 2;
+    UNLIMITED = 3;
+  }
+}
+
+message TestCkpt {
+  required int32 val = 1;
+}
+
+message ResAlloc {
+  required int64 memory = 1;
+  repeated .borg.DiskAlloc disk = 4;
+  repeated .borg.DiskAlloc ssd_fs = 9;
+  repeated .borg.RawSSDAlloc ssd_raw_partition = 11;
+  optional float cpusecs = 5;
+  optional float cpurate = 6;
+  optional float cpuload = 8;
+  optional float sustained_cpurate = 13;
+  optional float sustained_cpuload = 14;
+  optional int64 elastic_exclusive_cpus = 16;
+  optional int64 max_scheduling_delay_ns = 15;
+  optional int64 network_rate = 7;
+  repeated .borg.ScalarResource scalar = 12;
+}
+
+message ResEstimateCkpt {
+  optional .borg.ResAlloc limit = 1;
+  optional .borg.RemoteResAlloc remote_limit = 5;
+  optional .borg.ResAlloc old_out = 2;
+  optional int32 requested_cores = 3;
+  optional double first_update = 6;
+  reserved 4;
+}
+
+message VMDirMemoryState {
+  enum E {
+    UNDER_MEMORY_LIMIT = 0;
+    OVER_MEMORY_LIMIT = 1;
+  }
+  optional .borg.VMDirMemoryState.E e = 1 [default = UNDER_MEMORY_LIMIT];
+}
+
+message Permissions {
+  required string user = 1;
+  optional string group = 2;
+  optional int32 mode = 3;
+  repeated string read_access_role = 4;
+  reserved 5;
+}
+
+message BorgObjRef {
+  optional int64 uid = 1;
+  optional string name = 2;
+}
+
+message PackageSetSpec {
+  repeated group Package = 1 {
+    required .borg.BorgObjRef objref = 2;
+    optional string shortname = 3;
+    optional .borg.TaskNotifier notifier = 4;
+  }
+}
+
+message RequirementsSpec {
+  optional .borg.ResSpec res = 1;
+  optional .borg.RemoteResSpec remote_resources = 12;
+  optional string primary_fs_dir_name = 15;
+  optional .borg.ResSpec child_res = 2;
+  optional .borg.PackageSetSpec pkgs = 3;
+  optional .borg.ConstraintSetSpec constraints = 4;
+  optional bool exclusive = 5;
+  optional bool different_machines = 6 [deprecated = true];
+  optional int32 priority = 7;
+  optional int32 priority_when_preempting = 10;
+  optional bool ignore_configpkg_constraints = 11 [default = false];
+  reserved 13, 14;
+}
+
+message Overrides {
+  repeated group Override = 1 {
+    required int32 index = 2;
+    required .borg.RequirementsSpec req = 3;
+  }
+}
+
+message ResSpecPrediction {
+  required float confidence_level = 1;
+  optional int64 memory = 2;
+  optional int64 disk_space = 3;
+  optional double cpu_rate = 4;
+  optional int64 milligcu = 5;
+}
+
+message FractionalResourceReservationSpec {
+  optional int32 memory = 1;
+  optional int32 disk_space = 2;
+  optional int32 cpu_rate = 3;
+  optional int32 milligcu = 4;
+}
+
+message ResourceAdviceSpec {
+  optional .borg.FractionalResourceReservationSpec top_usage = 1;
+  optional .borg.FractionalResourceReservationSpec lower_bound = 2;
+}
+
+message ResourcePrediction {
+  repeated .borg.ResSpecPrediction default_res_prediction = 1;
+  repeated group Override = 2 {
+    repeated int32 index = 3;
+    repeated .borg.ResSpecPrediction res_prediction = 4;
+  }
+  optional string notes = 5;
+}
+
+message PlatformCpiSpec {
+  optional string platform_family = 1;
+  optional string platform_genus = 2;
+  optional string platform_species = 3;
+  optional string platform_subspecies = 4;
+  optional int32 measure_count = 5;
+  optional float average_cpi = 6;
+  optional float std_cpi = 7;
+  optional float average_cpu_usage = 8;
+  optional uint64 timestamp = 9;
+}
+
+message CompressedPlatformCpiSpec {
+  optional uint32 platform_taxonomy = 1;
+  optional int32 measure_count = 2;
+  optional float average_cpi = 3;
+  optional float std_cpi = 4;
+  optional float average_cpu_usage = 5;
+}
+
+message CpiPrediction {
+  repeated .borg.PlatformCpiSpec cpi_per_platform = 1;
+}
+
+message CompressedCpiPredictionSpec {
+  repeated .borg.CompressedPlatformCpiSpec cpi_per_platform = 1;
+}
+
+message ResourceExceededType {
+  enum E {
+    MEMORY = 1;
+    DISK = 2;
+    SSD_FS = 3;
+    DEADLINE = 4;
+    JAVA_HEAP = 5;
+  }
+  optional .borg.ResourceExceededType.E e = 1;
+}
+
+message ConstraintSpec {
+  enum Relation {
+    PRESENT = 1;
+    ABSENT = 2;
+    EQUAL = 3;
+    NOT_EQUAL = 4;
+    LT = 5;
+    LE = 6;
+    GT = 7;
+    GE = 8;
+    HASH_LT = 9;
+    HASH_GT = 10;
+    IN = 11;
+    HASH_LE = 12;
+    HASH_GE = 13;
+  }
+  required string key = 1;
+  required int32 relation = 2;
+  optional string value = 3;
+  optional bool preferred = 4;
+}
+
+message ConstraintSetSpec {
+  repeated .borg.ConstraintSpec c = 1;
+}
+
+message ConstraintExpr {
+  optional group AndExp = 1 {
+    repeated .borg.ConstraintExpr exp = 2;
+  }
+  optional group OrExp = 3 {
+    repeated .borg.ConstraintExpr exp = 4;
+  }
+  optional group NotExp = 5 {
+    optional .borg.ConstraintExpr exp = 6;
+  }
+  optional .borg.ConstraintSpec primitive = 7;
+}
+
+message ResourceEstimationFlags {
+  optional bool allow_estimation = 14 [default = true];
+  optional bool allow_cpu_estimation = 1 [default = false];
+  optional double estimation_checkpoint_period = 2 [default = 300];
+  optional double estimation_checkpoint_min_fraction = 3 [default = 0.2];
+  optional double estimation_initial_delay = 4 [default = 300];
+  optional double estimation_half_life = 5 [default = 90];
+  optional double estimation_slack_multiplier = 6 [default = 1.15];
+  optional double cpu_estimation_half_life = 7 [default = 225];
+  optional double cpu_estimation_downward_half_life_adjustment = 8 [default = 1.383983];
+  optional double cpu_estimation_target_percentile = 9 [default = 0.9];
+  optional double cpu_estimation_slack_multiplier = 10 [default = 1.05];
+  optional double cpu_estimation_safety_margin = 11 [default = 0.3];
+  optional double cpu_estimation_safety_margin_with_prediction = 12 [default = 0.1];
+  optional double resource_update_interval_seconds = 13 [default = 60];
+  optional bool enable_overscheduling_tier1_memory = 15 [default = true];
+  reserved 16 to 19;
+}
+
+message AttrLimitSpec {
+  required string key = 1;
+  required int32 limit = 2;
+  optional bool preferred = 3;
+  optional bool auto_generated = 4;
+}
+
+message BorgletConfig {
+  enum AttributeSource {
+    BORGMASTER_GUESS = 0;
+    DERIVED = 1;
+    BORGLET = 2;
+    CLIENT = 3;
+    BORGMASTER = 4;
+  }
+  repeated group Item = 1 {
+    required string name = 2;
+    repeated string value = 3;
+    optional bool discard = 12;
+    optional .borg.BorgletConfig.AttributeSource source = 11;
+    optional bool persistent = 4;
+    optional float sample = 5 [default = 1];
+    optional .borg.ConstraintExpr constraints = 8;
+    optional bool flagfile = 7;
+  }
+  repeated .borg.BorgletInstallVersion install_version = 9;
+  reserved 10;
+}
+
+message BorgletVersion {
+  required string name = 1;
+  optional float sample = 3 [default = 1];
+  optional .borg.BorgletConfig config = 5;
+  optional .borg.ConstraintExpr constraints = 6;
+  optional string label = 7;
+}
+
+message BorgletInstallVersion {
+  required string version_name = 1;
+  optional bool restart_into = 2;
+}
+
+message TaskNotifier {
+  optional int32 signal = 1;
+  optional string url = 3;
+  optional string portname = 4;
+  optional string filename = 5;
+  optional bytes filecontents = 6;
+  reserved 2, 7;
+}
+
+message PortMonitor {
+  optional string url = 1 [default = "/healthz"];
+  optional int32 check_seconds = 2 [default = 30];
+  optional int32 max_consecutive_failures = 3;
+  optional int32 max_initial_failures = 4;
+  optional int32 timeout_seconds = 5 [default = 5];
+  optional int32 history_size = 6;
+  optional int32 stop_time = 7 [default = 2];
+  optional bool disabled = 8 [default = false];
+  optional .borg.TaskNotifier notifier = 9;
+}
+
+message PortList {
+  enum QOS {
+    BEST_EFFORT = 0;
+    EXPEDITED = 1;
+    ASSURED = 2;
+  }
+  enum TOS {
+    BE1 = 0;
+    AF1 = 1;
+    AF2 = 2;
+    AF3 = 3;
+    AF4 = 4;
+  }
+  enum Visibility {
+    PUBLIC = 0;
+    PRIVATE = 1;
+  }
+  repeated group Port = 1 {
+    optional string name = 2;
+    optional int32 static_port = 3;
+    optional bool shared = 8;
+    optional .borg.PortMonitor monitor = 4;
+    optional int32 qos = 5;
+    optional .borg.PortList.TOS tos = 7;
+    optional string default_url = 6 [default = "/"];
+    optional bool is_virtual = 9;
+    optional .borg.PortList.Visibility visibility = 10 [default = PUBLIC];
+  }
+}
+
+message ExternalSchedulerCollectionParams {
+  message URL {
+    required string href = 1;
+    required string text = 2;
+  }
+  optional bool runnable = 1 [default = true];
+  optional bool updatable = 2 [default = true];
+  optional double auto_release_time = 3;
+  optional .proto2.bridge.MessageSet scheduler_data = 4;
+  optional string scheduler_name = 5;
+  optional .borg.ExternalSchedulerCollectionParams.URL url = 6;
+  optional uint64 version_token = 7;
+}
+
+message Capability {
+  enum Type {
+    TOS_BE1 = 0;
+    MLOCK = 1;
+    SCHED_OVERRIDE = 2;
+    RESOURCE_OVERRIDE = 3;
+    CHROOT = 4;
+    MKNOD = 93;
+    SYS_RAWIO = 96;
+    CRITICAL = 5;
+    SEMI_CRITICAL = 56;
+    MACHINE_ADMIN = 6;
+    NET_BIND = 7;
+    JOB_ADMIN = 11;
+    INSECURE_CHROOT = 12;
+    TOS_AF1 = 15;
+    TOS_AF2 = 16;
+    TOS_AF3 = 17;
+    TOS_AF4 = 18;
+    TOS_NC0 = 62;
+    USER_OVERRIDE = 19;
+    ESTIMATION_EXEMPTION = 21;
+    EXTERNAL_SCHEDULER = 22;
+    CHROOT_OVERRIDE = 23;
+    DISK_MEDIATOR = 25 [deprecated = true];
+    PERSISTENT_ALLOC = 26;
+    ACCESS_B4 = 27;
+    NET_RAW = 28;
+    STORAGE_INFRASTRUCTURE = 29;
+    DISK_TIME_FRACTION_USER = 30;
+    NET_ADMIN = 31;
+    EXCLUSIVE_CORES = 32;
+    ELASTIC_EXCLUSIVE_CORES = 91;
+    POWER_EXEMPT = 33;
+    KVM_SANDBOX_STRICT = 34;
+    KVM_SANDBOX_RELAXED = 35;
+    BORGLET_VERSION = 36;
+    BORGLET_CONFIG = 57;
+    MORE_FILE_DESCRIPTORS = 38;
+    IGNORE_CONFIGPKG_CONSTRAINTS = 40;
+    HD_NO_HIDE_STALE = 42;
+    MORE_UDP_PORTS = 43;
+    SSD_FS_USER_EXCEEDING_LIMITS = 44;
+    CPUTHROTTLING_OFFENSIVE_BATCH = 45;
+    EDIT_CONFIG = 46;
+    MAINTENANCE = 48;
+    VIRTUALIZATION = 49;
+    MIGRATE_FAILOVER_CLASS = 50;
+    NET_RDMA = 51;
+    NET_RDMA_HIPRI = 52;
+    FLEX_ADMIN = 53;
+    DEDICATED_FAILOVER_CLASS = 55;
+    LINGER_FAILOVER_CLASS = 58;
+    EXTENDED_NOTIFICATION = 59;
+    LABS = 60;
+    PERSISTENT_TASK = 63;
+    GETS_READ_BLOCK_ACCESS_TO_DISK_FS = 64;
+    GETS_READ_BLOCK_ACCESS_TO_SSD_FS = 65;
+    GETS_WRITE_BLOCK_ACCESS_TO_FIRST_RAW_SSD_PARTITION = 66;
+    UNIX_GROUP_TAPE = 67;
+    HDD_SECURE_BACKUP_DATA = 68;
+    BORG_NAMESPACE_USER = 70;
+    NETWORK_BLOCK_DEVICE = 71;
+    BORG_BUILD_HORIZON_EXEMPTION = 72;
+    EXCLUSIVE_MACHINES = 73;
+    CSSD = 75;
+    DISKLESS_OPT_OUT = 76;
+    RESERVE_MACHINE = 77;
+    NET_VIP_TCP_INCOMING = 78;
+    NET_VIP_TCP_OUTGOING = 79;
+    NET_VIP_UDP_RECEIVE = 80;
+    NET_VIP_UDP_TRANSMIT = 81;
+    NET_VIP_ICMP_PING = 82;
+    NET_ENCAP_GRE_MPLS = 83;
+    NET_ENCAP_GRE_GUE = 84;
+    NET_ENCAP_VM = 85;
+    COLOCATION_GROUP_USER = 86 [deprecated = true];
+    PUBLISH_IPV6_BNS = 87;
+    AUTONOMOUS_RESTART = 88;
+    MORE_DISK_INODES = 89;
+    CUSTOMIZED_ID_MAPPINGS_FOR_USER_NS = 90;
+    RUN_AS_ROOT = 92;
+    DEDICATED_BOUNDARY_CHECK_OPT_OUT = 94;
+    RAW_SSD_USER_MANAGED_SECURITY = 95;
+  }
+  required int32 type = 1;
+}
+
+message ChrootSpec {
+  repeated group Mount = 1 {
+    required string source = 2;
+    optional string target = 3;
+    optional bool merge = 4;
+    optional bool missingok = 8;
+  }
+  repeated group Open = 5 {
+    required string path = 6;
+    required string shortname = 7;
+  }
+  repeated group Service = 10 {
+    enum ServiceId {
+      DEV_KVM_SANDBOX_STRICT = 1;
+      DEV_KVM_SANDBOX_RELAXED = 2;
+      DEV_KVM_VIRTUALIZATION = 3;
+      DEV_GVISOR_SANDBOX = 4;
+      DEV_NBD = 5;
+    }
+    required .borg.ChrootSpec.Service.ServiceId id = 11;
+    optional string target = 12;
+  }
+  optional bool no_chroot = 9;
+}
+
+message ManagedDirs {
+  repeated group Dir = 1 {
+    required string path = 2;
+    optional bool show_logs = 3 [default = true];
+    optional bool reclaim_standard_logs = 4;
+    repeated string reclaim_glob = 5;
+    repeated string critical_glob = 6;
+    optional int32 mode = 7;
+  }
+  optional float max_diskused_fraction = 8 [default = 1];
+  optional bool semi_critical = 9 [default = false];
+}
+
+message AffinityGroupSpec {
+  enum LocusType {
+    UNSPECIFIED = 0;
+    POD = 1;
+    CLIQUE = 2;
+  }
+  optional string label = 1;
+  optional .borg.AffinityGroupSpec.LocusType preferred_colocation = 2 [deprecated = true];
+  optional string locus_type = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .borg.AffinityGroupSpec message_set_extension = 146285331;
+  }
+}
+
+message Lab {
+  enum Type {
+    USER_SPECIFIED = 0;
+    AUTO = 1;
+  }
+  optional string name = 1;
+  optional .borg.Lab.Type type = 2 [default = USER_SPECIFIED];
+}
+
+message Labs {
+  repeated .borg.Lab lab = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .borg.Labs message_set_extension = 46888719;
+  }
+}
+
+message VMLabelSpec {
+  optional int32 index = 1;
+  optional .tech.label.Labels labels = 2;
+}
+
+message VMLabelsSpec {
+  repeated .borg.VMLabelSpec vm_label = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .borg.VMLabelsSpec message_set_extension = 74571303;
+  }
+}
+
+message CollectionSpec {
+  message SingleVolumeRemoteResource {
+    optional .borg.CliqueSsdSpec clique_ssd_fs = 1;
+    reserved 2;
+  }
+  optional .tech.label.Labels labels = 1;
+  optional .borg.BorgletParams borgletparams = 2;
+  optional .borg.PortList additional_ports = 3;
+  optional .borg.ManagedDirs md = 4;
+  optional .borg.CollectionSpec.SingleVolumeRemoteResource remote_resources = 7;
+  extend .proto2.bridge.MessageSet {
+    optional .borg.CollectionSpec message_set_extension = 72776700;
+  }
+  reserved 5, 6, 8, 9;
+}
+
+message BorgletParams {
+  message StaticResources {
+    optional bool raw_ssd_partitions = 1;
+  }
+  message MemoryCompressionOptions {
+    optional bool disable_top_level_compression = 1 [default = false];
+    optional bool deduct_compressible_from_reservation = 2 [default = true];
+    reserved 3;
+    reserved "apply_compressible_soft_limit_only";
+  }
+  message GVisorConfig {
+    optional string device_node_name = 1;
+  }
+  enum MemoryCompression {
+    MEMORY_COMPRESSION_DEFAULT = 0;
+    MEMORY_COMPRESSION_ALWAYS = 1;
+    MEMORY_COMPRESSION_NEVER = 2;
+  }
+  optional bool tmpfs = 1;
+  optional bool huge_tmpfs = 44;
+  optional bool hugetlbfs = 3;
+  optional int64 hugetlbfs_mb = 23;
+  optional int32 reserved_cores = 19;
+  optional bool allow_on_public_cpus = 12 [default = true];
+  optional bool background_task = 13;
+  optional int64 network_tx_max_rate = 2;
+  optional int64 network_rx_max_rate = 11 [deprecated = true];
+  optional int32 working_set_age = 4;
+  optional bool container = 5;
+  optional float min_memalloc_fraction = 6;
+  optional float min_memunused_fraction = 7;
+  optional bool allow_overlimit_mem = 14;
+  optional int64 max_overlimit_mem = 43;
+  optional int64 max_overlimit_mem_delta = 50;
+  optional bool account_child_mem_to_alloc = 15;
+  optional bool unauthenticated_world_readable_files_for_testing = 22 [deprecated = true];
+  optional float dtf_prio_split_fraction = 25;
+  optional bool read_access_allows_group_execute = 26;
+  optional bool cpu_soft_limit = 30 [default = true];
+  optional bool storage_infrastructure = 31;
+  optional int32 dtf_weight_on_shared_disks = 32;
+  optional bool exclude_background_on_reserved = 33 [default = false];
+  optional bool dump_memory_debug_info = 37 [default = false];
+  optional bool throttle_offensive_batch_task = 39 [default = false];
+  optional bool kmem_charge_usage = 41 [default = true];
+  optional bool zero_soft_limit = 42 [default = false];
+  optional .borg.BorgletParams.StaticResources static_resources = 45;
+  optional .borg.BorgletParams.MemoryCompression memory_compression = 46 [default = MEMORY_COMPRESSION_DEFAULT];
+  optional int64 static_memory_soft_limit = 47;
+  optional .borg.BorgletParams.MemoryCompressionOptions memory_compression_options = 48;
+  optional uint32 compression_sampling_ratio = 49;
+  optional bool enable_elastic_reserved_core = 52 [default = false];
+  optional .borg.BorgletParams.GVisorConfig gvisor_config = 53;
+  optional .borg.NamespaceParams ns_params = 56;
+}
+
+message ElasticParams {
+  optional int32 min_size = 1 [default = 1];
+}
+
+message TaskMessage {
+  enum Type {
+    PROXY_RPC = 1;
+  }
+  required int32 type = 1;
+  required bytes data = 2;
+}
+
+message Hints {
+  optional int32 min_instances_hint = 1;
+  optional int32 max_restarts_per_hour_hint = 2;
+}
+
+message CheckpointTransaction {
+  required bytes data = 1 [ctype = CORD];
+  optional bool full_checkpoint = 2;
+}
+
+message UpdateApi {
+  enum Version {
+    CURRENT = 0;
+    FUTURE = 1;
+  }
+  enum Action {
+    IMMEDIATE = 0;
+    IN_PLACE = 1;
+    RESCHEDULE = 2;
+    ERROR = 3;
+  }
+}
+
+message FailoverClass {
+  enum Type {
+    MIGRATE = 1;
+    DRAIN = 2;
+    DEDICATED = 4;
+    LINGER = 5;
+    AUTO = 3;
+  }
+  optional .borg.FailoverClass.Type type = 1;
+}
+
+message EvictionPolicy {
+  message ReschedulableClasses {
+    repeated .borg.FailoverClass failover_class = 1;
+  }
+  optional .borg.EvictionPolicy.ReschedulableClasses reschedulable_classes = 1;
+}
+
+message PreinstallPolicy {
+  enum E {
+    YES = 1;
+    NO = 2;
+    UNSET_TREAT_AS_YES = 3;
+  }
+}
+
+message NetworkConfig {
+  message SLBConfig {
+    optional bool slb_gre_tunnel = 1;
+    optional bool dsr_user_traffic = 2;
+    optional bool enable_ipv6 = 3;
+    optional bool tcp_fast_open = 4 [default = true];
+    optional bool no_tcp_timestamps = 5;
+  }
+  message SysctlConfig {
+    optional int32 net_core_rmem_default = 1;
+    optional int32 net_core_wmem_default = 2;
+  }
+  message SnatConfig {
+    optional bool snat_ipv4 = 1 [default = true];
+    optional bool snat_ipv6 = 2;
+  }
+  message NoTcpTimestamps {
+  }
+  message ShellfishEgressControl {
+  }
+  optional .borg.NetworkConfig.SLBConfig slb_config = 1;
+  optional .borg.NetworkConfig.SysctlConfig sysctl_config = 2;
+  optional .borg.NetworkConfig.SnatConfig snat_config = 3;
+  optional .borg.NetworkConfig.NoTcpTimestamps no_tcp_timestamps = 4;
+  optional .borg.NetworkConfig.ShellfishEgressControl shellfish_egress_control = 5;
+  repeated string config_type = 6;
+}
+
+message MigrationPolicy {
+  message VirtualizationSpec {
+    enum Type {
+      UNSET_TREAT_AS_NONE = 0;
+      NONE = 1;
+      KVM_VIRTUALIZED = 2;
+    }
+    optional bool use_custom_vmm = 1 [default = false, deprecated = true];
+    optional bool use_virtual_ip = 2 [default = false];
+  }
+  enum Type {
+    UNSET_TREAT_AS_NO = 0;
+    NO = 1;
+    YES = 2;
+  }
+  enum ImplementationType {
+    VIRTLET = 0;
+    DILITHIUM = 1;
+  }
+  optional .borg.MigrationPolicy.Type type = 1 [default = UNSET_TREAT_AS_NO];
+  optional bool custom = 3 [default = false];
+  optional .borg.MigrationPolicy.ImplementationType implementation_type = 4 [default = VIRTLET];
+  optional .borg.MigrationPolicy.VirtualizationSpec virtualization_spec = 2;
+}
+
+message Virtualization {
+  message Image {
+    enum Type {
+      IMAGE_VMM_BIN = 0;
+      IMAGE_BASE_IMAGE = 1;
+      IMAGE_KERNEL_BIN = 2;
+    }
+    optional .borg.Virtualization.Image.Type type = 1;
+    optional string extrashard_shortname = 2;
+    optional string filename = 3;
+  }
+  message VirtualIp {
+    optional string address = 1;
+    optional string netmask = 2;
+    optional string gateway = 3;
+  }
+  repeated .borg.Virtualization.Image image = 1;
+  optional string vmm_kvm_node = 3;
+  optional string remote_task_dir = 4;
+  optional bool use_virtual_ip = 6;
+  optional .borg.Virtualization.VirtualIp virtual_ip = 7;
+  optional .borg.MigrationPolicy.VirtualizationSpec.Type type = 8 [default = UNSET_TREAT_AS_NONE];
+  optional bool migratable = 9;
+  optional bool custom = 11;
+  optional .borg.MigrationPolicy.ImplementationType implementation_type = 12 [default = VIRTLET];
+  optional string virtual_task_status_file = 10;
+}
+
+message Migration {
+  optional int32 port = 1;
+  optional string source_hostport = 2;
+  optional .thinmint.ThinMint mint = 3;
+  optional string source_shandle = 4 [deprecated = true];
+  optional bool disable_cpu_hardcap_treat_overlimit_ls_tasks_as_abusive = 5 [default = false];
+  optional string migration_reason = 6;
+}
+
+message ResChange {
+  optional int64 memory = 1;
+  optional int64 disk = 2;
+  optional float cpu_rate = 3;
+  optional int64 milligcu = 4;
+  optional int64 pcpu_millicores = 5;
+}
+
+message DisklessChange {
+  optional int64 conversion_size = 1;
+  optional int64 child_conversion_size = 2;
+  optional .borg.AllocChildDiskState child_disk_state = 3;
+}
+
+message FsDirResChange {
+  repeated .borg.LocalRamFsDirSpec local_ram_fs_dir_change = 1;
+  repeated .borg.RemoteHddFsDirSpec remote_hdd_fs_dir_change = 2;
+}
+
+message LastModBy {
+  optional string role = 1;
+  optional string account = 2;
+  optional double when = 3;
+  optional string on_behalf_of = 4;
+}
+
+message MachineEvent {
+  required double time = 1;
+  optional string msg = 2;
+  optional group StateChange = 3 {
+    required int32 state = 4;
+  }
+}
+
+message MaintenanceState {
+  enum E {
+    PREPARE = 0;
+    READY = 1;
+    ACTIVE = 2;
+    NONE = 3;
+  }
+}
+
+message MaintenanceEventSpec {
+  enum Type {
+    UNKNOWN = 0;
+    EMERGENCY_UNPLANNED_OUTAGE = 1;
+    TESTING = 2;
+    SUPERCLUSTER_PCR = 3;
+    RACKSWITCH_UPGRADE_DISRUPTIVE = 4;
+    RACKSWITCH_UPGRADE_FAILURE_RECOVERY = 5;
+    RACKSWITCH_REPAIR = 6;
+    BDM_RACK_RETROFIT = 7;
+    SMALL_FAILURE_DOMAIN_DRAIN = 8;
+    SOLE_TENANCY_DRAIN = 9;
+  }
+}
+
+message CpuArchitecture {
+  enum Type {
+    X86 = 1;
+    PPC = 2;
+    ARM = 3;
+    ANY = 4;
+    HASWELL = 5;
+    BROADWELL = 6;
+  }
+}
+
+message MpmPackageTag {
+  optional string key = 1;
+  optional string value = 2;
+}
+
+message MpmPackageSpec {
+  enum MpmType {
+    UNSPECIFIED = 0;
+    FETCH_ONLY = 1;
+    MOUNTABLE = 2;
+    MOUNTABLE_CONVERTED = 3;
+  }
+  optional string pkg_name = 1;
+  optional string version = 2;
+  optional string label = 3;
+  repeated string filegroups = 4;
+  repeated string signed_by = 5;
+  optional bool verify_all_signers = 7;
+  optional .borg.MpmPackageSpec.MpmType mpm_type = 8 [default = UNSPECIFIED];
+  repeated .borg.CpuArchitecture.Type cpu_architectures = 9;
+  optional bytes signed_build_provenance = 10;
+  repeated .borg.MpmPackageTag tags = 11;
+  optional .borg.CpuArchitecture.Type architecture_override = 12;
+}
+
+message MpmPackageHints {
+  optional bytes version_pb = 1;
+}
+
+message CircleTrait {
+  enum E {
+    option allow_alias = true;
+    SUPERCLUSTER = 0;
+    MONITORING_PRIORITY = 1;
+    DEDICATED_HIGH_PRIORITY = 12;
+    DEDICATED_HIGH_PRIORITY_LS = 28;
+    DEDICATED_HIGH_PRIORITY_LT = 29;
+    FLEX = 2;
+    AUTO_PILOT = 5;
+    MANUAL_PILOT = 6;
+    TIER_1 = 7;
+    TIER_1_5 = 8;
+    TIER_1_7 = 11;
+    TIER_2 = 9;
+    TIER_1_5_OR_BETTER = 10;
+    BATCH = 13;
+    GUARANTEED_BATCH = 31;
+    HIGHLY_AVAILABLE_LS = 7;
+    HIGHLY_AVAILABLE_LT = 8;
+    HIGHLY_AVAILABLE = 10;
+    MOSTLY_AVAILABLE_LS = 23;
+    MOSTLY_AVAILABLE_LT = 24;
+    MOSTLY_AVAILABLE = 25;
+    MOSTLY_AVAILABLE_OR_BETTER = 30;
+    WEAKLY_AVAILABLE_LS = 19;
+    WEAKLY_AVAILABLE_LT = 20;
+    WEAKLY_AVAILABLE = 14;
+    BEST_EFFORT_LS = 21;
+    BEST_EFFORT_LT = 22;
+    BEST_EFFORT = 9;
+    GPU_GRID_K2 = 26;
+    GPU_TESLA_K80 = 27;
+    GPU_FIREPRO_S9300X2 = 56;
+    GPU_TESLA_P100 = 33;
+    LOCAL_SSD_3TB = 32;
+    FUTURE_TRAIT_34_PLEASE_REBUILD = 34;
+    FUTURE_TRAIT_35_PLEASE_REBUILD = 35;
+    FUTURE_TRAIT_36_PLEASE_REBUILD = 36;
+    FUTURE_TRAIT_37_PLEASE_REBUILD = 37;
+    FUTURE_TRAIT_38_PLEASE_REBUILD = 38;
+    FUTURE_TRAIT_39_PLEASE_REBUILD = 39;
+    FUTURE_TRAIT_40_PLEASE_REBUILD = 40;
+    FUTURE_TRAIT_41_PLEASE_REBUILD = 41;
+    FUTURE_TRAIT_42_PLEASE_REBUILD = 42;
+    FUTURE_TRAIT_43_PLEASE_REBUILD = 43;
+    FUTURE_TRAIT_44_PLEASE_REBUILD = 44;
+    FUTURE_TRAIT_45_PLEASE_REBUILD = 45;
+    FUTURE_TRAIT_46_PLEASE_REBUILD = 46;
+    FUTURE_TRAIT_47_PLEASE_REBUILD = 47;
+    FUTURE_TRAIT_48_PLEASE_REBUILD = 48;
+    FUTURE_TRAIT_49_PLEASE_REBUILD = 49;
+    FUTURE_TRAIT_50_PLEASE_REBUILD = 50;
+    CPU_64_HIGHMEM = 51;
+    CPU_64_HIGHMEM_SSD = 52;
+    PLATFORM_BROADWELL = 53;
+    PLATFORM_SKYLAKE = 57;
+    CPU_80_HIGHMEM = 54;
+    CPU_80_HIGHMEM_SSD = 55;
+    LOCAL_SSD = 58;
+  }
+  optional .borg.CircleTrait.E trait = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .borg.CircleTrait message_set_extension = 46251230;
+  }
+}
+
+message AggregateResourceSet {
+  optional int32 top_level_instances = 1;
+  optional int64 milli_cpu = 2;
+  optional int64 milli_gcu = 3;
+  optional int64 ram_bytes = 4;
+  optional int64 disk_bytes = 5;
+  optional int64 network_bps = 6;
+}
+
+message NamespaceParams {
+  message User {
+    message IdMapping {
+      oneof inside_ns {
+        uint32 id_inside_ns = 1;
+        string name_inside_ns = 2;
+      }
+      oneof outside_ns {
+        uint32 id_outside_ns = 3;
+        string name_outside_ns = 4;
+      }
+      optional uint32 length = 5;
+    }
+    repeated .borg.NamespaceParams.User.IdMapping uid_mapping = 1;
+    repeated .borg.NamespaceParams.User.IdMapping gid_mapping = 2;
+    optional bool disabled = 3 [default = false];
+  }
+  message Pid {
+    optional bool disabled = 1 [default = false];
+  }
+  message Mount {
+    optional bool disabled = 1 [default = false];
+    optional bool mount_clean_proc = 2 [default = false];
+    optional bool mount_clean_sys = 3 [default = false];
+  }
+  message Ipc {
+  }
+  message Uts {
+    optional bool disabled = 1 [default = false];
+  }
+  message Net {
+    optional bool disabled = 1 [default = false];
+  }
+  optional .borg.NamespaceParams.User user = 1;
+  optional .borg.NamespaceParams.Pid pid = 2;
+  optional .borg.NamespaceParams.Mount mount = 3;
+  optional .borg.NamespaceParams.Ipc ipc = 4;
+  optional .borg.NamespaceParams.Uts uts = 5;
+  optional .borg.NamespaceParams.Net net = 6;
+}
+
+message BorgMasterLockSeq {
+  optional string sequence = 1;
+  optional string name = 2;
+  optional string timestamp = 3;
+  optional string cell = 4;
+  optional int64 commit = 5;
+  optional bool force_accept = 6;
+}
+
+message ColocationSchedulingPolicy {
+  enum Policy {
+    UNSPECIFIED = 0;
+    STRICT = 1;
+    BEST_EFFORT = 2;
+  }
+  optional .borg.ColocationSchedulingPolicy.Policy policy = 1;
+}
+
+

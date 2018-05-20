@@ -1,0 +1,185 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/datastore/v1/entity.proto";
+import "google/datastore/v1/query.proto";
+package google.datastore.v1;
+
+option java_package = "com.google.datastore.v1";
+option java_outer_classname = "DatastoreProto";
+option java_multiple_files = true;
+option csharp_namespace = "Google.Cloud.Datastore.V1";
+option php_namespace = "Google\\Cloud\\Datastore\\V1";
+
+message LookupRequest {
+  string project_id = 8;
+  string database_id = 9;
+  .google.datastore.v1.ReadOptions read_options = 1;
+  repeated .google.datastore.v1.Key keys = 3;
+  .google.datastore.v1.PropertyMask property_mask = 5;
+}
+
+message LookupResponse {
+  repeated .google.datastore.v1.EntityResult found = 1;
+  repeated .google.datastore.v1.EntityResult missing = 2;
+  repeated .google.datastore.v1.Key deferred = 3;
+  bytes transaction = 5;
+}
+
+message RunQueryRequest {
+  string project_id = 8;
+  string database_id = 9;
+  .google.datastore.v1.PartitionId partition_id = 2;
+  .google.datastore.v1.ReadOptions read_options = 1;
+  oneof query_type {
+    .google.datastore.v1.Query query = 3;
+    .google.datastore.v1.GqlQuery gql_query = 7;
+  }
+  .google.datastore.v1.PropertyMask property_mask = 10;
+}
+
+message RunQueryResponse {
+  .google.datastore.v1.QueryResultBatch batch = 1;
+  .google.datastore.v1.Query query = 2;
+  bytes transaction = 5;
+}
+
+message BeginTransactionRequest {
+  string project_id = 8;
+  string database_id = 9;
+  .google.datastore.v1.TransactionOptions transaction_options = 10;
+}
+
+message BeginTransactionResponse {
+  bytes transaction = 1;
+}
+
+message RollbackRequest {
+  string project_id = 8;
+  string database_id = 9;
+  bytes transaction = 1;
+}
+
+message RollbackResponse {
+}
+
+message CommitRequest {
+  enum Mode {
+    MODE_UNSPECIFIED = 0;
+    TRANSACTIONAL = 1;
+    NON_TRANSACTIONAL = 2;
+  }
+  string project_id = 8;
+  string database_id = 9;
+  .google.datastore.v1.CommitRequest.Mode mode = 5;
+  oneof transaction_selector {
+    bytes transaction = 1;
+    .google.datastore.v1.TransactionOptions single_use_transaction = 10;
+  }
+  repeated .google.datastore.v1.Mutation mutations = 6;
+}
+
+message CommitResponse {
+  repeated .google.datastore.v1.MutationResult mutation_results = 3;
+  int32 index_updates = 4;
+  int64 commit_version = 5;
+}
+
+message StreamingWriteRequest {
+  string project_id = 1;
+  string database_id = 2;
+  bytes stream_token = 3;
+  repeated .google.datastore.v1.Mutation mutations = 4;
+}
+
+message StreamingWriteResponse {
+  bytes stream_token = 1;
+  repeated .google.datastore.v1.MutationResult mutation_results = 2;
+}
+
+message AllocateIdsRequest {
+  string project_id = 8;
+  string database_id = 9;
+  repeated .google.datastore.v1.Key keys = 1;
+}
+
+message AllocateIdsResponse {
+  repeated .google.datastore.v1.Key keys = 1;
+}
+
+message ReserveIdsRequest {
+  string project_id = 8;
+  string database_id = 9;
+  repeated .google.datastore.v1.Key keys = 1;
+}
+
+message ReserveIdsResponse {
+}
+
+message Mutation {
+  enum ConflictResolutionStrategy {
+    STRATEGY_UNSPECIFIED = 0;
+    SERVER_VALUE = 1;
+    CLIENT_VALUE = 2;
+    FAIL = 3;
+  }
+  oneof operation {
+    .google.datastore.v1.Entity insert = 4;
+    .google.datastore.v1.Entity update = 5;
+    .google.datastore.v1.Entity upsert = 6;
+    .google.datastore.v1.Key delete = 7;
+  }
+  oneof conflict_detection_strategy {
+    int64 base_version = 8;
+  }
+  .google.datastore.v1.Mutation.ConflictResolutionStrategy conflict_resolution_strategy = 10;
+  .google.datastore.v1.PropertyMask property_mask = 9;
+}
+
+message MutationResult {
+  .google.datastore.v1.Key key = 3;
+  int64 version = 4;
+  bool conflict_detected = 5;
+}
+
+message PropertyMask {
+  repeated string paths = 1;
+}
+
+message ReadOptions {
+  enum ReadConsistency {
+    READ_CONSISTENCY_UNSPECIFIED = 0;
+    STRONG = 1;
+    EVENTUAL = 2;
+  }
+  oneof consistency_type {
+    .google.datastore.v1.ReadOptions.ReadConsistency read_consistency = 1;
+    bytes transaction = 2;
+    .google.datastore.v1.TransactionOptions new_transaction = 3;
+  }
+}
+
+message TransactionOptions {
+  message ReadWrite {
+    bytes previous_transaction = 1;
+  }
+  message ReadOnly {
+    int64 snapshot_version = 1;
+  }
+  oneof mode {
+    .google.datastore.v1.TransactionOptions.ReadWrite read_write = 1;
+    .google.datastore.v1.TransactionOptions.ReadOnly read_only = 2;
+  }
+}
+
+service Datastore {
+  rpc Lookup(.google.datastore.v1.LookupRequest) returns (.google.datastore.v1.LookupResponse);
+  rpc RunQuery(.google.datastore.v1.RunQueryRequest) returns (.google.datastore.v1.RunQueryResponse);
+  rpc BeginTransaction(.google.datastore.v1.BeginTransactionRequest) returns (.google.datastore.v1.BeginTransactionResponse);
+  rpc Commit(.google.datastore.v1.CommitRequest) returns (.google.datastore.v1.CommitResponse);
+  rpc Rollback(.google.datastore.v1.RollbackRequest) returns (.google.datastore.v1.RollbackResponse);
+  rpc StreamingWrite(stream .google.datastore.v1.StreamingWriteRequest) returns (stream .google.datastore.v1.StreamingWriteResponse);
+  rpc AllocateIds(.google.datastore.v1.AllocateIdsRequest) returns (.google.datastore.v1.AllocateIdsResponse);
+  rpc ReserveIds(.google.datastore.v1.ReserveIdsRequest) returns (.google.datastore.v1.ReserveIdsResponse);
+}
+

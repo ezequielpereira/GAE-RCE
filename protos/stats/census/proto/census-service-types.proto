@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option java_outer_classname = "CensusServiceTypesProto";
+option cc_enable_arenas = true;
+
+message DeltaRequest {
+  optional int64 sequence_number = 1 [default = 0];
+  optional bytes views_snappy64 = 2;
+  optional int32 requestor_tier = 3;
+}
+
+message CollectRawRecordsRequest {
+  optional int64 wanted_record_count = 1;
+}
+
+message CollectRawRecordsResponse {
+  message Record {
+    optional uint64 census_handle = 1;
+    optional int32 resource_id = 2;
+    repeated double quantities = 3;
+  }
+  repeated .stats_census.CollectRawRecordsResponse.Record records = 1;
+}
+
+

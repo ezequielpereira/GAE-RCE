@@ -1,0 +1,87 @@
+syntax = "proto2";
+
+package httpsconnection;
+
+message CertificateConfig {
+  message Cert {
+    message RandomReplacement {
+      required string cert = 1;
+      required uint32 parts_per_1024 = 2;
+    }
+    required string name = 1;
+    optional bool extract_names = 2 [default = true];
+    repeated string ip_and_port = 3;
+    repeated uint32 port = 4;
+    optional bool strict_address = 6 [default = false];
+    repeated string alias = 9;
+    repeated .httpsconnection.CertificateConfig.Cert.RandomReplacement replacement = 10;
+    optional bool emit_expect_ct_header = 11;
+    optional bool use_as_unverifiable_cert = 12;
+    reserved 7;
+    reserved "additional_cert_base64";
+  }
+  message Host {
+    enum ClientCertificateRequestType {
+      DONT_REQUEST_CLIENT_CERTIFICATE = 0;
+      REQUEST_CLIENT_CERTIFICATE_BUT_DONT_VERIFY = 1;
+      REQUEST_CLIENT_CERTIFICATE_AND_VERIFY = 2;
+      REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_BUT_DONT_VERIFY = 3;
+      REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_AND_VERIFY = 4;
+    }
+    enum TLSVersions {
+      VERSION_TLS1 = 769;
+      VERSION_TLS1_1 = 770;
+      VERSION_TLS1_2 = 771;
+    }
+    optional string name = 1;
+    repeated string ip_and_port = 3;
+    optional .httpsconnection.CertificateConfig.Host.ClientCertificateRequestType client_cert_request = 2;
+    optional bool only_request_cert_if_no_channel_id = 5 [default = false];
+    optional string ciphers = 4;
+    optional int32 min_version = 6;
+    optional bool enable_tls13 = 8;
+    optional bool require_sni = 7;
+    optional bool retain_only_sha256_of_client_certs = 9;
+  }
+  message VIPPrefixGroup {
+    required string name = 1;
+    repeated string range = 2;
+  }
+  message CertificateProvider {
+    enum ProviderType {
+      PROVIDER_UNSPECIFIED = 0;
+      CLOUD = 1;
+      DASHER_EXTERNAL = 2;
+    }
+    enum LookupPolicy {
+      LOOKUP_UNSPECIFIED = 0;
+      IP_PORT = 1;
+      SNI = 2;
+      IP_PORT_AND_SNI = 3;
+    }
+    optional string name = 1;
+    optional .httpsconnection.CertificateConfig.CertificateProvider.ProviderType provider_type = 2;
+    repeated string ip_port_and_prefix_spec = 3;
+    optional .httpsconnection.CertificateConfig.CertificateProvider.LookupPolicy lookup_policy = 4;
+    optional bool disconnect_client_on_lookup_failure = 5 [default = true];
+  }
+  required string base_directory = 1;
+  optional string issuing_certificates_file = 2;
+  optional bool retain_only_sha256_of_client_certs = 10 [default = false];
+  optional bool tls_channel_ids = 11 [default = false];
+  repeated .httpsconnection.CertificateConfig.Cert cert = 4;
+  optional string server_cert_root_file = 9;
+  optional string server_cert_untrusted_intermediate_file = 17;
+  optional string client_cert_root_file = 5;
+  repeated string client_cert_subtree_cert_file = 6;
+  optional bool stricter_checking = 12 [default = false];
+  optional .httpsconnection.CertificateConfig.Host default_host = 7;
+  repeated .httpsconnection.CertificateConfig.Host host = 8;
+  optional bool enable_token_binding = 15 [default = false];
+  repeated .httpsconnection.CertificateConfig.VIPPrefixGroup vip_prefix_group = 3;
+  repeated .httpsconnection.CertificateConfig.CertificateProvider certificate_provider = 16;
+  reserved 14, 13;
+  reserved "ciphers_tls10", "ciphers_tls11";
+}
+
+

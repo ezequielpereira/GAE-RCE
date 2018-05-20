@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package proto2.util;
+
+message JsonFormatOption {
+  optional string name = 1;
+  optional bool inline_json = 2;
+  optional bool ignore = 3 [default = false];
+}
+
+extend .proto2.FieldOptions {
+  optional .proto2.util.JsonFormatOption json_opt = 255512;
+}
+
+

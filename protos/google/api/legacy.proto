@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "LegacyProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Legacy {
+  message TrustedTesterList {
+    repeated int64 gaia_group_ids = 1;
+  }
+  enum MigrationStrategy {
+    UNSPECIFIED = 0;
+    PREFER_APIARY = 1;
+    PREFER_ONEPLATFORM = 2;
+  }
+  string email = 2;
+  string oncall = 3;
+  string mdb = 9;
+  bool lower_camel_enums = 4;
+  string api_v1_name = 5;
+  .google.api.Devconsole devconsole = 6;
+  .google.api.Legacy.MigrationStrategy migration_strategy = 10;
+  repeated string excluded_versions_in_package_path = 11;
+  string demo_url = 12;
+  .google.api.ControlPlaneMigration control_plane_migration = 13;
+  bool use_v1_error_format = 14;
+  bool hidden_from_list = 15;
+  string bug_id = 16;
+  map<string, .google.api.Legacy.TrustedTesterList> restricted_quota_bucket_trusted_testers = 17;
+  bool uses_apiary_proxy = 18;
+  bool do_not_send_quota_overrides_to_quotaserver = 19;
+  reserved 1, 7;
+}
+
+message Devconsole {
+  enum ConsoleApi {
+    UNKNOWN = 0;
+    LEGACY = 1;
+    NEW = 2;
+    NEW_GOOGLERS_ONLY = 3;
+  }
+  string example_url = 1;
+  string learnmore_url = 2;
+  string request_quota_url = 3;
+  string pricing_link = 4;
+  bool enable_reporting = 5 [deprecated = true];
+  .google.api.Devconsole.ConsoleApi console_api = 1000;
+}
+
+message ControlPlaneMigration {
+  bool migrating = 1;
+  bool retain_api_v1_name = 2;
+}
+
+

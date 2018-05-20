@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "util/task/status.proto";
+package net_discovery;
+
+message BidiChannelMsg {
+  required int64 id = 1;
+  required int32 type = 2;
+  required bytes request = 3 [ctype = CORD];
+}
+
+message BidiRequestCancel {
+  optional .util.StatusProto status = 1;
+}
+
+

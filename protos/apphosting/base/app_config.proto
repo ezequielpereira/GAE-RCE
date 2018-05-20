@@ -1,0 +1,598 @@
+syntax = "proto2";
+
+import "apphosting/appmaster2/deploy_log.proto";
+import "apphosting/base/appinfo.proto";
+import "apphosting/base/applocation.proto";
+import "apphosting/base/appmaster.proto";
+import "apphosting/base/blob_metadata.proto";
+import "apphosting/base/compilation_flags.proto";
+import "apphosting/base/derived_file.proto";
+import "apphosting/base/firewall.proto";
+import "apphosting/base/per_version_config.proto";
+import "apphosting/magicgin/magicgin_annotations.proto";
+import "apphosting/shardmap/shardmap.proto";
+import "storage/blobstore/rpc/blobservice.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "AppConfigPb";
+
+enum PublishBehavior {
+  UNSPECIFIED = 0;
+  RETURN_BEFORE_PUBLISH = 1;
+  DO_NOT_PUBLISH = 2;
+}
+
+message AppVersionReference {
+  required string app_id = 1;
+  required string version_id = 2;
+  optional string deployer_email = 3;
+  optional string deployer_auth_domain = 4;
+  optional int64 deployer_gaia_id = 5;
+  optional string annotation = 6;
+  optional bool omit_app_location = 7;
+  optional bool gzip_app_location = 8;
+}
+
+message AppVersionReferenceLite {
+  optional string app_id = 1;
+  optional string version_id = 2;
+}
+
+message TrafficAllocation {
+  repeated group VersionAllocation = 1 {
+    required string version_id = 2;
+    required double traffic_fraction = 3;
+  }
+}
+
+message AdminId {
+  optional int64 gaia_id = 1;
+  optional string email = 2;
+  optional string auth_domain = 3;
+}
+
+message AdminRole {
+  required .apphosting.AdminId admin_id = 3;
+  required int32 role = 4;
+}
+
+message ListAppsRequest {
+  optional int64 gaia_id = 1;
+  optional string email = 2;
+  optional string auth_domain = 3;
+  optional bool fetch_configs = 4 [default = false];
+}
+
+message ListAppsResponse {
+  repeated string app_id = 1;
+  repeated .apphosting.GlobalConfig configs = 2;
+}
+
+message IsAppIdAvailableRequest {
+  repeated string app_id = 1;
+  optional bool is_override_request = 2 [default = false];
+}
+
+message IsAppIdAvailableResponse {
+  repeated group IdStatus = 1 {
+    required string app_id = 2;
+    required bool available = 3;
+  }
+}
+
+message ReserveAppIdInGaiaRequest {
+  required string resource_name = 1;
+}
+
+message ReserveAppIdInGaiaResponse {
+  optional int64 app_gaia_id = 1;
+}
+
+message AddAlternateEmailInGaiaRequest {
+  required int64 gaia_id = 1;
+  required string resource_name = 2;
+}
+
+message AddAlternateEmailInGaiaResponse {
+}
+
+message CreateGaiaRobotAccountRequest {
+  required string robot_email = 1;
+  required int64 owner_group_gaiaid = 2;
+}
+
+message CreateGaiaRobotAccountResponse {
+  optional int64 robot_gaia_id = 1;
+}
+
+message GetAdminConfigRequest {
+  required string app_id = 1;
+}
+
+message GetAdminConfigResponse {
+  required .apphosting.AdminConfig admin_config = 1;
+}
+
+message CreateGggGroupRequest {
+  required string group_name = 1;
+}
+
+message CreateGggGroupResponse {
+  required int64 group_gaia_id = 1;
+}
+
+message UpdateGggGroupRequest {
+  enum Mode {
+    ADD = 1;
+    REMOVE = 2;
+    MUTATE = 3;
+  }
+  optional string group_name = 1;
+  optional int64 group_gaia_id = 2;
+  repeated .apphosting.AdminRole admin_role = 3;
+  required .apphosting.UpdateGggGroupRequest.Mode mode = 5;
+}
+
+message UpdateGggGroupResponse {
+}
+
+message GetGggGroupRequest {
+  optional string group_name = 1;
+  optional int64 group_gaia_id = 2;
+  optional bool fill_email = 3;
+}
+
+message GetGggGroupResponse {
+  optional int64 group_gaia_id = 1;
+  repeated .apphosting.AdminRole admin_role = 2;
+}
+
+message GetGggGroupPropertiesRequest {
+  optional string group_name = 1;
+  optional int64 group_gaia_id = 2;
+}
+
+message GetGggGroupPropertiesResponse {
+  optional int64 group_gaia_id = 1;
+  optional int64 owners_group_gaia_id = 2;
+  optional int64 managers_group_gaia_id = 3;
+  optional string group_name = 4;
+}
+
+message ListTombstonedVersionsRequest {
+  required string app_id = 1;
+  required string major_version_id = 2;
+  required int64 max_age_usec = 3;
+}
+
+message ListVersionsLiteRequest {
+  optional .apphosting.AppReference app_reference = 1;
+  optional string service_id = 2;
+}
+
+message ListVersionsLiteResponse {
+  repeated .apphosting.AppVersionReferenceLite app_version = 1;
+}
+
+message ListVersionsResponse {
+  repeated .apphosting.AppVersionReference app_version = 1;
+}
+
+message CreateAppVersionResponse {
+  required .apphosting.AppVersionReference app_version = 1;
+}
+
+message IsAppVersionReadyResponse {
+  required bool ready = 1;
+  optional .apphosting.AppLocation app_location = 2;
+  optional bytes gzipped_app_location = 3;
+}
+
+message IsDefaultVersionResponse {
+  required bool ready = 1;
+}
+
+message GetEffectiveRuntimeIdRequest {
+  optional .apphosting.AppVersionReference app_version = 1;
+}
+
+message GetEffectiveRuntimeIdResponse {
+  optional string runtime_id = 1;
+  optional bool visible_to_end_users = 2;
+}
+
+message AddFileReferencesRequest {
+  repeated string sha1_hash = 1;
+  optional string app_id = 2;
+}
+
+message AddFileReferencesResponse {
+  repeated group File = 1 {
+    required string sha1_hash = 2;
+    required bool exists = 3;
+    optional int64 size = 4;
+  }
+}
+
+message AddFileRequest {
+  required bytes contents = 1;
+  optional string app_id = 2;
+}
+
+message AddFileResponse {
+  required string sha1_hash = 1;
+}
+
+message GetFileRequest {
+  required string app_id = 1;
+  required string sha1_hash = 2;
+  optional int64 start_offset = 3;
+  optional int64 read_size_limit = 4;
+}
+
+message GetFileResponse {
+  optional bytes file_contents = 2;
+  repeated .apphosting.DerivedFile derived_file = 3;
+  optional int64 total_file_size = 4;
+  optional int64 start_offset = 5;
+}
+
+message ListFilesRequest {
+  optional string app_id = 1;
+  optional string version_id = 2;
+  optional string path_prefix = 3;
+  optional bool recursive = 4 [default = true];
+  optional string page_token = 5;
+  optional int32 page_size = 6;
+}
+
+message ListFilesResponse {
+  message FileInfo {
+    optional string path = 1;
+    optional string sha1_hash = 2;
+    optional int64 file_size = 3;
+  }
+  repeated .apphosting.ListFilesResponse.FileInfo files = 1;
+  optional string next_page_token = 2;
+}
+
+message PrecompileAppRequest {
+  required .apphosting.AppInfo app_info = 3;
+  repeated string file_path = 2;
+  optional .apphosting.CompilationFlags flags = 4;
+}
+
+message PrecompileAppResponse {
+  enum Status {
+    SUCCESS = 1;
+    BAD_FILES = 2;
+    UNKNOWN = 3;
+  }
+  optional .apphosting.PrecompileAppResponse.Status status = 2 [default = SUCCESS];
+  repeated string remaining_file_path = 1;
+  optional string messages = 3;
+  optional string server = 4;
+  repeated .apphosting.DeployLogEvent event = 5;
+}
+
+message CreateBlobRequest {
+  required bytes blob_content = 1 [ctype = CORD];
+  required string mime_type = 2;
+  required .apphosting.BlobMetadata blob_metadata = 3;
+}
+
+message CreateBlobResponse {
+  optional .blobstore.BlobRef blobref = 1;
+  required int32 status = 2;
+  optional string error_detail = 3;
+}
+
+message CloneBlobRefsRequest {
+  repeated group Blob = 1 {
+    required .blobstore.BlobRef blobref = 2;
+    required string mime_type = 3;
+    required .apphosting.BlobMetadata blob_metadata = 4;
+  }
+}
+
+message CloneBlobRefsResponse {
+  repeated .blobstore.BlobRef blobrefs = 1;
+  required int32 status = 2;
+  optional string error_detail = 3;
+  repeated group Blob = 4 {
+    required int32 rpc_status = 5;
+    required int32 status = 6;
+    optional string error_detail = 7;
+  }
+}
+
+message GetBlobRequest {
+  required string app_id = 1;
+  required .blobstore.BlobRef blobref = 2;
+}
+
+message GetBlobResponse {
+  optional group Blob = 1 {
+    required bytes contents = 2 [ctype = CORD];
+    required string mime_type = 3;
+    required .apphosting.BlobMetadata metadata = 4;
+  }
+}
+
+message GetStatsRequest {
+  required string app_id = 1;
+  optional string version_id = 2;
+  optional bool get_appmon_stats = 13 [default = false, deprecated = true];
+  repeated group RateQueries = 6 {
+    repeated string appmon_rate_query = 7;
+    optional int32 resolution = 8;
+    optional bool consult_lookupserver = 9 [default = false];
+    optional bool fetch_version_variables = 10 [default = true];
+    optional bool fetch_path_variables = 11 [default = false];
+  }
+  repeated group AdditionalStats = 3 {
+    required string var_name = 4;
+    required bool history = 5;
+  }
+  optional bool get_quota_info = 12 [default = true];
+}
+
+message TimeSeries {
+  repeated group Point = 1 {
+    required double time = 2;
+    required double value = 3;
+  }
+}
+
+message AppVersionStatistics {
+  repeated group VersionData = 1 {
+    optional string version_id = 2;
+    required .apphosting.TimeSeries rate = 3;
+    required double sum = 4;
+  }
+}
+
+message PathStatistics {
+  required string version_id = 1;
+  repeated group PathData = 2 {
+    required string uri = 3;
+    required .apphosting.TimeSeries rate = 4;
+    required double sum = 5;
+  }
+}
+
+message GetStatsResponse {
+  required .apphosting.AppVersionStatistics version_num_requests = 1;
+  required .apphosting.AppVersionStatistics version_num_errors = 2;
+  required .apphosting.AppVersionStatistics version_num_static_requests = 21;
+  optional .apphosting.AppVersionStatistics version_num_cached_requests = 30;
+  optional .apphosting.AppVersionStatistics version_num_pagespeed_requests = 38;
+  required .apphosting.AppVersionStatistics version_num_quota_denies = 20;
+  optional .apphosting.AppVersionStatistics version_num_dos_denies = 34;
+  required .apphosting.AppVersionStatistics version_bytes_received = 3;
+  required .apphosting.AppVersionStatistics version_bytes_sent = 4;
+  required .apphosting.AppVersionStatistics version_mcycles_used = 5;
+  required .apphosting.AppVersionStatistics version_ms_used = 6;
+  optional .apphosting.AppVersionStatistics version_clone_seconds = 31;
+  optional .apphosting.AppVersionStatistics version_active_clone_seconds = 32;
+  optional .apphosting.AppVersionStatistics version_mb_seconds = 33;
+  optional .apphosting.AppVersionStatistics version_instance_seconds = 35;
+  optional .apphosting.AppVersionStatistics version_billable_instance_seconds = 36;
+  optional .apphosting.PathStatistics path_num_requests = 7;
+  optional .apphosting.PathStatistics path_num_errors = 8;
+  optional .apphosting.PathStatistics path_bytes_received = 9;
+  optional .apphosting.PathStatistics path_bytes_sent = 10;
+  optional .apphosting.PathStatistics path_mcycles_used = 11;
+  optional .apphosting.PathStatistics path_ms_used = 12;
+  repeated group AdditionalAppmonStats = 13 {
+    required string var_name = 14;
+    repeated group Data = 15 {
+      optional string uri = 16;
+      optional string version_id = 17;
+      optional double value = 18;
+      optional .apphosting.TimeSeries time_series = 19;
+    }
+  }
+  repeated group QuotaInfo = 22 {
+    required int32 usage_id = 23;
+    required int64 maximum = 24;
+    required int64 current_level = 25;
+    optional int64 short_term_maximum = 39;
+    optional int64 short_term_current_level = 40;
+    optional int32 low_bucket_percent_left = 27;
+  }
+  optional .apphosting.AppVersionStatistics version_api_mcycles_used = 28;
+  optional .apphosting.PathStatistics path_api_mcycles_used = 29;
+}
+
+message GetAppShardRequest {
+  required string app_id = 1;
+}
+
+message GetAppShardResponse {
+  required .apphosting.Shard shard = 1;
+  optional .apphosting.GeoSettings geo = 2;
+}
+
+message AdminMetadata {
+  optional bool registered = 1;
+  optional bool suspended = 2;
+  optional bool disabled_by_dasher_admin = 3;
+}
+
+message GetAdminStatusRequest {
+  repeated .apphosting.AdminId admin_id = 1;
+}
+
+message GetAdminStatusResponse {
+  repeated .apphosting.AdminMetadata admin_metadata = 1;
+}
+
+message SetAdminStatusRequest {
+  repeated group Admin = 1 {
+    required .apphosting.AdminId admin_id = 2;
+    required .apphosting.AdminMetadata admin_metadata = 3;
+  }
+}
+
+message IsDomainAdminRequest {
+  required .apphosting.AdminId user = 1;
+}
+
+message IsDomainAdminResponse {
+  required bool is_admin = 1;
+}
+
+message GetFlagValueRequest {
+  required string flag_name = 1;
+}
+
+message GetFlagValueResponse {
+  optional string flag_value = 1;
+}
+
+message LogDeployStatsRequest {
+  required .apphosting.AppVersionReference app_version_id = 1;
+  optional string runtime_id = 10 [default = "unknown"];
+  optional double deploy_start_time_s = 2;
+  optional double deploy_end_time_s = 3;
+  optional double code_upload_start_time_s = 4;
+  optional double code_upload_end_time_s = 5;
+  optional double blob_upload_start_time_s = 6;
+  optional double blob_upload_end_time_s = 7;
+  optional double precompile_start_time_s = 8;
+  optional double precompile_end_time_s = 9;
+  repeated .apphosting.DeployLogEvent event = 11;
+}
+
+message LogDeployStatsResponse {
+}
+
+message LogClientDeployStatsRequest {
+  required .apphosting.ClientDeployLogEvent event = 1;
+}
+
+message LogClientDeployStatsResponse {
+}
+
+message MetricField {
+  enum Type {
+    STRING = 1;
+    BOOL = 2;
+    UINT32 = 3 [deprecated = true];
+    INT32 = 4;
+  }
+  optional string name = 1;
+  required .apphosting.MetricField.Type type = 2;
+  optional string string_value = 3;
+  optional bool bool_value = 4;
+  optional uint32 uint32_value = 5 [deprecated = true];
+  optional int32 int32_value = 6;
+}
+
+message CounterMetric {
+  required string name = 1;
+  optional int32 incremental_value = 2 [default = 1];
+  repeated .apphosting.MetricField fields = 3;
+}
+
+message LatencyMetric {
+  required string name = 1;
+  required int32 latency = 2;
+  repeated .apphosting.MetricField fields = 3;
+}
+
+message RecordMetricsRequest {
+  repeated .apphosting.CounterMetric counter_metrics = 1;
+  repeated .apphosting.LatencyMetric latency_metrics = 2;
+}
+
+message RecordMetricsResponse {
+}
+
+message WipeoutGlobalConfigAndAdminConfigRequest {
+  required string app_id = 1;
+}
+
+message GetAppConfigsRequest {
+  optional string app_id = 1;
+}
+
+message GetAppConfigsResponse {
+  optional .apphosting.GlobalConfig global_config = 1;
+  optional .apphosting.AdminConfig admin_config = 2;
+  optional .apphosting.Firewall firewall = 3;
+}
+
+message SetAppConfigRequest {
+  optional .apphosting.GlobalConfig global_config = 1;
+  optional .apphosting.AdminConfig admin_config = 2;
+  optional .apphosting.Firewall firewall = 4;
+  optional .apphosting.PublishBehavior publish_behavior = 3;
+  optional int64 timestamp_usec = 5;
+  optional string modified_by = 6;
+}
+
+message SetAppConfigResponse {
+  optional int64 timestamp_usec = 1;
+}
+
+message CreateVersionRequest {
+  optional .apphosting.AppInfo app_info = 1;
+  optional .apphosting.PerVersionConfig per_version_config = 4;
+  optional .apphosting.PublishBehavior publish_behavior = 2;
+  optional int64 minor_version_id = 3;
+}
+
+message CreateVersionResponse {
+  optional .apphosting.AppVersionReference app_version = 1;
+  optional int64 timestamp_usec = 2;
+}
+
+message SetVersionRequest {
+  optional .apphosting.AppInfo app_info = 1;
+  optional .apphosting.PerVersionConfig per_version_config = 4;
+  optional .apphosting.PublishBehavior publish_behavior = 2;
+  optional int64 minor_version_id = 3;
+  optional int64 timestamp_usec = 5;
+  optional string modified_by = 6;
+}
+
+message SetVersionResponse {
+  optional .apphosting.AppVersionReference app_version = 1;
+  optional int64 timestamp_usec = 2;
+}
+
+message GetVersionRequest {
+  optional .apphosting.AppVersionReferenceLite app_version = 1;
+}
+
+message GetVersionResponse {
+  optional .apphosting.AppInfo app_info = 1;
+  optional .apphosting.PerVersionConfig per_version_config = 2;
+}
+
+message SetWipeoutDetailsRequest {
+  optional .apphosting.WipeoutDetails wipeout_details = 1;
+}
+
+message SetDerivedAppInfoRequest {
+  optional .apphosting.AppInfo app_info = 1;
+  optional .apphosting.AppInfo.DerivedFiles.DerivedFileType derived_file_type = 2;
+  optional int64 compiler_version = 3;
+}
+
+message SetDerivedAppInfoResponse {
+}
+
+message GetDerivedAppInfoRequest {
+  optional .apphosting.AppVersionReferenceLite app_version = 1;
+  optional .apphosting.AppInfo.DerivedFiles.DerivedFileType derived_file_type = 2;
+  optional int64 compiler_version = 3;
+}
+
+message GetDerivedAppInfoResponse {
+  optional .apphosting.AppInfo app_info = 1;
+}
+

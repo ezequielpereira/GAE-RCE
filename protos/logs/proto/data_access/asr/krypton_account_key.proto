@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "KryptonAccountKeyProtoFile";
+option java_multiple_files = true;
+
+message KryptonAccountKey {
+  optional int64 keyspace_id = 1;
+  optional int64 account_id = 2;
+}
+

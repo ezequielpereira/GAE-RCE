@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+import "gaia/auth/proto/unified_auth.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package tech.env.framework;
+
+option java_package = "com.google.tech.env.framework";
+
+message RequestContext {
+  optional .gaia_auth.UnifiedAuthResponse unified_auth_response = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .tech.env.framework.RequestContext message_set_extension = 68199519;
+  }
+}
+

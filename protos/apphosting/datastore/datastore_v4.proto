@@ -1,0 +1,265 @@
+syntax = "proto2";
+
+import "apphosting/datastore/entity_v4.proto";
+package apphosting.datastore.v4;
+
+option java_package = "com.google.apphosting.datastore";
+
+message Error {
+  enum ErrorCode {
+    BAD_REQUEST = 1;
+    CONCURRENT_TRANSACTION = 2;
+    INTERNAL_ERROR = 3;
+    NEED_INDEX = 4;
+    TIMEOUT = 5;
+    PERMISSION_DENIED = 6;
+    BIGTABLE_ERROR = 7;
+    COMMITTED_BUT_STILL_APPLYING = 8;
+    CAPABILITY_DISABLED = 9;
+    TRY_ALTERNATE_BACKEND = 10;
+    SAFE_TIME_TOO_OLD = 11;
+    RESOURCE_EXHAUSTED = 12;
+    NOT_FOUND = 13;
+    ALREADY_EXISTS = 14;
+    FAILED_PRECONDITION = 15;
+    UNAUTHENTICATED = 16;
+    ABORTED = 17;
+  }
+}
+
+message EntityResult {
+  enum ResultType {
+    FULL = 1;
+    PROJECTION = 2;
+    KEY_ONLY = 3;
+  }
+  required .apphosting.datastore.v4.Entity entity = 1;
+  optional int64 version = 2;
+  optional bytes cursor = 3;
+}
+
+message Query {
+  repeated .apphosting.datastore.v4.PropertyExpression projection = 2;
+  repeated .apphosting.datastore.v4.KindExpression kind = 3;
+  optional .apphosting.datastore.v4.Filter filter = 4;
+  repeated .apphosting.datastore.v4.PropertyOrder order = 5;
+  repeated .apphosting.datastore.v4.PropertyReference group_by = 6;
+  optional bytes start_cursor = 7;
+  optional bytes end_cursor = 8;
+  optional int32 offset = 10 [default = 0];
+  optional int32 limit = 11;
+}
+
+message KindExpression {
+  required string name = 1;
+}
+
+message PropertyReference {
+  required string name = 2;
+}
+
+message PropertyExpression {
+  enum AggregationFunction {
+    FIRST = 1;
+  }
+  required .apphosting.datastore.v4.PropertyReference property = 1;
+  optional .apphosting.datastore.v4.PropertyExpression.AggregationFunction aggregation_function = 2;
+}
+
+message PropertyOrder {
+  enum Direction {
+    ASCENDING = 1;
+    DESCENDING = 2;
+  }
+  required .apphosting.datastore.v4.PropertyReference property = 1;
+  optional .apphosting.datastore.v4.PropertyOrder.Direction direction = 2 [default = ASCENDING];
+}
+
+message Filter {
+  optional .apphosting.datastore.v4.CompositeFilter composite_filter = 1;
+  optional .apphosting.datastore.v4.PropertyFilter property_filter = 2;
+}
+
+message CompositeFilter {
+  enum Operator {
+    AND = 1;
+  }
+  required .apphosting.datastore.v4.CompositeFilter.Operator operator = 1;
+  repeated .apphosting.datastore.v4.Filter filter = 2;
+}
+
+message PropertyFilter {
+  enum Operator {
+    LESS_THAN = 1;
+    LESS_THAN_OR_EQUAL = 2;
+    GREATER_THAN = 3;
+    GREATER_THAN_OR_EQUAL = 4;
+    EQUAL = 5;
+    HAS_ANCESTOR = 11;
+  }
+  required .apphosting.datastore.v4.PropertyReference property = 1;
+  required .apphosting.datastore.v4.PropertyFilter.Operator operator = 2;
+  required .apphosting.datastore.v4.Value value = 3;
+}
+
+message GqlQuery {
+  required string query_string = 1;
+  optional bool allow_literal = 2 [default = false];
+  repeated .apphosting.datastore.v4.GqlQueryArg name_arg = 3;
+  repeated .apphosting.datastore.v4.GqlQueryArg number_arg = 4;
+}
+
+message GqlQueryArg {
+  optional string name = 1;
+  optional .apphosting.datastore.v4.Value value = 2;
+  optional bytes cursor = 3;
+}
+
+message QueryResultBatch {
+  enum MoreResultsType {
+    NOT_FINISHED = 1;
+    MORE_RESULTS_AFTER_LIMIT = 2;
+    NO_MORE_RESULTS = 3;
+  }
+  required .apphosting.datastore.v4.EntityResult.ResultType entity_result_type = 1;
+  repeated .apphosting.datastore.v4.EntityResult entity_result = 2;
+  optional bytes skipped_cursor = 3;
+  optional bytes end_cursor = 4;
+  required .apphosting.datastore.v4.QueryResultBatch.MoreResultsType more_results = 5;
+  optional int32 skipped_results = 6 [default = 0];
+  optional int64 snapshot_version = 7;
+}
+
+message Mutation {
+  enum Operation {
+    UNKNOWN = 0;
+    INSERT = 1;
+    UPDATE = 2;
+    UPSERT = 3;
+    DELETE = 4;
+  }
+  optional .apphosting.datastore.v4.Mutation.Operation op = 1 [default = UNKNOWN];
+  optional .apphosting.datastore.v4.Key key = 2;
+  optional .apphosting.datastore.v4.Entity entity = 3;
+}
+
+message MutationResult {
+  optional .apphosting.datastore.v4.Key key = 3;
+  optional int64 new_version = 4 [default = 0];
+}
+
+message DeprecatedMutation {
+  repeated .apphosting.datastore.v4.Entity upsert = 1;
+  repeated .apphosting.datastore.v4.Entity update = 2;
+  repeated .apphosting.datastore.v4.Entity insert = 3;
+  repeated .apphosting.datastore.v4.Entity insert_auto_id = 4;
+  repeated .apphosting.datastore.v4.Key delete = 5;
+  optional bool force = 6 [default = false];
+}
+
+message DeprecatedMutationResult {
+  required int32 index_updates = 1;
+  repeated .apphosting.datastore.v4.Key insert_auto_id_key = 2;
+  repeated int64 upsert_version = 3;
+  repeated int64 update_version = 4;
+  repeated int64 insert_version = 5;
+  repeated int64 insert_auto_id_version = 6;
+  repeated int64 delete_version = 7;
+}
+
+message ReadOptions {
+  enum ReadConsistency {
+    DEFAULT = 0;
+    STRONG = 1;
+    EVENTUAL = 2;
+  }
+  optional .apphosting.datastore.v4.ReadOptions.ReadConsistency read_consistency = 1 [default = DEFAULT];
+  optional bytes transaction = 2;
+}
+
+message LookupRequest {
+  optional .apphosting.datastore.v4.ReadOptions read_options = 1;
+  repeated .apphosting.datastore.v4.Key key = 3;
+}
+
+message LookupResponse {
+  repeated .apphosting.datastore.v4.EntityResult found = 1;
+  repeated .apphosting.datastore.v4.EntityResult missing = 2;
+  repeated .apphosting.datastore.v4.Key deferred = 3;
+}
+
+message RunQueryRequest {
+  optional .apphosting.datastore.v4.ReadOptions read_options = 1;
+  optional .apphosting.datastore.v4.PartitionId partition_id = 2;
+  optional .apphosting.datastore.v4.Query query = 3;
+  optional .apphosting.datastore.v4.GqlQuery gql_query = 7;
+  optional int64 min_safe_time_seconds = 4;
+  optional int32 suggested_batch_size = 5;
+}
+
+message RunQueryResponse {
+  required .apphosting.datastore.v4.QueryResultBatch batch = 1;
+  optional bytes query_handle = 2;
+}
+
+message ContinueQueryRequest {
+  required bytes query_handle = 1;
+}
+
+message ContinueQueryResponse {
+  required .apphosting.datastore.v4.QueryResultBatch batch = 1;
+}
+
+message BeginTransactionRequest {
+  optional bool cross_group = 1 [default = false];
+  optional bool cross_request = 2 [default = false];
+}
+
+message BeginTransactionResponse {
+  required bytes transaction = 1;
+}
+
+message RollbackRequest {
+  required bytes transaction = 1;
+}
+
+message RollbackResponse {
+}
+
+message CommitRequest {
+  enum Mode {
+    TRANSACTIONAL = 1;
+    NON_TRANSACTIONAL = 2;
+  }
+  optional bytes transaction = 1;
+  repeated .apphosting.datastore.v4.Mutation mutation = 5;
+  optional .apphosting.datastore.v4.DeprecatedMutation deprecated_mutation = 2;
+  optional .apphosting.datastore.v4.CommitRequest.Mode mode = 4 [default = TRANSACTIONAL];
+  optional bool ignore_read_only = 6 [default = false];
+}
+
+message CommitResponse {
+  repeated .apphosting.datastore.v4.MutationResult mutation_result = 3;
+  optional .apphosting.datastore.v4.DeprecatedMutationResult deprecated_mutation_result = 1;
+  optional int32 index_updates = 4;
+}
+
+message AllocateIdsRequest {
+  repeated .apphosting.datastore.v4.Key allocate = 1;
+  repeated .apphosting.datastore.v4.Key reserve = 2;
+}
+
+message AllocateIdsResponse {
+  repeated .apphosting.datastore.v4.Key allocated = 1;
+}
+
+service DatastoreV4Service {
+  rpc BeginTransaction(.apphosting.datastore.v4.BeginTransactionRequest) returns (.apphosting.datastore.v4.BeginTransactionResponse);
+  rpc Rollback(.apphosting.datastore.v4.RollbackRequest) returns (.apphosting.datastore.v4.RollbackResponse);
+  rpc Commit(.apphosting.datastore.v4.CommitRequest) returns (.apphosting.datastore.v4.CommitResponse);
+  rpc RunQuery(.apphosting.datastore.v4.RunQueryRequest) returns (.apphosting.datastore.v4.RunQueryResponse);
+  rpc ContinueQuery(.apphosting.datastore.v4.ContinueQueryRequest) returns (.apphosting.datastore.v4.ContinueQueryResponse);
+  rpc Lookup(.apphosting.datastore.v4.LookupRequest) returns (.apphosting.datastore.v4.LookupResponse);
+  rpc AllocateIds(.apphosting.datastore.v4.AllocateIdsRequest) returns (.apphosting.datastore.v4.AllocateIdsResponse);
+}
+

@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+import "borg/common/fs_dir.proto";
+import "borg/common/pcpu.proto";
+package borg;
+
+enum RemoteSourceCkpt {
+  SOURCE_RACK = 0;
+  SOURCE_LOCUS_POD = 1;
+  SOURCE_LOCUS_CLIQUE = 2;
+}
+
+message CliqueSsdSpec {
+  optional int64 size = 1;
+}
+
+message CliquePdSsdSpec {
+  optional int64 size = 1;
+}
+
+message RemoteHddFsDirSpec {
+  optional int64 size = 1;
+  optional int64 memory = 3;
+  optional float cpu_rate = 7;
+  optional int64 milligcu = 5;
+  optional .borg.Pcpu pcpu = 8;
+  optional string name = 2;
+  optional string charged_user = 11;
+  optional string colossus_cell = 12;
+  optional .borg.PrimaryFsDirEligible primary_eligible = 10;
+  reserved 4, 6, 9;
+}
+
+message RemoteResSpec {
+  repeated .borg.CliqueSsdSpec clique_ssd = 1;
+  repeated .borg.CliquePdSsdSpec clique_pd_ssd = 3;
+  repeated .borg.RemoteHddFsDirSpec remote_hdd_fs_dir = 2;
+}
+
+message CliqueSsdFreeCkpt {
+  optional int64 size = 1;
+  optional int64 allocation_increment = 2;
+}
+
+message CliquePdSsdFreeCkpt {
+  optional int64 capacity = 1;
+  optional int64 in_use = 2;
+}
+
+message RemoteResFree {
+  optional .borg.CliqueSsdFreeCkpt clique_ssd = 1;
+  optional .borg.CliquePdSsdFreeCkpt clique_pd_ssd = 2;
+}
+
+message CliqueSsdAllocCkpt {
+  optional string d_cell = 3;
+  optional .borg.RemoteSourceCkpt source = 4;
+  optional int64 volume_id = 1;
+  optional int64 size = 2;
+}
+
+message CliquePdSsdAllocCkpt {
+  optional .borg.RemoteSourceCkpt source = 2;
+  optional int64 size = 1;
+}
+
+message RemoteHddFsDirAllocCkpt {
+  optional int64 size = 1;
+  optional int64 memory = 6;
+  optional float cpu_rate = 8;
+  optional int32 serving_port = 2;
+  optional int32 status_port = 3;
+  optional string name = 5;
+  optional string charged_user = 9;
+  optional string colossus_cell = 10;
+  optional string universe = 4;
+}
+
+message RemoteResAlloc {
+  repeated .borg.CliqueSsdAllocCkpt clique_ssd = 1;
+  repeated .borg.CliquePdSsdAllocCkpt clique_pd_ssd = 3;
+  repeated .borg.RemoteHddFsDirAllocCkpt remote_hdd_fs_dir = 2;
+}
+
+

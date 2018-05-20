@@ -1,0 +1,63 @@
+syntax = "proto2";
+
+import "apphosting/sandbox/udrpc/shared_buffer.proto";
+package udrpc;
+
+option java_package = "com.google.apphosting.runtime.udrpc";
+option java_outer_classname = "RpcProto";
+
+message Request {
+  required uint64 id = 1;
+  required string service = 2;
+  required string method = 3;
+  optional double deadline = 4;
+  optional double start_time = 5;
+  optional uint64 trace_id = 6;
+  optional uint32 trace_mask = 7;
+  optional uint64 parent_rpc = 8;
+}
+
+message Response {
+  enum Error {
+    OK = 0;
+    CLIENT_ERROR = 1;
+    SERVER_ERROR = 2;
+    APPLICATION_ERROR = 3;
+    DEADLINE_EXCEEDED = 4;
+    UNREACHABLE = 5;
+    SHARED_BUFFER_ERROR = 6;
+  }
+  required uint64 id = 1;
+  optional .udrpc.Response.Error error = 2 [default = OK];
+  optional string error_detail = 3;
+  optional int64 app_error = 4;
+}
+
+message PayloadContinuation {
+  required uint64 id = 1;
+  required bool final_packet = 2;
+}
+
+message ConnectionOptions {
+  enum OptionStatus {
+    NOT_SUPPORTED = 0;
+    SUPPORTED = 1;
+    ENABLED = 2;
+  }
+  optional .udrpc.ConnectionOptions.OptionStatus avoid_sendmsg = 1 [default = NOT_SUPPORTED];
+  optional .udrpc.ConnectionOptions.OptionStatus payload_chunking = 2 [default = NOT_SUPPORTED];
+}
+
+message PacketHeader {
+  optional .udrpc.ConnectionOptions options = 6;
+  optional .udrpc.Request request = 1;
+  optional .udrpc.Response response = 2;
+  optional .udrpc.PayloadContinuation continuation = 8;
+  optional .udrpc.SharedBufferReference buffer = 3;
+  optional int64 buffer_content_size = 4;
+  repeated .udrpc.SharedBufferReference deleted_buffers = 5;
+  optional int32 num_fds = 7;
+  optional int64 payload_bytes = 9;
+}
+
+

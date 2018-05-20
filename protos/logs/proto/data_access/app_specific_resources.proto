@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+import "logs/proto/data_access/asr/analytics_resource.proto";
+import "logs/proto/data_access/asr/cloud_resource.proto";
+import "logs/proto/data_access/asr/commerce_order.proto";
+import "logs/proto/data_access/asr/enterprise_domain.proto";
+import "logs/proto/data_access/asr/enterprise_resource.proto";
+import "logs/proto/data_access/asr/footprints_resource.proto";
+import "logs/proto/data_access/asr/google_compare_pseudonymous_user.proto";
+import "logs/proto/data_access/asr/google_partner_entity.proto";
+import "logs/proto/data_access/asr/keystore_key.proto";
+import "logs/proto/data_access/asr/krypton_account_key.proto";
+import "logs/proto/data_access/asr/payments_resource.proto";
+import "logs/proto/data_access/asr/phone_number.proto";
+import "logs/proto/data_access/asr/speech_resource.proto";
+import "logs/proto/data_access/asr/test_resource.proto";
+import "logs/proto/data_access/asr/webspace_id.proto";
+import "logs/proto/data_access/asr/xray_resource.proto";
+import "logs/proto/data_access/asr/youtube_admin.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access;
+
+option java_package = "com.google.security.data_access.proto";
+option java_outer_classname = "AppSpecificResourcesProtoFile";
+option java_multiple_files = true;
+
+message AppSpecificResources {
+  repeated .security.data_access.asr.TestResource test_resource = 1;
+  optional .security.data_access.asr.EnterpriseDomain enterprise_domain = 2;
+  optional .security.data_access.asr.XrayResource xray_resource = 3;
+  repeated .security.data_access.asr.PhoneNumber phone_number = 4;
+  repeated .security.data_access.asr.CloudResource cloud_resource = 5;
+  repeated .security.data_access.asr.KeystoreKey keystore_key = 6;
+  repeated .security.data_access.asr.WebspaceId webspace_id = 7;
+  repeated .security.data_access.asr.KryptonAccountKey krypton_account_key = 8 [deprecated = true];
+  repeated .security.data_access.asr.GoogleComparePseudonymousUser google_compare_pseudonymous_user = 9;
+  repeated .security.data_access.asr.PaymentsResource payments_resource = 10;
+  repeated .security.data_access.asr.AnalyticsResource analytics_resource = 11;
+  repeated .security.data_access.asr.GooglePartnerEntity google_partner_entity = 12;
+  repeated .security.data_access.asr.SpeechResource speech_resource = 13;
+  repeated .security.data_access.asr.CommerceOrder commerce_order = 14;
+  repeated .security.data_access.asr.YouTubeAdminResource youtube_admin_resource = 15;
+  repeated .security.data_access.asr.FootprintsResource footprints_resource = 16;
+  repeated .security.data_access.asr.EnterpriseResource enterprise_resource = 17;
+}
+

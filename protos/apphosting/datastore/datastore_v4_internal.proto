@@ -1,0 +1,141 @@
+syntax = "proto2";
+
+import "apphosting/datastore/datastore_v4.proto";
+import "apphosting/datastore/entity_v4.proto";
+import "cloud/datastore/proto/datastore_internal.proto";
+import "storage/onestore/v3/entity.proto";
+package apphosting.datastore.v4;
+
+option java_package = "com.google.apphosting.datastore";
+
+message MutationMetadata {
+  required string app = 1;
+  repeated .storage_onestore_v3.CompositeIndex index = 2;
+  optional bool trusted = 3 [default = false];
+  optional bool mark_changes = 4 [default = false];
+}
+
+message QueryHandle {
+  required fixed64 handle = 2;
+}
+
+message ReadInternalOptions {
+  optional .apphosting.datastore.v4.ReadOptions.ReadConsistency read_consistency = 1 [default = DEFAULT];
+  optional fixed64 transaction_handle = 2;
+}
+
+message BeginTransactionInternalRequest {
+  required string app = 1;
+  optional bool cross_group = 2 [default = false];
+}
+
+message BeginTransactionInternalResponse {
+  required fixed64 transaction_handle_deprecated = 1;
+  optional .cloud_datastore.internal.Transaction transaction = 2;
+}
+
+message RollbackInternalRequest {
+  required string app = 1;
+  required fixed64 transaction_handle = 2;
+}
+
+message RollbackInternalResponse {
+}
+
+message RunQueryInternalRequest {
+  optional .apphosting.datastore.v4.ReadInternalOptions read_options = 1;
+  required .apphosting.datastore.v4.PartitionId partition_id = 2;
+  optional .apphosting.datastore.v4.Query query = 3;
+  optional .apphosting.datastore.v4.GqlQuery gql_query = 7;
+  repeated string replica = 4;
+  optional int32 suggested_batch_size = 5;
+  repeated .storage_onestore_v3.CompositeIndex index = 6;
+}
+
+message RunQueryInternalResponse {
+  required .apphosting.datastore.v4.QueryResultBatch batch = 1;
+  optional fixed64 query_handle = 2;
+  repeated .storage_onestore_v3.CompositeIndex index = 3;
+  required .cloud_datastore.internal.QueryCost cost = 4;
+}
+
+message ContinueQueryInternalRequest {
+  required string app = 1;
+  required fixed64 query_handle = 2;
+}
+
+message ContinueQueryInternalResponse {
+  required .apphosting.datastore.v4.QueryResultBatch batch = 1;
+  required .cloud_datastore.internal.QueryCost cost = 4;
+}
+
+message LookupInternalRequest {
+  optional .apphosting.datastore.v4.ReadInternalOptions read_options = 1;
+  repeated .apphosting.datastore.v4.Key key = 2;
+}
+
+message LookupInternalResponse {
+  repeated .apphosting.datastore.v4.EntityResult found = 1;
+  repeated .apphosting.datastore.v4.EntityResult missing = 2;
+  repeated .apphosting.datastore.v4.Key deferred = 3;
+}
+
+message CloseQueryInternalRequest {
+  required string app = 1;
+  required fixed64 query_handle = 2;
+}
+
+message CloseQueryInternalResponse {
+}
+
+message CommitInternalRequest {
+  optional fixed64 transaction_handle = 1;
+  repeated .apphosting.datastore.v4.Mutation mutation = 5;
+  optional .apphosting.datastore.v4.DeprecatedMutation deprecated_mutation = 2;
+  required .apphosting.datastore.v4.MutationMetadata mutation_metadata = 3;
+  optional .apphosting.datastore.v4.CommitRequest.Mode mode = 4 [default = TRANSACTIONAL];
+  optional bool ignore_read_only = 6 [default = false];
+}
+
+message CommitInternalResponse {
+  repeated .apphosting.datastore.v4.MutationResult mutation_result = 3;
+  optional .apphosting.datastore.v4.DeprecatedMutationResult deprecated_mutation_result = 1;
+  optional .cloud_datastore.internal.MutationCost mutation_cost = 2;
+  optional int32 index_updates = 4;
+}
+
+message AllocateIdsInternalRequest {
+  repeated .apphosting.datastore.v4.Key allocate = 1;
+  repeated .apphosting.datastore.v4.Key reserve = 2;
+}
+
+message AllocateIdsInternalResponse {
+  repeated .apphosting.datastore.v4.Key allocated = 1;
+  optional .cloud_datastore.internal.MutationCost mutation_cost = 2;
+}
+
+message GetIndexesInternalRequest {
+  optional string app = 2;
+  repeated string kind = 3;
+}
+
+message GetIndexesInternalResponse {
+  message IndexMap {
+    optional string kind = 1;
+    repeated .storage_onestore_v3.CompositeIndex index = 2;
+  }
+  repeated .apphosting.datastore.v4.GetIndexesInternalResponse.IndexMap index_map = 1;
+}
+
+service DatastoreV4InternalService {
+  rpc BeginTransactionInternal(.apphosting.datastore.v4.BeginTransactionInternalRequest) returns (.apphosting.datastore.v4.BeginTransactionInternalResponse);
+  rpc RollbackInternal(.apphosting.datastore.v4.RollbackInternalRequest) returns (.apphosting.datastore.v4.RollbackInternalResponse);
+  rpc CommitInternal(.apphosting.datastore.v4.CommitInternalRequest) returns (.apphosting.datastore.v4.CommitInternalResponse);
+  rpc RunQueryInternal(.apphosting.datastore.v4.RunQueryInternalRequest) returns (.apphosting.datastore.v4.RunQueryInternalResponse);
+  rpc ContinueQueryInternal(.apphosting.datastore.v4.ContinueQueryInternalRequest) returns (.apphosting.datastore.v4.ContinueQueryInternalResponse);
+  rpc CloseQueryInternal(.apphosting.datastore.v4.CloseQueryInternalRequest) returns (.apphosting.datastore.v4.CloseQueryInternalResponse);
+  rpc LookupInternal(.apphosting.datastore.v4.LookupInternalRequest) returns (.apphosting.datastore.v4.LookupInternalResponse);
+  rpc AllocateIdsInternal(.apphosting.datastore.v4.AllocateIdsInternalRequest) returns (.apphosting.datastore.v4.AllocateIdsInternalResponse);
+  rpc GetIndexesInternal(.apphosting.datastore.v4.GetIndexesInternalRequest) returns (.apphosting.datastore.v4.GetIndexesInternalResponse);
+}
+

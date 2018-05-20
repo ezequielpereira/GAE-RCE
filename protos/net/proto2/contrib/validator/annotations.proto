@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package validator;
+
+message OneOfGroup {
+  optional string name = 1;
+  optional string is_required = 2;
+}
+
+message Definitions {
+  repeated string feature = 1;
+  repeated .validator.OneOfGroup one_of_group = 2;
+}
+
+message FieldValidationRule {
+  optional string is_required = 1;
+  repeated string predicate = 2;
+  repeated string element_predicate = 3;
+  optional string one_of = 4;
+}
+
+message OneOfValidationRule {
+  optional string is_required = 1;
+}
+
+extend .proto2.MessageOptions {
+  optional .validator.Definitions defs = 127878962;
+}
+
+extend .proto2.FieldOptions {
+  optional .validator.FieldValidationRule rule = 127878962;
+}
+
+extend .proto2.OneofOptions {
+  optional .validator.OneOfValidationRule one_of = 127878962;
+}
+
+

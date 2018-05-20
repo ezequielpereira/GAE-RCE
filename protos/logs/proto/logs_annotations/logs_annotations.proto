@@ -1,0 +1,121 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package logs_proto;
+
+option cc_enable_arenas = true;
+option objc_class_prefix = "LOGS";
+
+enum IdentifierType {
+  LOGSID_NONE = 0;
+  LOGSID_IP_ADDRESS = 1;
+  LOGSID_IP_ADDRESS_INTERNAL = 2;
+  LOGSID_USER_AGENT = 3;
+  LOGSID_SENSITIVE_TIMESTAMP = 4;
+  LOGSID_SENSITIVE_LOCATION = 5;
+  LOGSID_APPROXIMATE_LOCATION = 15;
+  LOGSID_COARSE_LOCATION = 6;
+  LOGSID_OTHER_LOCATION = 9;
+  LOGSID_OTHER_VERSION_ID = 7;
+  LOGSID_REFERER = 8;
+  LOGSID_THIRD_PARTY_PARAMETERS = 16;
+  LOGSID_OTHER_PSEUDONYMOUS_ID = 10;
+  LOGSID_PREF = 11;
+  LOGSID_ZWIEBACK = 12;
+  LOGSID_BISCOTTI = 13;
+  LOGSID_CUSTOM_SESSION_ID = 14;
+  LOGSID_OTHER_PERSONAL_ID = 20;
+  LOGSID_GAIA_ID = 21;
+  LOGSID_EMAIL = 22;
+  LOGSID_USERNAME = 23;
+  LOGSID_PHONE_NUMBER = 24;
+  LOGSID_GAIA_ID_PUBLIC = 207;
+  LOGSID_OTHER_AUTHENTICATED_ID = 30;
+  LOGSID_OTHER_UNAUTHENTICATED_ID = 31;
+  LOGSID_PARTNER_OR_CUSTOMER_ID = 32;
+  LOGSID_PUBLISHER_ID = 35;
+  LOGSID_DASHER_ID = 33;
+  LOGSID_FOCUS_GROUP_ID = 34;
+  LOGSID_OTHER_MOBILE_DEVICE_ID = 50;
+  LOGSID_GSERVICES_ANDROID_ID = 51;
+  LOGSID_HARDWARE_ID = 52;
+  LOGSID_MSISDN_ID = 53;
+  LOGSID_BUILD_SERIAL_ID = 54;
+  LOGSID_UDID_ID = 55;
+  LOGSID_ANDROID_LOGGING_ID = 56;
+  LOGSID_SECURE_SETTINGS_ANDROID_ID = 57;
+  LOGSID_OTHER_IDENTIFYING_USER_INFO = 100;
+  LOGSID_USER_INPUT = 200;
+  LOGSID_DEMOGRAPHIC_INFO = 201;
+  LOGSID_GENERIC_KEY = 202;
+  LOGSID_GENERIC_VALUE = 203;
+  LOGSID_COOKIE = 204;
+  LOGSID_URL = 205;
+  LOGSID_HTTPHEADER = 206;
+}
+
+message MessageDetails {
+  message Type {
+    required string source_type = 1;
+    required string log_type = 2;
+  }
+  repeated .logs_proto.MessageDetails.Type may_appear_in = 1;
+}
+
+extend .proto2.FieldOptions {
+  optional .logs_proto.IdentifierType id_type = 21713708 [default = LOGSID_NONE];
+}
+
+extend .proto2.FieldOptions {
+  optional bool temp_logs_only = 21623477 [default = false];
+}
+
+extend .proto2.FieldOptions {
+  optional bool is_private_log = 23459630 [default = false];
+}
+
+extend .proto2.FieldOptions {
+  optional bool not_logged_in_sawmill = 21596320 [default = false];
+}
+
+extend .proto2.FieldOptions {
+  optional bool is_encrypted = 26652850 [default = false];
+}
+
+extend .proto2.FieldOptions {
+  optional int32 max_recursion_depth = 53697879;
+}
+
+extend .proto2.FieldOptions {
+  optional string sawmill_filter_override_approved_by_logs_access = 56871503;
+}
+
+extend .proto2.MessageOptions {
+  optional .logs_proto.IdentifierType msg_id_type = 21713708 [default = LOGSID_NONE];
+}
+
+extend .proto2.MessageOptions {
+  optional bool msg_temp_logs_only = 21623477 [default = false];
+}
+
+extend .proto2.MessageOptions {
+  optional bool msg_not_logged_in_sawmill = 21596320 [default = false];
+}
+
+extend .proto2.MessageOptions {
+  optional .logs_proto.MessageDetails msg_details = 21467048;
+}
+
+extend .proto2.MessageOptions {
+  optional string field_encryption_key_name = 26652850;
+}
+
+extend .proto2.FileOptions {
+  optional bool file_not_used_for_logging_except_enums = 21596320 [default = false];
+}
+
+extend .proto2.FileOptions {
+  optional bool file_vetted_for_logs_annotations = 28993747 [default = false];
+}
+
+

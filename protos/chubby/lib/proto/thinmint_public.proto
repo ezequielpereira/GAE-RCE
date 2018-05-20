@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+import "chubby/lib/proto/statinfo.proto";
+import public "security/credentials/proto/principal.proto";
+package chubby.thinmint;
+
+enum Version {
+  INITIAL_VERSION = 1;
+}
+
+message Mint {
+  repeated .security.credentials.PrincipalProto delegate = 1;
+  optional string owner = 2;
+  optional string reader = 3;
+  optional string writer = 4;
+  repeated .LockServiceACL lockservice_acl_owner = 18;
+  repeated .LockServiceACL lockservice_acl_write = 19;
+  repeated .LockServiceACL lockservice_acl_read = 20;
+  required string path = 5;
+  optional bool recursive = 6 [default = true];
+  optional int64 not_before = 7;
+  optional int64 not_after = 8;
+  optional bool inject_unknown_testing_restriction = 9;
+  optional bool no_set_content = 10 [default = true];
+  optional bool no_delete = 11 [default = true];
+  optional bool no_create = 12 [default = false];
+  optional bool no_lock_acquisition = 13 [default = true];
+  optional bool no_content_read = 14 [default = false];
+  optional string exact_content = 15;
+  optional string sequencer = 16;
+  optional int64 old_generation = 17;
+}
+
+

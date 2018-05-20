@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+import "apphosting/api/api_base.proto";
+import "apphosting/base/clone.proto";
+import "google/devtools/source/v1/source_context.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.api.clouddebugger";
+option java_outer_classname = "CloudDebuggerServicePb";
+
+message DebugletStartedRequest {
+  optional .google.devtools.source.v1.SourceContext source_context = 1;
+}
+
+service CloudDebuggerService {
+  rpc DebugletStarted(.apphosting.DebugletStartedRequest) returns (.apphosting.base.VoidProto);
+  rpc UpdateBreakpoints(.apphosting.CloudDebuggerBreakpoints) returns (.apphosting.base.VoidProto);
+}
+

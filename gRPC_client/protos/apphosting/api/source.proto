@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.api.source";
+option java_outer_classname = "SourcePb";
+
+message SourceLocation {
+  optional string file = 1;
+  optional int64 line = 2;
+  optional string function_name = 3;
+}
+

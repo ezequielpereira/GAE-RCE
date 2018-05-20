@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package storage_onestore_v3;
+
+option java_package = "com.google.storage.onestore.v3";
+option java_outer_classname = "OnestoreSnapshot";
+option go_package = "storage_onestore_v3";
+
+message Snapshot {
+  enum Status {
+    INACTIVE = 0;
+    ACTIVE = 1;
+  }
+  required int64 ts = 1;
+}
+

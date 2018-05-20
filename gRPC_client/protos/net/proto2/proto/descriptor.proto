@@ -1,0 +1,364 @@
+syntax = "proto2";
+
+package proto2;
+
+option java_package = "com.google.protobuf";
+option java_outer_classname = "DescriptorProtos";
+option optimize_for = SPEED;
+option go_package = "github.com/golang/protobuf/protoc-gen-go/descriptor;descriptor";
+option objc_class_prefix = "GPB";
+option csharp_namespace = "Google.Protobuf.Reflection";
+
+message FileDescriptorSet {
+  repeated .proto2.FileDescriptorProto file = 1;
+}
+
+message FileDescriptorProto {
+  optional string name = 1;
+  optional string package = 2;
+  repeated string dependency = 3;
+  repeated int32 public_dependency = 10;
+  repeated int32 weak_dependency = 11;
+  repeated .proto2.DescriptorProto message_type = 4;
+  repeated .proto2.EnumDescriptorProto enum_type = 5;
+  repeated .proto2.ServiceDescriptorProto service = 6;
+  repeated .proto2.FieldDescriptorProto extension = 7;
+  optional .proto2.FileOptions options = 8;
+  optional .proto2.SourceCodeInfo source_code_info = 9;
+  optional string syntax = 12;
+}
+
+message DescriptorProto {
+  message ExtensionRange {
+    optional int32 start = 1;
+    optional int32 end = 2;
+    optional .proto2.ExtensionRangeOptions options = 3;
+  }
+  message ReservedRange {
+    optional int32 start = 1;
+    optional int32 end = 2;
+  }
+  optional string name = 1;
+  repeated .proto2.FieldDescriptorProto field = 2;
+  repeated .proto2.FieldDescriptorProto extension = 6;
+  repeated .proto2.DescriptorProto nested_type = 3;
+  repeated .proto2.EnumDescriptorProto enum_type = 4;
+  repeated .proto2.DescriptorProto.ExtensionRange extension_range = 5;
+  repeated .proto2.OneofDescriptorProto oneof_decl = 8;
+  optional .proto2.MessageOptions options = 7;
+  repeated .proto2.DescriptorProto.ReservedRange reserved_range = 9;
+  repeated string reserved_name = 10;
+}
+
+message ExtensionRangeOptions {
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+}
+
+message FieldDescriptorProto {
+  enum Type {
+    TYPE_DOUBLE = 1;
+    TYPE_FLOAT = 2;
+    TYPE_INT64 = 3;
+    TYPE_UINT64 = 4;
+    TYPE_INT32 = 5;
+    TYPE_FIXED64 = 6;
+    TYPE_FIXED32 = 7;
+    TYPE_BOOL = 8;
+    TYPE_STRING = 9;
+    TYPE_GROUP = 10;
+    TYPE_MESSAGE = 11;
+    TYPE_BYTES = 12;
+    TYPE_UINT32 = 13;
+    TYPE_ENUM = 14;
+    TYPE_SFIXED32 = 15;
+    TYPE_SFIXED64 = 16;
+    TYPE_SINT32 = 17;
+    TYPE_SINT64 = 18;
+  }
+  enum Label {
+    LABEL_OPTIONAL = 1;
+    LABEL_REQUIRED = 2;
+    LABEL_REPEATED = 3;
+  }
+  optional string name = 1;
+  optional int32 number = 3;
+  optional .proto2.FieldDescriptorProto.Label label = 4;
+  optional .proto2.FieldDescriptorProto.Type type = 5;
+  optional string type_name = 6;
+  optional string extendee = 2;
+  optional string default_value = 7;
+  optional int32 oneof_index = 9;
+  optional string json_name = 10;
+  optional .proto2.FieldOptions options = 8;
+}
+
+message OneofDescriptorProto {
+  optional string name = 1;
+  optional .proto2.OneofOptions options = 2;
+}
+
+message EnumDescriptorProto {
+  optional string name = 1;
+  repeated .proto2.EnumValueDescriptorProto value = 2;
+  optional .proto2.EnumOptions options = 3;
+}
+
+message EnumValueDescriptorProto {
+  optional string name = 1;
+  optional int32 number = 2;
+  optional .proto2.EnumValueOptions options = 3;
+}
+
+message ServiceDescriptorProto {
+  optional string name = 1;
+  repeated .proto2.MethodDescriptorProto method = 2;
+  repeated .proto2.StreamDescriptorProto stream = 4;
+  optional .proto2.ServiceOptions options = 3;
+}
+
+message MethodDescriptorProto {
+  optional string name = 1;
+  optional string input_type = 2;
+  optional string output_type = 3;
+  optional .proto2.MethodOptions options = 4;
+  optional bool client_streaming = 5 [default = false];
+  optional bool server_streaming = 6 [default = false];
+}
+
+message StreamDescriptorProto {
+  optional string name = 1;
+  optional string client_message_type = 2;
+  optional string server_message_type = 3;
+  optional .proto2.StreamOptions options = 4;
+}
+
+message FileOptions {
+  enum CompatibilityLevel {
+    NO_COMPATIBILITY = 0;
+    PROTO1_COMPATIBLE = 100;
+  }
+  enum OptimizeMode {
+    SPEED = 1;
+    CODE_SIZE = 2;
+    LITE_RUNTIME = 3;
+  }
+  optional int32 cc_api_version = 2 [default = 2];
+  optional .proto2.FileOptions.CompatibilityLevel cc_api_compatibility = 15 [default = NO_COMPATIBILITY];
+  optional bool cc_utf8_verification = 24 [default = true];
+  optional string java_package = 1;
+  optional int32 py_api_version = 4 [default = 2];
+  optional int32 java_api_version = 5 [default = 2];
+  optional bool java_use_javaproto2 = 6 [default = true];
+  optional bool java_java5_enums = 7 [default = true];
+  optional bool java_use_javastrings = 21 [default = false];
+  optional string java_alt_api_package = 19;
+  optional bool java_enable_dual_generate_mutable_api = 26 [default = false];
+  optional string java_outer_classname = 8;
+  optional bool java_multiple_files = 10 [default = false];
+  optional bool java_string_check_utf8 = 27 [default = false];
+  optional bool java_mutable_api = 28 [default = false];
+  optional string java_multiple_files_mutable_package = 29;
+  optional .proto2.FileOptions.OptimizeMode optimize_for = 9 [default = SPEED];
+  optional string go_package = 11;
+  optional string javascript_package = 12;
+  optional int32 szl_api_version = 14 [default = 1];
+  optional bool cc_generic_services = 16 [default = false];
+  optional bool java_generic_services = 17 [default = false];
+  optional bool py_generic_services = 18 [default = false];
+  optional bool deprecated = 23 [default = false];
+  optional bool cc_enable_arenas = 31 [default = false];
+  optional string objc_class_prefix = 36;
+  optional string csharp_namespace = 37;
+  optional string swift_prefix = 39;
+  optional string php_class_prefix = 40;
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+  reserved 22, 25, 13, 32, 33, 34, 35, 38;
+}
+
+message MessageOptions {
+  repeated string experimental_java_message_interface = 4;
+  repeated string experimental_java_builder_interface = 5;
+  repeated string experimental_java_interface_extends = 6;
+  optional bool message_set_wire_format = 1 [default = false];
+  optional bool no_standard_descriptor_accessor = 2 [default = false];
+  optional bool deprecated = 3 [default = false];
+  optional bool map_entry = 7;
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+  reserved 8, 9;
+}
+
+message FieldOptions {
+  message UpgradedOption {
+    optional string name = 1;
+    optional string value = 2;
+  }
+  enum CType {
+    STRING = 0;
+    CORD = 1;
+    STRING_PIECE = 2;
+  }
+  enum JSType {
+    JS_NORMAL = 0;
+    JS_STRING = 1;
+    JS_NUMBER = 2;
+  }
+  optional .proto2.FieldOptions.CType ctype = 1 [default = STRING];
+  optional bool packed = 2;
+  optional .proto2.FieldOptions.JSType jstype = 6 [default = JS_NORMAL];
+  optional bool lazy = 5 [default = false];
+  optional bool deprecated = 3 [default = false];
+  optional bool weak = 10 [default = false];
+  repeated .proto2.FieldOptions.UpgradedOption upgraded_option = 11;
+  optional bool deprecated_raw_message = 12 [default = false];
+  optional bool enforce_utf8 = 13 [default = true];
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+  reserved 4;
+}
+
+message OneofOptions {
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+}
+
+message EnumOptions {
+  optional string proto1_name = 1;
+  optional bool allow_alias = 2;
+  optional bool deprecated = 3 [default = false];
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+  reserved 4, 5;
+}
+
+message EnumValueOptions {
+  optional bool deprecated = 1 [default = false];
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+}
+
+message ServiceOptions {
+  optional bool multicast_stub = 20 [default = false];
+  optional double failure_detection_delay = 16 [default = -1];
+  optional bool deprecated = 33 [default = false];
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+}
+
+message MethodOptions {
+  enum Protocol {
+    TCP = 0;
+    UDP = 1;
+  }
+  enum SecurityLevel {
+    NONE = 0;
+    INTEGRITY = 1;
+    PRIVACY_AND_INTEGRITY = 2;
+    STRONG_PRIVACY_AND_INTEGRITY = 3;
+  }
+  enum Format {
+    UNCOMPRESSED = 0;
+    ZIPPY_COMPRESSED = 1;
+  }
+  enum LogLevel {
+    LOG_NONE = 0;
+    LOG_HEADER_ONLY = 1;
+    LOG_HEADER_AND_NON_PRIVATE_PAYLOAD_INTERNAL = 2;
+    LOG_HEADER_AND_FILTERED_PAYLOAD = 3;
+    LOG_HEADER_AND_PAYLOAD = 4;
+  }
+  enum TokenUnit {
+    MESSAGE = 0;
+    BYTE = 1;
+  }
+  enum IdempotencyLevel {
+    IDEMPOTENCY_UNKNOWN = 0;
+    NO_SIDE_EFFECTS = 1;
+    IDEMPOTENT = 2;
+  }
+  optional .proto2.MethodOptions.Protocol protocol = 7 [default = TCP];
+  optional double deadline = 8 [default = -1];
+  optional bool duplicate_suppression = 9 [default = false];
+  optional bool fail_fast = 10 [default = false];
+  optional bool end_user_creds_requested = 26 [default = false];
+  optional sint32 client_logging = 11 [default = 256];
+  optional sint32 server_logging = 12 [default = 256];
+  optional .proto2.MethodOptions.SecurityLevel security_level = 13 [default = NONE];
+  optional .proto2.MethodOptions.Format response_format = 15 [default = UNCOMPRESSED];
+  optional .proto2.MethodOptions.Format request_format = 17 [default = UNCOMPRESSED];
+  optional string stream_type = 18;
+  optional string security_label = 19;
+  optional bool client_streaming = 20;
+  optional bool server_streaming = 21;
+  optional string legacy_stream_type = 22;
+  optional string legacy_result_type = 23;
+  optional bool go_legacy_channel_api = 29;
+  optional int64 legacy_client_initial_tokens = 24 [default = -1];
+  optional int64 legacy_server_initial_tokens = 25 [default = -1];
+  optional .proto2.MethodOptions.TokenUnit legacy_token_unit = 28 [default = BYTE];
+  optional .proto2.MethodOptions.LogLevel log_level = 27 [default = LOG_HEADER_AND_NON_PRIVATE_PAYLOAD_INTERNAL];
+  optional bool deprecated = 33 [default = false];
+  optional .proto2.MethodOptions.IdempotencyLevel idempotency_level = 34 [default = IDEMPOTENCY_UNKNOWN];
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+}
+
+message StreamOptions {
+  enum TokenUnit {
+    MESSAGE = 0;
+    BYTE = 1;
+  }
+  optional int64 client_initial_tokens = 1 [default = -1];
+  optional int64 server_initial_tokens = 2 [default = -1];
+  optional .proto2.StreamOptions.TokenUnit token_unit = 3 [default = MESSAGE];
+  optional .proto2.MethodOptions.SecurityLevel security_level = 4 [default = NONE];
+  optional string security_label = 5;
+  optional int32 client_logging = 6 [default = 256];
+  optional int32 server_logging = 7 [default = 256];
+  optional double deadline = 8 [default = -1];
+  optional bool fail_fast = 9 [default = false];
+  optional bool end_user_creds_requested = 10 [default = false];
+  optional .proto2.MethodOptions.LogLevel log_level = 11 [default = LOG_HEADER_AND_NON_PRIVATE_PAYLOAD_INTERNAL];
+  optional bool deprecated = 33 [default = false];
+  repeated .proto2.UninterpretedOption uninterpreted_option = 999;
+  extensions 1000 to 536870911;
+}
+
+message UninterpretedOption {
+  message NamePart {
+    required string name_part = 1;
+    required bool is_extension = 2;
+  }
+  repeated .proto2.UninterpretedOption.NamePart name = 2;
+  optional string identifier_value = 3;
+  optional uint64 positive_int_value = 4;
+  optional int64 negative_int_value = 5;
+  optional double double_value = 6;
+  optional bytes string_value = 7;
+  optional string aggregate_value = 8;
+}
+
+message SourceCodeInfo {
+  message Location {
+    repeated int32 path = 1 [packed = true];
+    repeated int32 span = 2 [packed = true];
+    optional string leading_comments = 3;
+    optional string trailing_comments = 4;
+    repeated string leading_detached_comments = 6;
+  }
+  repeated .proto2.SourceCodeInfo.Location location = 1;
+}
+
+message GeneratedCodeInfo {
+  message Annotation {
+    repeated int32 path = 1 [packed = true];
+    optional string source_file = 2;
+    optional int32 begin = 3;
+    optional int32 end = 4;
+  }
+  repeated .proto2.GeneratedCodeInfo.Annotation annotation = 1;
+}
+
+

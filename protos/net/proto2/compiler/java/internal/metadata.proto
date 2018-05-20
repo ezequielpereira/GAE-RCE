@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+package proto2.compiler.java;
+
+option java_package = "com.google.protobuf";
+option java_outer_classname = "GeneratedMetadataProto";
+
+message GeneratedMetadata {
+  message GeneratedExtensionEntry {
+    optional string name = 1;
+    optional int32 number = 2;
+    optional string extended_type = 3;
+    optional string load_path = 4;
+    optional bool immutable = 5 [default = true];
+    optional bool use_scope_as_alt_name = 6;
+    optional uint32 api_version = 7 [default = 2];
+  }
+  message GeneratedMessageEntry {
+    optional string name = 1;
+    optional string load_path = 2;
+    optional bool immutable = 3 [default = true];
+    optional uint32 api_version = 4 [default = 2];
+  }
+  message GeneratedEnumEntry {
+    optional string name = 1;
+    optional string load_path = 2;
+    optional bool immutable = 3 [default = true];
+    optional uint32 api_version = 4 [default = 2];
+  }
+  repeated .proto2.compiler.java.GeneratedMetadata.GeneratedExtensionEntry extension = 2;
+  repeated .proto2.compiler.java.GeneratedMetadata.GeneratedMessageEntry generated_message = 3;
+  repeated .proto2.compiler.java.GeneratedMetadata.GeneratedEnumEntry generated_enum = 4;
+}
+

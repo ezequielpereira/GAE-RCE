@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "BackendProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Backend {
+  repeated .google.api.BackendRule rules = 1;
+}
+
+message BackendRule {
+  string selector = 1;
+  string address = 2;
+  double deadline = 3;
+  double min_deadline = 4;
+}
+
+

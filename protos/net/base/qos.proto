@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package net_base.qos;
+
+option java_package = "com.google.net.base";
+option cc_enable_arenas = true;
+
+enum TrafficClass {
+  BE1 = 0;
+  AF1 = 1;
+  AF2 = 2;
+  AF3 = 3;
+  AF4 = 4;
+  NC1 = 5;
+  NC0 = 6;
+  BE0 = 7;
+  LLQ = 8;
+}
+
+

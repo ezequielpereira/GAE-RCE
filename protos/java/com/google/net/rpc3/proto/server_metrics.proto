@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package rpc3;
+
+option java_package = "com.google.net.rpc3.server";
+
+message ServerMetrics {
+  required int32 health_version = 1;
+  required float health_value = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .rpc3.ServerMetrics server_metrics_extension = 12148561;
+  }
+}
+

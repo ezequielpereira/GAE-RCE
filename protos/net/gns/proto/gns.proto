@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package net_gns;
+
+message Port {
+  required string name = 1;
+  required int32 number = 2;
+}
+
+message Task {
+  optional string user = 7;
+  optional string job = 8;
+  optional string cell = 9;
+  optional int32 index = 1;
+  optional int64 uid = 2;
+  optional string hostname = 3;
+  repeated fixed32 ipv4 = 4;
+  repeated bytes ipv6 = 5;
+  repeated .net_gns.Port port = 6;
+  optional string gns_address = 10;
+}
+
+

@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+import "google/protobuf/any.proto";
+import "tech/file/proto/blob_types.proto";
+import "tech/file/proto/types.proto";
+package file;
+
+message FileProperties {
+  optional fixed32 crc32c = 1;
+  optional int32 ttl_seconds_from_mtime = 2 [default = -1];
+  optional int32 gc_delay_seconds = 3 [default = -1];
+  optional string target_encoding = 4;
+  optional int64 mtime_nsecs = 5 [default = 0];
+  optional string partition = 6;
+  optional string locality = 14;
+  optional .tech.file.EncryptionProperties encryption_properties = 9;
+  optional .tech.file.ContentProperties content_properties = 10;
+  optional .tech.file.SpaceUsage space_used = 11;
+  oneof fs {
+    .tech.file.BlobV2BucketStat blob_v2_bucket = 12;
+    .tech.file.BlobV2ObjectStat blob_v2_object = 13;
+  }
+  optional bool fifo = 15;
+  repeated .google.protobuf.Any extended_attributes = 16;
+}
+
+

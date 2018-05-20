@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+package net_dns;
+
+option java_package = "com.google.net.dns";
+option java_outer_classname = "DNSLookupModule";
+
+message FileModuleParams {
+  optional string filename = 1 [default = "/etc/hosts"];
+  optional int32 ttl = 2 [default = 3600];
+}
+
+message RawModuleParams {
+  required string ip = 1;
+  optional int32 port = 2 [default = 53];
+  optional int32 attempts = 3 [default = 2];
+  optional float timeout = 4 [default = 2];
+}
+
+message StubbyModuleParams {
+  optional string backend = 1 [default = "172.20.0.160:54"];
+  optional int32 attempts = 2 [default = 1];
+  optional float timeout = 3 [default = 2];
+  optional bool pdns_via_dnsdemux = 4 [default = false];
+}
+
+message GslbStubbyModuleParams {
+  optional .net_dns.StubbyModuleParams base = 1;
+  optional string blade_service = 2 [default = "dnsdemux"];
+  optional double connection_timeout = 3 [default = 60];
+}
+
+message CacheModuleParams {
+  optional bool shared = 1 [default = true];
+  optional int64 max_size = 2 [default = -1];
+  optional int32 max_ttl = 3 [default = 86400];
+  optional int32 cleaning_interval = 4 [default = 10];
+  optional int32 max_cleaning_removals = 5 [default = 4096];
+  optional string name = 6 [default = ""];
+}
+
+message MockModuleParams {
+  enum ExpectationCheck {
+    NICE = 0;
+    WARN = 1;
+    STRICT = 2;
+  }
+  optional .net_dns.MockModuleParams.ExpectationCheck check_level = 1 [default = NICE];
+}
+
+message FakeModuleParams {
+}
+
+message LookupModuleParams {
+  enum ModuleType {
+    FILE = 0;
+    RAW = 1;
+    STUBBY = 2;
+    CACHE = 3;
+    MOCK = 4;
+    FAKE = 5;
+    GSLB_STUBBY = 6;
+  }
+  required .net_dns.LookupModuleParams.ModuleType module_type = 1;
+  optional .net_dns.FileModuleParams file = 2;
+  optional .net_dns.RawModuleParams raw = 3;
+  optional .net_dns.StubbyModuleParams stubby = 4;
+  optional .net_dns.CacheModuleParams cache = 5;
+  optional .net_dns.MockModuleParams mock = 6;
+  optional .net_dns.FakeModuleParams fake = 7;
+  optional .net_dns.GslbStubbyModuleParams gslb_stubby = 8;
+}
+
+message ZoneLookupModule {
+  required string zone = 1;
+  required .net_dns.LookupModuleParams params = 2;
+}
+
+message ZoneLookupModuleList {
+  repeated .net_dns.ZoneLookupModule zone_module = 1;
+}
+
+

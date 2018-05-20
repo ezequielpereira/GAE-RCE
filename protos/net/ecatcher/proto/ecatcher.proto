@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+import "logs/java/logmessage.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package ecatcher;
+
+option java_package = "com.google.net.ecatcher.proto";
+
+message ConstantRuntimeDataProto {
+  optional string borg_cell = 1;
+  optional string borg_task_handle = 2;
+  optional string chubby_cell = 3;
+  optional fixed64 global_pid = 4;
+  optional string host = 5;
+  optional string kernel_version = 6;
+  optional string user = 7;
+}
+
+message TraceDataProto {
+  optional fixed64 trace_id = 1;
+  optional fixed64 span_id = 2;
+  optional string thread_status = 3;
+  optional bool traced = 4;
+}
+
+message ExceptionReport {
+  repeated string Reports = 2;
+  repeated group Subreports = 3 {
+    repeated string Reports = 4;
+  }
+  optional bytes ZippyData = 5;
+  optional .ClientServerProto ClientServer = 6;
+  optional .BuildDataProto BuildData = 1;
+  optional .ecatcher.TraceDataProto TraceData = 7;
+  optional double InternalTimestamp = 8;
+  optional bytes deprecated_deathrattle_v2 = 9;
+  optional .ecatcher.ConstantRuntimeDataProto ConstantRuntimeData = 10;
+  optional bytes LogEventBytes = 11;
+  optional bytes deprecated_oldeventbytes = 12;
+  optional int64 NumberRepresented = 13 [default = 1];
+  extend .proto2.bridge.MessageSet {
+    optional .ecatcher.ExceptionReport message_set_extension = 22982992;
+  }
+}
+
+

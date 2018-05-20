@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "AuthorizationConfigProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+message AuthorizationConfig {
+  string provider = 1;
+}
+
+

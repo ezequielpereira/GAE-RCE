@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package stats;
+
+option java_package = "com.google.common.stats";
+option java_outer_classname = "LegacyHistogramProto";
+option java_multiple_files = true;
+
+message LegacyHistogramState {
+  repeated int64 boundaries = 1;
+  repeated int64 buckets = 2;
+  required int64 total = 3;
+  required int64 sum = 4;
+  optional double sum_of_squares = 7;
+  required int64 min = 5;
+  required int64 max = 6;
+}
+
+message LegacyCompactHistogramState {
+  repeated int64 buckets = 2;
+  optional int64 total = 3;
+  optional int64 sum = 4;
+  optional double sum_of_squares = 7;
+  optional int64 min = 5;
+  optional int64 max = 6;
+}
+
+

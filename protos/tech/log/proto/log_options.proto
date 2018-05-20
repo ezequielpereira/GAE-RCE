@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package tech.log;
+
+option java_package = "com.google.tech.log";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message LogOptions {
+  enum CompressMethod {
+    ZLIB = 1;
+  }
+  enum ChecksumMethod {
+    SAWMILL = 1;
+  }
+  optional int64 batch_threshold_bytes = 1;
+  optional int32 batch_threshold_secs = 2;
+  optional .tech.log.LogOptions.CompressMethod compress_method = 3;
+  optional .tech.log.LogOptions.ChecksumMethod checksum_method = 4;
+  optional int64 ring_buffer_max_bytes = 5;
+  repeated string teeing_endpoint = 6;
+}
+
+

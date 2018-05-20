@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+
+message RetryParameters {
+  optional int32 retry_limit = 1;
+  optional int64 age_limit_sec = 2;
+  optional double min_backoff_sec = 3 [default = 0.1];
+  optional double max_backoff_sec = 4 [default = 3600];
+  optional int32 max_doublings = 5 [default = 16];
+}
+

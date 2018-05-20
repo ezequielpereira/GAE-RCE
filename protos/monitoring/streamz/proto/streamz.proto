@@ -1,0 +1,90 @@
+syntax = "proto2";
+
+import "monitoring/streamz/proto/distribution.proto";
+import "monitoring/streamz/proto/streamz_announcement.proto";
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_outer_classname = "StreamzProtos";
+option java_multiple_files = true;
+
+message StreamQuery {
+  required string pattern = 1;
+}
+
+message MetricAnnotation {
+  required string name = 1;
+  optional string value = 2;
+}
+
+message Types {
+  message ValueTypeDescriptor {
+    required .monitoring.streamz.Types.EncodedValueType value_type = 1;
+    optional string message_name = 2;
+    optional int32 message_type_id = 3;
+  }
+  enum FieldType {
+    FIELDTYPE_STRING = 1;
+    FIELDTYPE_INT = 2;
+    FIELDTYPE_BOOL = 3;
+  }
+  enum EncodedValueType {
+    VALUETYPE_BOOL = 1;
+    VALUETYPE_INT64 = 2;
+    VALUETYPE_DOUBLE = 4;
+    VALUETYPE_STRING = 5;
+    VALUETYPE_MESSAGE = 6;
+    VALUETYPE_DISTRIBUTION = 7;
+    VALUETYPE_ENUM = 8;
+    VALUETYPE_VOID = 9;
+    VALUETYPE_EMPTY = 100;
+  }
+}
+
+message ExtendedAnnotations {
+  extensions 1 to 536870911;
+}
+
+message MetricDefinition {
+  required string name = 2;
+  repeated string field_name = 3;
+  repeated .monitoring.streamz.Types.FieldType field_type = 4;
+  required .monitoring.streamz.Types.ValueTypeDescriptor type_descriptor = 11;
+  repeated .monitoring.streamz.MetricAnnotation annotation = 10;
+  optional .monitoring.streamz.ExtendedAnnotations extended_annotations = 12;
+}
+
+message StreamDefinition {
+  optional .monitoring.streamz.MetricDefinition metric_definition = 1;
+  required int32 metric_index = 2;
+  repeated string string_field_values = 3;
+  repeated int32 int_field_values = 4;
+  repeated bool boolean_field_values = 5;
+  optional int64 reset_timestamp = 6;
+}
+
+message RootDescriptor {
+  required string name = 1;
+  required string spatial_container = 2;
+  required string spatial_element = 3;
+  repeated .monitoring.streamz.StreamzAnnouncement.Label labels = 4;
+}
+
+message TypedMessage {
+  optional int32 type_id = 1;
+  required bytes message = 8 [ctype = CORD];
+}
+
+message StreamValue {
+  optional .monitoring.streamz.StreamDefinition stream_definition = 1 [lazy = true];
+  required int32 stream_index = 2;
+  optional int64 timestamp = 3;
+  optional bool bool_value = 4;
+  optional int64 int64_value = 5;
+  optional double double_value = 7;
+  optional bytes string_value = 8;
+  optional .monitoring.streamz.TypedMessage message_value = 9;
+  optional .monitoring.streamz.DistributionProto distribution_value = 10;
+}
+
+

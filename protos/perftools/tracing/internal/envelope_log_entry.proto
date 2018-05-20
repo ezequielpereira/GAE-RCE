@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+option java_multiple_files = true;
+
+message EnvelopeLogEntry {
+  repeated bytes serialized_message_set = 1 [ctype = CORD];
+}
+
+

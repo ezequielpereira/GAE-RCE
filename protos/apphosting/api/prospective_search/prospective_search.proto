@@ -1,0 +1,105 @@
+syntax = "proto2";
+
+import "storage/onestore/v3/entity.proto";
+package apphosting.prospective_search;
+
+option java_package = "com.google.appengine.api.prospectivesearch";
+option java_outer_classname = "ProspectiveSearchPb";
+
+message SchemaEntry {
+  enum Type {
+    STRING = 1;
+    INT32 = 2;
+    BOOLEAN = 3;
+    DOUBLE = 4;
+    POINT = 5;
+    USER = 6;
+    REFERENCE = 7;
+  }
+  required bytes name = 1;
+  required .apphosting.prospective_search.SchemaEntry.Type type = 2;
+  optional int32 meaning = 3;
+  optional bool meaning_set = 103;
+}
+
+message SubscribeRequest {
+  required bytes topic = 1;
+  required bytes sub_id = 2;
+  required double lease_duration_sec = 3;
+  required bytes vanilla_query = 4;
+  repeated .apphosting.prospective_search.SchemaEntry schema_entry = 5;
+}
+
+message SubscribeResponse {
+}
+
+message UnsubscribeRequest {
+  required bytes topic = 1;
+  required bytes sub_id = 2;
+}
+
+message UnsubscribeResponse {
+}
+
+message SubscriptionRecord {
+  enum State {
+    OK = 0;
+    PENDING = 1;
+    ERROR = 2;
+  }
+  required bytes id = 1;
+  required bytes vanilla_query = 2;
+  required double expiration_time_sec = 3;
+  required .apphosting.prospective_search.SubscriptionRecord.State state = 4;
+  optional bytes error_message = 5;
+}
+
+message ListSubscriptionsRequest {
+  required bytes topic = 1;
+  optional int64 max_results = 2 [default = 1000];
+  optional bool max_results_set = 102;
+  optional int64 expires_before = 3;
+  optional bytes subscription_id_start = 4;
+  optional bytes app_id = 5;
+}
+
+message ListSubscriptionsResponse {
+  repeated .apphosting.prospective_search.SubscriptionRecord subscription = 1;
+}
+
+message ListTopicsRequest {
+  optional bytes topic_start = 1;
+  optional int64 max_results = 2 [default = 1000];
+  optional bool max_results_set = 102;
+  optional bytes app_id = 3;
+}
+
+message ListTopicsResponse {
+  repeated bytes topic = 1;
+}
+
+message MatchRequest {
+  enum PythonDocumentClass {
+    ENTITY = 1;
+    MODEL = 2;
+  }
+  required bytes topic = 1;
+  required .storage_onestore_v3.EntityProto document = 2;
+  required int32 result_batch_size = 3;
+  required bytes result_task_queue = 4;
+  required bytes result_relative_url = 5;
+  optional bytes result_key = 6;
+  optional .apphosting.prospective_search.MatchRequest.PythonDocumentClass result_python_document_class = 7;
+}
+
+message MatchResponse {
+}
+
+service MatcherService {
+  rpc Subscribe(.apphosting.prospective_search.SubscribeRequest) returns (.apphosting.prospective_search.SubscribeResponse);
+  rpc Unsubscribe(.apphosting.prospective_search.UnsubscribeRequest) returns (.apphosting.prospective_search.UnsubscribeResponse);
+  rpc ListSubscriptions(.apphosting.prospective_search.ListSubscriptionsRequest) returns (.apphosting.prospective_search.ListSubscriptionsResponse);
+  rpc ListTopics(.apphosting.prospective_search.ListTopicsRequest) returns (.apphosting.prospective_search.ListTopicsResponse);
+  rpc Match(.apphosting.prospective_search.MatchRequest) returns (.apphosting.prospective_search.MatchResponse);
+}
+

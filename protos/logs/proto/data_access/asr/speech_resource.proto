@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "SpeechResourceProtoFile";
+option java_multiple_files = true;
+
+message SpeechResource {
+  optional string utterance_id = 1;
+}
+

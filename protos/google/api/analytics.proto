@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "AnalyticsProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+message Analytics {
+  message AnalyticsDestination {
+    string monitored_resource = 1;
+    repeated string metrics = 2;
+  }
+  repeated .google.api.Analytics.AnalyticsDestination producer_destinations = 1;
+}
+
+

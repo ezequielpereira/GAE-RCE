@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package platforms.ghostid;
+
+message GHostIdData {
+  optional fixed32 id = 1;
+}
+

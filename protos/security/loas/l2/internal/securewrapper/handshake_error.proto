@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package security_loas_l2;
+
+enum HandshakeErrorCode {
+  INVALID_ERROR_CODE = 0;
+  HANDSHAKER_UNAVAILABLE = 1;
+  HANDSHAKER_KEYS_UNAVAILABLE = 2;
+  BAD_HANDSHAKE_ID = 3;
+  BAD_KEYS_ERROR = 4;
+  NO_KEYS_DATA = 5;
+  BAD_NEXT_PROTOCOL = 6;
+  NEXT_PROTOCOL_UNAVAILABLE = 7;
+  KEYS_FOR_PROTOCOL_UNAVAILABLE = 8;
+  PEER_UNAVAILABLE = 9;
+  SERIALS_REVOKED = 10;
+  RESUMPTION_ID_UNAVAILABLE = 11;
+  BAD_FRAME = 12;
+  AUTH_OPTIONS_UNAVAILABLE = 13;
+  SERVER_IDENTITY_ERROR = 14;
+  CLIENT_IDENTITY_ERROR = 15;
+  IDENTITY_TO_CONTEXT_ERROR = 16;
+  IDENTITY_TO_PEER_ERROR = 17;
+  GET_REVOCATION_STATUS_ERROR = 18;
+  NEW_CLIENT_HANDSHAKER_ERROR = 19;
+  NEW_SERVER_HANDSHAKER_ERROR = 20;
+  SETUP_CREDS_ERROR = 21;
+  HANDSHAKE_SERVICE_ERROR = 22;
+}
+
+message HandshakeError {
+  optional .security_loas_l2.HandshakeErrorCode handshake_error_code = 1;
+  optional int64 securewrapper_error_code = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.HandshakeError message_set_extension = 155250150;
+  }
+}
+
+

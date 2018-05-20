@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+import "gaia/mint/protos/mint.proto";
+import "security/credentials/proto/authenticator.proto";
+package speckle;
+
+message SecondaryIdScope {
+  required string id = 1;
+  required string trusted_service_id = 2;
+  optional string cloud_sql_instance_name = 3;
+}
+
+message RequestTokenProto {
+  optional .speckle.SecondaryIdScope secondary_id = 1;
+  optional fixed64 user_gaia_id = 2;
+  optional .gaia_mint.MintWrapper authenticated_user = 3;
+  optional string original_loas_user = 4;
+  optional .security.credentials.AuthenticatorProto authenticator = 5;
+}
+
+message ConnectionProto {
+  required uint64 connection_id = 1;
+  optional string OBSOLETE_task_id = 2;
+}
+
+

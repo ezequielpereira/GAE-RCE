@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+import "apphosting/sandbox/udrpc/udrpc.proto";
+import "storage/speckle/proto/internal.proto";
+package speckle;
+
+option java_outer_classname = "DeviceServiceProtos";
+option java_multiple_files = true;
+
+message OpenVolumeRequest {
+  required string security_ticket = 1;
+}
+
+message OpenVolumeResponse {
+  required .speckle.VolumeProto volume = 1;
+}
+
+message CommitChangesRequest {
+  required string security_ticket = 1;
+  required .speckle.CommitProto changes = 2;
+}
+
+message CommitChangesResponse {
+}
+
+message ReadBlocksRequest {
+  required string security_ticket = 1;
+  required int64 file_id = 2;
+  repeated int64 block_ids = 3;
+}
+
+message ReadBlocksResponse {
+  repeated .speckle.BlockProto blocks = 1;
+}
+
+message InitializeConnectionRequest {
+}
+
+message InitializeConnectionResponse {
+}
+
+message OpenDeviceRequest {
+  required string instance_name = 1;
+  required string path = 2;
+}
+
+message OpenDeviceResponse {
+  optional string security_ticket = 1;
+}
+
+message ReleaseDeviceRequest {
+  required string security_ticket = 1;
+}
+
+message ReleaseDeviceResponse {
+}
+
+service DeviceService {
+  rpc OpenDevice(.speckle.OpenDeviceRequest) returns (.speckle.OpenDeviceResponse);
+  rpc ReleaseDevice(.speckle.ReleaseDeviceRequest) returns (.speckle.ReleaseDeviceResponse);
+  rpc OpenVolume(.speckle.OpenVolumeRequest) returns (.speckle.OpenVolumeResponse);
+  rpc CommitChanges(.speckle.CommitChangesRequest) returns (.speckle.CommitChangesResponse);
+  rpc ReadBlocks(.speckle.ReadBlocksRequest) returns (.speckle.ReadBlocksResponse);
+  rpc InitializeConnection(.speckle.InitializeConnectionRequest) returns (.speckle.InitializeConnectionResponse);
+}
+
+

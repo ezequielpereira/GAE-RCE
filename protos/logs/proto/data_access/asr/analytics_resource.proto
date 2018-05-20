@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "AnalyticsResourceProtoFile";
+option java_multiple_files = true;
+
+message AnalyticsResource {
+  message AccountKey {
+    optional int64 account_id = 1;
+  }
+  message ViewKey {
+    optional int64 account_id = 1;
+    optional int64 view_id = 2;
+  }
+  oneof Key {
+    .security.data_access.asr.AnalyticsResource.AccountKey account_key = 1;
+    .security.data_access.asr.AnalyticsResource.ViewKey view_key = 2;
+  }
+}
+

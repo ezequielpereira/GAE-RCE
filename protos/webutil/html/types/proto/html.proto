@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+import "java/com/google/apps/jspb/jspb.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package webutil.html.types;
+
+option java_package = "com.google.common.html.types";
+option java_outer_classname = "Html";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+option objc_class_prefix = "WHT";
+
+enum CustomSafeUrlScheme {
+  TEL = 0;
+  SMS = 1;
+  CALLTO = 2;
+  WTAI = 3;
+  RTSP = 4;
+  MARKET = 5;
+  GEO = 6;
+  SKYPE = 7;
+  WHATSAPP = 8;
+  ITMS_BOOKS = 9;
+}
+
+message SafeHtmlProto {
+  optional string private_do_not_access_or_else_safe_html_wrapped_value = 2 [ctype = CORD];
+}
+
+message SpliceableSafeHtmlProto {
+  message Segment {
+    oneof value {
+      .webutil.html.types.SafeHtmlProto safe_html = 2;
+      string placeholder_label = 1;
+    }
+  }
+  repeated .webutil.html.types.SpliceableSafeHtmlProto.Segment segment = 1;
+}
+
+message SafeUrlProto {
+  optional string private_do_not_access_or_else_safe_url_wrapped_value = 3;
+}
+
+message TrustedResourceUrlProto {
+  optional string private_do_not_access_or_else_trusted_resource_url_wrapped_value = 4;
+}
+
+message SafeStyleProto {
+  optional string private_do_not_access_or_else_safe_style_wrapped_value = 5;
+}
+
+message SafeScriptProto {
+  optional string private_do_not_access_or_else_safe_script_wrapped_value = 6 [ctype = CORD];
+}
+
+message SafeStyleSheetProto {
+  optional string private_do_not_access_or_else_safe_style_sheet_wrapped_value = 7 [ctype = CORD];
+}
+
+

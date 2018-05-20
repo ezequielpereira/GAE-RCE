@@ -1,0 +1,37 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package devtools.api.buildinfo;
+
+option java_package = "com.google.devtools.api.buildinfo";
+option java_outer_classname = "BuildInfoProto";
+option cc_enable_arenas = true;
+
+message BuildInfo {
+  enum BuildClientStatus {
+    BUILD_CLIENT_STATUS_UNSPECIFIED = 0;
+    MODIFIED = 1;
+    MINT = 2;
+  }
+  optional string build_target = 1;
+  optional int64 build_timestamp = 2;
+  optional int64 build_changelist = 3;
+  optional string build_version_map = 4;
+  optional string build_dir = 5;
+  optional string build_depot_path = 6;
+  optional string build_client = 7;
+  optional .devtools.api.buildinfo.BuildInfo.BuildClientStatus build_client_status = 14;
+  optional int64 citc_snapshot = 8;
+  optional string build_id = 9;
+  optional string linker_build_id = 10;
+  optional string build_label = 11;
+  optional string build_location = 12;
+  optional string fdo_type = 13;
+  optional string build_target_file_path = 15;
+  optional int64 baseline_changelist = 16;
+  extend .proto2.bridge.MessageSet {
+    optional .devtools.api.buildinfo.BuildInfo message_set_extension = 39194249;
+  }
+}
+
+

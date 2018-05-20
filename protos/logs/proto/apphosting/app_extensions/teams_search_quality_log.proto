@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "logs/proto/apphosting/app_extensions/app_extensions_annotations.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package appengine_proto;
+
+option java_outer_classname = "TeamsSearchQualityLogEvent";
+
+message TeamsSearchQualityLog {
+  enum EventType {
+    UNKNOWN = 0;
+    SEARCH = 1;
+    CLICK = 2;
+    PAGE = 3;
+  }
+  enum Source {
+    DESKTOP = 0;
+    MOBILE = 1;
+  }
+  enum SearchContext {
+    REGULAR = 0;
+    SAYT = 1;
+  }
+  enum SearchType {
+    PERSON = 0;
+    PRODUCT = 1;
+  }
+  enum PageContext {
+    FORWARD = 0;
+    BACK = 1;
+  }
+  required string search_query = 1;
+  required int64 obfuscated_gaia_id = 2;
+  required int64 timestamp = 3;
+  optional int32 num_results = 4;
+  optional .appengine_proto.TeamsSearchQualityLog.Source source = 5;
+  optional .appengine_proto.TeamsSearchQualityLog.SearchContext search_context = 6;
+  optional string search_version = 7;
+  optional .appengine_proto.TeamsSearchQualityLog.SearchType search_type = 8;
+  optional .appengine_proto.TeamsSearchQualityLog.PageContext page_context = 9;
+  optional int32 clicked_result_index = 10;
+  optional int32 start_index = 11;
+  optional string ip_address = 12;
+  optional .appengine_proto.TeamsSearchQualityLog.EventType event_type = 13;
+}
+

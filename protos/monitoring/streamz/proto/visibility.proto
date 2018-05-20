@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_multiple_files = true;
+
+enum VisibilityPolicy {
+  INTERNAL = 1;
+  PUBLIC = 2;
+}
+
+extend .proto2.FieldOptions {
+  optional .monitoring.streamz.VisibilityPolicy visibility = 53740412 [default = INTERNAL];
+}
+
+extend .proto2.EnumValueOptions {
+  optional .monitoring.streamz.VisibilityPolicy enum_visibility = 53705596 [default = INTERNAL];
+}
+
+

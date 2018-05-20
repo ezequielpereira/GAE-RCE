@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/type/latlng.proto";
+package google.datastore.v1;
+
+option java_package = "com.google.datastore.v1";
+option java_outer_classname = "EntityProto";
+option java_multiple_files = true;
+option csharp_namespace = "Google.Cloud.Datastore.V1";
+option php_namespace = "Google\\Cloud\\Datastore\\V1";
+
+message PartitionId {
+  string project_id = 2;
+  string database_id = 3;
+  string namespace_id = 4;
+}
+
+message Key {
+  message PathElement {
+    string kind = 1;
+    oneof id_type {
+      int64 id = 2;
+      string name = 3;
+    }
+  }
+  .google.datastore.v1.PartitionId partition_id = 1;
+  repeated .google.datastore.v1.Key.PathElement path = 2;
+}
+
+message ArrayValue {
+  repeated .google.datastore.v1.Value values = 1;
+}
+
+message Value {
+  oneof value_type {
+    .google.protobuf.NullValue null_value = 11;
+    bool boolean_value = 1;
+    int64 integer_value = 2;
+    double double_value = 3;
+    .google.protobuf.Timestamp timestamp_value = 10;
+    .google.datastore.v1.Key key_value = 5;
+    string string_value = 17;
+    bytes blob_value = 18;
+    .google.type.LatLng geo_point_value = 8;
+    .google.datastore.v1.Entity entity_value = 6;
+    .google.datastore.v1.ArrayValue array_value = 9;
+  }
+  int32 meaning = 14;
+  bool exclude_from_indexes = 19;
+}
+
+message Entity {
+  .google.datastore.v1.Key key = 1;
+  map<string, .google.datastore.v1.Value> properties = 3;
+}
+

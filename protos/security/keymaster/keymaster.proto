@@ -1,0 +1,320 @@
+syntax = "proto2";
+
+package security;
+
+option java_package = "com.google.security.keymaster";
+option cc_enable_arenas = true;
+
+message KeyMetadata {
+  enum SpecVersion {
+    CURRENT_VERSION = 3;
+  }
+  enum Purpose {
+    DECRYPT = 0;
+    ENCRYPT = 3;
+    SIGN = 1;
+    VERIFY = 2;
+    KEY_GENERATE = 4;
+    WRAP = 5;
+    GENERIC = 1000;
+  }
+  enum Type {
+    AES = 0;
+    AES_CBC_RANDOMIV_HMAC = 32;
+    AES_CBC_RANDOMIV_HMAC_WITHDATA = 33;
+    AES_CTR = 17;
+    AES_CTR_NO_AUTH = 60;
+    AES_CTR_NO_AUTH_BROKEN = 57;
+    AES_CTR_NONCE_HMAC = 38;
+    AES_CTR_THEN_HMAC = 24;
+    AES_ECB = 22;
+    AES_IGE = 16;
+    AES_TET = 25;
+    AES_WRAPPING = 21;
+    DES = 1;
+    DSA = 6;
+    ENCRYPTED_KEY = 39;
+    HMAC_MD5 = 4;
+    HMAC_SHA1 = 3;
+    PUBLIC_DSA = 7;
+    PUBLIC_RSA = 9;
+    RSA = 8;
+    RSA_CERT_SIGNING = 49;
+    RSA_CERT_VERIFYING = 50;
+    RSA_WRAPPING = 20;
+    TEA = 5;
+    TESTING = 15;
+    TRIPLE_DES = 2;
+    TWO_KEY_TRIPLE_DES_CBC_ZEROIV = 63;
+    TWO_KEY_TRIPLE_DES_ECB = 73;
+    THREE_KEY_TRIPLE_DES_ECB = 74;
+    PORTUNUS_AES = 46;
+    PORTUNUS_DSA = 44;
+    PORTUNUS_ECDSA = 48;
+    PORTUNUS_RSA = 43;
+    PORTUNUS_RSA_SIGNING = 42;
+    UNKNOWN = 62;
+    HMAC_SHA1_TRUNCATED = 23;
+    HMAC_SHA256_TRUNCATED = 34;
+    HMAC_SHA512_TRUNCATED = 35;
+    HMAC_SHA256_HALF_DIGEST = 70;
+    AES_CTR_RANDOM16BYTEIV_HMAC = 55;
+    AES_CTR_RANDOM16BYTEIV_HMAC_WITHDATA = 56;
+    AES_128_GCM = 58;
+    AES_256_GCM = 59;
+    AES_CTR_RANDOMIV_HMAC = 36;
+    AES_CTR_RANDOMIV_HMAC_WITHDATA = 37;
+    AES_CTR_SIV_HMAC = 40;
+    AES_CTR_SIV_HMAC_WITHTWEAK = 41;
+    AES_EAX_RANDOMIV = 47;
+    ECDSA_SIGNING = 28;
+    ECDSA_VERIFYING = 29;
+    RSA_SIGNING = 18;
+    RSA_VERIFYING = 19;
+    P256_ECDSA_SIGNING = 64;
+    P256_ECDSA_VERIFYING = 65;
+    ED25519_SIGNING = 71;
+    ED25519_VERIFYING = 72;
+    P256_ECDSA_JWT_SIGNING = 77;
+    P256_ECDSA_JWT_VERIFYING = 78;
+    RSA_2048_SIGNING = 79;
+    RSA_2048_VERIFYING = 80;
+    RSA_2048_PSS_SIGNING = 81;
+    RSA_2048_PSS_VERIFYING = 82;
+    ECIES_PRIVATE = 52;
+    ECIES_PUBLIC = 51;
+    HYBRID_PUBLIC_RSA = 27;
+    HYBRID_RSA = 26;
+    HYBRID_P256_AES_256_GCM_PUBLIC = 66;
+    HYBRID_P256_AES_256_GCM_PRIVATE = 67;
+    HYBRID_X25519_AES_256_GCM_PUBLIC = 68;
+    HYBRID_X25519_AES_256_GCM_PRIVATE = 69;
+    HYBRID_P256_AES_128_GCM_PUBLIC = 75;
+    HYBRID_P256_AES_128_GCM_PRIVATE = 76;
+    AEP_ECDSA = 54;
+    AEP_RSA_SIGNING = 53;
+    NFAST_AES = 10;
+    NFAST_DSA = 12;
+    NFAST_HMAC_SHA1 = 11;
+    NFAST_PUBLIC_RSA = 14;
+    NFAST_RSA = 13;
+    NFAST_TRIPLE_DES = 45;
+    HMAC_SHA1_PRF_CTR = 30;
+    HMAC_SHA256_PRF_CTR = 31;
+    HKDF_SHA512 = 61;
+  }
+  enum Status {
+    PRIMARY = 0;
+    ACTIVE = 1;
+    SCHEDULED_FOR_REVOCATION = 2;
+  }
+  enum HashAlgorithm {
+    SHA1 = 0;
+    SHA224 = 1;
+    SHA256 = 2;
+    SHA512 = 3;
+    USE_DEFAULT_HASH_ALGORITHM = 100;
+    NO_HASH_ALGORITHM = 101;
+  }
+  enum SignatureType {
+    SIG_UNKNOWN = 0;
+    SIG = 1;
+    SIG_WITHHIDDEN_ATTACHED = 2;
+    SIG_WITHTIMEOUT = 3;
+    SIG_RAW = 4;
+    SIG_URL = 5;
+    SIG_WITHTIMESTAMP = 6;
+  }
+  enum EllipticCurve {
+    NIST_P224 = 1;
+    NIST_P256 = 2;
+  }
+  enum EcPointFormat {
+    X509_SPKI_UNCOMPRESSED = 0;
+    POINT_UNCOMPRESSED = 1;
+    POINT_COMPRESSED = 2;
+  }
+  enum PrfInputFormat {
+    NIST_800_108_KDF_CTR = 0;
+  }
+  required string name = 1;
+  required int64 proto_spec_version = 3;
+  required .security.KeyMetadata.Purpose purpose = 4;
+  optional string keyfile_prefix = 5;
+  repeated group Version = 6 {
+    required int32 version = 7;
+    required .security.KeyMetadata.Status status = 8;
+    optional string comment = 9;
+    required bool hidden = 10;
+    required bool production = 11;
+    required .security.KeyMetadata.Type type = 12;
+    required int64 creation_time = 15;
+    optional bool encrypted_key = 16;
+  }
+  optional string meta_comment = 13;
+  required bytes integrity_hash = 14;
+  optional int64 expiration_time = 17;
+}
+
+message URLParameters {
+  repeated string name = 1;
+}
+
+message Key {
+  optional bytes random_bits = 1;
+  required bytes key_material = 2;
+  optional .security.URLParameters url_parameters = 3;
+  optional int32 hmac_signature_length = 4;
+  optional .security.KeyMetadata.SignatureType signature_type = 5 [default = SIG_UNKNOWN];
+}
+
+message PrfKey {
+  optional bytes seed = 1;
+  optional .security.KeyMetadata.PrfInputFormat input_format = 2;
+}
+
+message SymmetricKey {
+  required .security.KeyMetadata.Type type = 1;
+  required bytes symmetric_key = 2;
+  required bytes hmac_key = 3;
+  optional int32 hmac_signature_length = 4;
+}
+
+message WeakSymmetricKey {
+  required bytes symmetric_key = 1;
+}
+
+message AuthenticatingSymmetricKey {
+  optional bytes symmetric_key = 1;
+  optional bytes key_checksum = 2;
+}
+
+message TetKey {
+  enum PaddingType {
+    PKCS5_PADDING = 0;
+  }
+  required .security.TetKey.PaddingType padding = 1;
+  required bytes symmetric_key = 2;
+  required int32 signature_length = 3;
+}
+
+message RSAPublicKey {
+  required bytes modulus = 1;
+  required bytes public_exponent = 2;
+  optional .security.KeyMetadata.HashAlgorithm hash = 3 [default = SHA1];
+  optional .security.KeyMetadata.SignatureType signature_type = 4 [default = SIG_UNKNOWN];
+}
+
+message RSAPrivateKey {
+  required .security.RSAPublicKey public_key = 1;
+  required bytes private_exponent = 2;
+  optional bytes facp = 3;
+  optional bytes q = 4;
+  optional bytes dmp1 = 5;
+  optional bytes dmq1 = 6;
+  optional bytes iqmp = 7;
+}
+
+message DSAPublicKey {
+  required bytes p = 1;
+  required bytes q = 2;
+  required bytes g = 3;
+  required bytes public_key = 4;
+  optional .security.KeyMetadata.SignatureType signature_type = 5 [default = SIG_UNKNOWN];
+  optional .security.KeyMetadata.HashAlgorithm hash = 6 [default = USE_DEFAULT_HASH_ALGORITHM];
+}
+
+message DSAPrivateKey {
+  required .security.DSAPublicKey public_key = 1;
+  required bytes private_key = 2;
+}
+
+message ECPublicKey {
+  required .security.KeyMetadata.EllipticCurve curve = 1;
+  required bytes x = 2;
+  required bytes y = 3;
+  optional .security.KeyMetadata.SignatureType signature_type = 4 [default = SIG_UNKNOWN];
+}
+
+message ECPrivateKey {
+  required .security.ECPublicKey public_key = 1;
+  required bytes private_key = 2;
+}
+
+message ECIESParameters {
+  enum DataEncapsulationMechanismFormat {
+    KEYMASTER_PERMUTE = 0;
+    KEYMASTER_PERMUTE_V2 = 1;
+  }
+  optional .security.KeyMetadata.EcPointFormat point_format = 1;
+  optional .security.KeyMetadata.Type prf_type = 2;
+  optional .security.KeyMetadata.PrfInputFormat prf_input_format = 3;
+  optional .security.ECIESParameters.DataEncapsulationMechanismFormat dem_format = 4;
+  optional .security.KeyMetadata.Type symmetric_type = 5;
+  optional int32 symmetric_key_size_in_bytes = 6;
+  optional .security.KeyMetadata.HashAlgorithm hash_algorithm = 7;
+  optional int32 mac_key_size_in_bytes = 8;
+  optional int32 mac_digest_size_in_bytes = 9;
+}
+
+message ECIESPublicKey {
+  optional .security.ECPublicKey public_key = 1;
+  optional .security.ECIESParameters parameters = 2;
+}
+
+message ECIESPrivateKey {
+  optional .security.ECPrivateKey private_key = 1;
+  optional .security.ECIESParameters parameters = 2;
+}
+
+message SessionMaterial {
+  required .security.SymmetricKey key = 1;
+  required bytes nonce = 2;
+}
+
+message NFastMappedKey {
+  required bytes keystore_hash = 1;
+  required string key_alias = 2;
+  optional string keystore_name = 3;
+  optional string keystore_password = 4;
+}
+
+message NFastHmacKey {
+  required .security.NFastMappedKey key = 1;
+  optional .security.URLParameters url_parameters = 2;
+}
+
+message NFastSymmetricKey {
+  required .security.NFastMappedKey key = 1;
+  required .security.Key hmac_key = 2;
+}
+
+message HybridKey {
+  enum EncodingMethod {
+    GENERIC_WRAPPING = 0;
+  }
+  required .security.HybridKey.EncodingMethod encoding_method = 1;
+  required bytes kem_key = 2;
+  required .security.KeyMetadata.Type symmetric_type = 3;
+}
+
+message StreamParameters {
+  required int32 ciphertext_chunk_size = 1;
+}
+
+message EncryptedKey {
+  required bytes encrypted_protocol_buffer = 1;
+  required bytes plaintext_key_hash = 2;
+}
+
+message SerializedReader {
+  required bytes serialized_metadata = 2;
+  repeated bytes serialized_key = 1;
+}
+
+message KeyTemplateProto {
+  optional .security.KeyMetadata.Type type = 2;
+  optional bytes template = 3;
+}
+
+

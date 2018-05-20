@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "DerivedFilePb";
+
+message DerivedFile {
+  enum Status {
+    PENDING = 0;
+    READY = 1;
+  }
+  enum Type {
+    TEST = 0;
+    JAVA_PRECOMPILED = 1;
+    PYTHON_PRECOMPILED = 2;
+    GO_BINARY = 3;
+  }
+  required .apphosting.DerivedFile.Status status = 1;
+  required string sha1_hash = 2;
+  optional string OBSOLETE_path = 3;
+  optional int64 OBSOLETE_file_size = 4;
+  required .apphosting.DerivedFile.Type type = 5;
+  optional group OBSOLETE_JavaPrecompiled = 6 {
+    required int32 OBSOLETE_version = 7;
+  }
+  optional group PythonPrecompiled = 9 {
+    required int32 version = 10;
+  }
+  required string original_sha1_hash = 8;
+  optional int32 compiler_version = 11;
+}
+

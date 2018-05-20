@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "AliasPb";
+
+message AliasConfig {
+  required string name = 1;
+}
+
+message VersionAliasConfig {
+  required string name = 1;
+  optional string actual_major_version_id = 2;
+}
+
+

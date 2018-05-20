@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ContextProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Context {
+  repeated .google.api.ContextRule rules = 1;
+}
+
+message ContextRule {
+  string selector = 1;
+  repeated string requested = 2;
+  repeated string provided = 3;
+}
+
+

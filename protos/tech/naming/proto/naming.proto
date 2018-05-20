@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package tech.naming;
+
+message NameBinding {
+  message Port {
+    optional string name = 1;
+    required int32 number = 2;
+  }
+  repeated string address = 1;
+  repeated .tech.naming.NameBinding.Port port = 2;
+  optional string logical_id = 3;
+}
+
+

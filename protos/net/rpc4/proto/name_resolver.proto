@@ -1,0 +1,50 @@
+syntax = "proto2";
+
+import "net/rpc4/proto/service_config.proto";
+import "security/credentials/proto/principal.proto";
+import "tech/naming/proto/naming.proto";
+package net.rpc4;
+
+message InProcessEndpoint {
+  optional uint64 token = 1;
+}
+
+message RegisterInProcessServerRequest {
+  required string name = 1;
+  optional .net.rpc4.InProcessEndpoint endpoint = 2;
+}
+
+message RegisterInProcessServerResponse {
+}
+
+message UnregisterInProcessServerRequest {
+  required string name = 1;
+  optional .net.rpc4.InProcessEndpoint endpoint = 2;
+}
+
+message UnregisterInProcessServerResponse {
+}
+
+message AuthorizedPeer {
+  repeated .security.credentials.PrincipalProto principal = 1;
+}
+
+message SecurityBinding {
+  optional .net.rpc4.AuthorizedPeer authorized_peer = 1;
+}
+
+message ResolverResult {
+  oneof value {
+    .tech.naming.NameBinding name_binding = 1;
+    .net.rpc4.ServiceConfig service_config = 2;
+    .net.rpc4.InProcessEndpoint inprocess_server = 3;
+    .net.rpc4.SecurityBinding security_binding = 4;
+  }
+}
+
+service NameResolver {
+  rpc RegisterInProcessServer(.net.rpc4.RegisterInProcessServerRequest) returns (.net.rpc4.RegisterInProcessServerResponse);
+  rpc UnregisterInProcessServer(.net.rpc4.UnregisterInProcessServerRequest) returns (.net.rpc4.UnregisterInProcessServerResponse);
+}
+
+

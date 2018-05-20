@@ -1,0 +1,302 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option java_outer_classname = "CensusProto";
+option cc_enable_arenas = true;
+
+enum ResourceId {
+  NONE = 0;
+  CPU = 1;
+  DISK_IO = 2;
+  HTTP_SERVER = 3;
+  MEMORY = 4;
+  BLOBSTORE_CLIENT_LATENCY = 5;
+  CFS_CLIENT_LATENCY = 6;
+  CENSUS_TARGET_UPTIME = 7;
+  RPC_SERVER = 8;
+  RPC_CLIENT = 9;
+  BT_CLIENT_LATENCY = 10;
+  CPU_USAGE_RATE = 11;
+  BT_TABLET_SERVER_READSTATS = 12;
+  KANSAS_CLIENT_LATENCY = 13;
+  APPENGINE_DATASTORE = 14;
+  KUCHANNEL_STATS = 15;
+  FORGE = 16;
+  GC_STATS = 17;
+  DF_CACHE = 18;
+  MOONSHINE = 19;
+  NETWORK_INTERFACE_STATS = 20;
+  TASK_MEMORY = 21;
+  APIARY_REQUEST_STATS = 22;
+  CNS_CLIENT_LATENCY = 23;
+  SPANNER_CLIENT = 24;
+  PLACER_CLIENT = 25;
+  CPU_SUBPROCESS = 26;
+  PORTRAIT_REQUEST_STATS = 27;
+  BLOBSTORE_CLIENT_OP_STATS = 28;
+  BLOBSTORE_SERVER_OP_STATS = 29;
+  PONY = 30;
+  CENSUS_DELTA_AGGREGATOR_TARGET_STATS = 31;
+  PORTRAIT_ITEM_COUNT = 32;
+  RISKENGINE = 33;
+  GMAIL_FE_EUC_COUNTS = 34;
+  GMAIL_BE_EUC_COUNTS = 35;
+  KANSAS_PLACEMENT_CACHE_STATS = 36;
+  KANSAS_PLACEMENT_SERVER_STATS = 37;
+  STUBBY_WRITE_LATENCY_STATS = 38;
+  KANSAS_VERSION_INFO_STATS = 39;
+  KANSAS_PARTIAL_FAILURE_STATS = 40;
+  KANSAS_LWM_STATS = 41;
+  KANSAS_LOCATION_STATS = 42;
+  KANSAS_SECONDARY_TABLE_STATS = 43;
+  KANSAS_PUBSUB_STATS = 44;
+  KANSAS_QUOTA_SERVER_STATS = 45;
+  KANSAS_FIRST_ACCESS_MIGRATION_STATS = 46;
+  KANSAS_EUC_STATS = 47;
+  KANSAS_COMPONENT_CACHE_STATS = 48;
+  KANSAS_AMBIGUOUS_VERSION_INFO_STATS = 49;
+  KANSAS_THROTTLING_STATS = 50;
+  KANSAS_FAIL_FAST_STATS = 51;
+  KANSAS_ALARM_FAIL_OVER_STATS = 52;
+  CENSUS_BLOCKING_LOG_WRITE_STATS = 53;
+  RPC_CLIENT_CENSUS_OVERHEAD = 54;
+  RPC_SERVER_CENSUS_OVERHEAD = 55;
+  KANSAS_COMPONENT_STATS = 56;
+  KANSAS_PER_REPLICA_STATS = 57;
+  CENSUS_DELTA_AGGREGATOR_MONITORED_JOB_STATS = 58;
+  RPC_SERVER_PER_TARGET_STATS = 59;
+  RPC_CLIENT_PER_TARGET_STATS = 60;
+  CENSUS_COMPONENT_CAPACITY = 61;
+  INDEXING_DOCUMENT_STATS = 62;
+  CENSUS_DELTA_AGGREGATOR_COMPACT_ID_STORE_STATS = 63;
+  CENSUS_PER_RESOURCE_LOG_STATS = 64;
+  CENSUS_PER_VIEW_AGGREGATOR_STATS = 65;
+  CENSUS_PER_VIEW_REQUEST_STATS = 66;
+  DAX_HUB_MEMORY_USAGE = 67;
+  CENSUS_UPTIME = 68;
+  D_NETSCHED_LATENCY = 69;
+  LUMEN_CPU_CLASS = 70;
+  D_CPU_SCHED_LATENCY = 71;
+  CENSUS_LOG_STATS = 72;
+  ESF_STATS = 73;
+  ESF_WRAPPER_STATS = 74;
+  ESF_ERROR_STATS = 75;
+  LONGEARS_TRACE_DISCOVERY_LATENCY = 76;
+  ADGROUP_REQUEST_IMPL_LATENCY = 77;
+  AGS_SCORER_LATENCY = 78;
+  ESF_WRAPPER_INTERNAL_STATS = 79;
+  ESF_CACHE_STATS = 80;
+  CENSUS_DA_STATS_COLLECTION = 81;
+  CENSUS_DA_STATS_PROCESSING = 82;
+  PHOTO_SERVICE_TRANSACTIONS = 83;
+  VSS_STATS = 84;
+  DATASTORE_REQUEST_STATS = 85;
+  CENSUS_TAGS_CLEARED_STATS = 86;
+  CADET_SLA_STATS = 87;
+  CENSUS_SPAN_STATS = 88;
+  BLOBSTORE_BITPUSHER_DEDUP_OR_CREATECHUNK_OP_LATENCY = 89;
+  BLOBSTORE_BITPUSHER_FIND_DEDUP_CANDIDATE_LATENCY = 90;
+  BLOBSTORE_BITPUSHER_WRITE_CHUNK_TOMEIDA_AFTER_DEDUP_LATENCY = 91;
+  BLOBSTORE_BITPUSHER_ADD_CHUNK_TO_DEDUP_TABLE_AND_CACHE_LATENCY = 92;
+  BLOBSTORE_BITPUSHER_ADD_CHUNK_TO_WRITE_STATE_LATENCY = 93;
+  GFP_IMF = 94;
+  BLOBSTORE_BITPUSHER_WRITE_CHUNK_TO_MEIDA_LATENCY = 95;
+  DAPPER_SPAN_STATS = 96;
+  ESF_GRPC_AUTOBAHN_STATS = 97;
+  CLIENT_DISK_IO = 98;
+  SCOTTY_REQUEST_STATS = 99;
+  LIVEGRAPH_ROW_STATS = 100;
+  GWS_PRODUCER_GRAPH_LATENCY = 101;
+  GWS_PRODUCER_GRAPH_ERRORS = 102;
+  CENSUS_HARVESTER_SCHEDULING_STATS = 103;
+  PLACER_SERVER_STATS = 104;
+  LOGS_READER_PROXY_SERVER_STATS = 105;
+  CENSUS_DELTA_AGGREGATOR_TARGET_VIEW_STATS = 106;
+  BIGSTORE_GWS_LOGGING_TIME = 107;
+  BIGSTORE_INFO_LOGGING_TIME = 108;
+  CENSUS_DA_MULTIVALUE_TAGS = 109;
+  INSTRUMENTED_FILE = 110;
+  GRPC_START = 111;
+  GRPC_END = 112;
+  GRPC_COST = 113;
+  BYTES_HANDLED_BY_TASK = 114;
+  PD_IO = 115;
+  TECH_FILE_CLIENT_LATENCY = 116;
+  COLOSSUS_PROXY_FALLBACK = 117;
+  GRPCLB_START_CLIENT = 118;
+  GRPCLB_END_CLIENT = 119;
+  FATHOM_TRANSPORT_MIN_RTT = 120;
+  FATHOM_TRANSPORT_DELIVERY_RATE = 121;
+  FATHOM_TRANSPORT_RECURRING_RETRANS = 122;
+  FATHOM_TRANSPORT_RATE_LIMIT_LATENCY = 123;
+  FATHOM_TRANSPORT_TX_LATENCY = 124;
+  RPC_CLIENT_STARTED_COUNT = 125;
+  RPC_CLIENT_REQUEST_COUNT = 126;
+  RPC_CLIENT_RESPONSE_COUNT = 127;
+  RPC_SERVER_REQUEST_COUNT = 128;
+  RPC_SERVER_RESPONSE_COUNT = 129;
+  ZANZIBAR_REQUEST_MILLICOSTS = 130;
+  CLOUD_BIGTABLE_REQUESTS = 131;
+}
+
+message BasicUnit {
+  enum Measure {
+    BYTES = 0;
+    SECS = 1;
+    MILLISECS = 2;
+    MICROSECS = 3;
+    NANOSECS = 4;
+    COUNT = 5;
+    CORES = 6;
+    BITS = 7;
+    KILOBITS = 8;
+  }
+  required .stats_census.BasicUnit.Measure type = 1;
+}
+
+message MeasurementUnit {
+  repeated .stats_census.BasicUnit numerator = 1;
+  repeated .stats_census.BasicUnit denominator = 2;
+}
+
+message Aggregation {
+  enum AggType {
+    AVERAGE = 0;
+    ACCUMULATE = 1;
+    HISTOGRAM = 2;
+    RATE = 3;
+    OP_RATE = 4;
+    COUNT = 5;
+    UNKNOWN = 8;
+  }
+  required .stats_census.Aggregation.AggType type = 1;
+  optional .stats_census.MeasurementUnit unit = 2;
+  optional string description = 3;
+}
+
+message ResourcezDefinition {
+  required string name = 1;
+  optional double scaling_factor = 2 [default = 1];
+  required .stats_census.Aggregation aggregation = 3;
+}
+
+message ResourceMeasureDefinition {
+  required string name = 1;
+  required .stats_census.MeasurementUnit unit = 2;
+  repeated .stats_census.Aggregation aggregation = 3;
+  optional string description = 4;
+  optional string legacy_varz_name = 6;
+  repeated .stats_census.ResourcezDefinition resourcez = 7;
+  repeated double lower_bucket_boundary = 8;
+}
+
+message ResourceDefinition {
+  required .stats_census.ResourceId id = 1;
+  required string name = 2;
+  optional string resourcez_name = 6;
+  repeated .stats_census.ResourceMeasureDefinition measure = 4;
+}
+
+message ResourceDefinitionsList {
+  repeated .stats_census.ResourceDefinition definitions = 1;
+}
+
+message ResourceUsageHistogram {
+  repeated double boundary = 1;
+  repeated uint64 bucket = 2;
+}
+
+message ResourceMeasure {
+  optional double quantity = 1;
+  optional .stats_census.ResourceUsageHistogram histogram = 2;
+  optional int32 measure_idx = 5;
+}
+
+message ResourceUsage {
+  optional int32 rid = 1;
+  repeated .stats_census.ResourceMeasure measure = 4;
+}
+
+message CensusID {
+  optional string originator = 1;
+  optional string caller = 2;
+  optional string method = 3;
+  optional string tags = 4;
+}
+
+message ResourceUsagePerID {
+  optional .stats_census.CensusID id = 1;
+  repeated .stats_census.ResourceUsage usage = 2;
+  reserved 3;
+}
+
+message ResourceRecord {
+  optional double start_time = 1;
+  optional double interval = 2;
+  repeated .stats_census.ResourceUsagePerID usage_per_id = 7;
+  extend .proto2.bridge.MessageSet {
+    optional .stats_census.ResourceRecord message_set_extension = 10956605;
+  }
+}
+
+message TagsToPropagate {
+  repeated string key = 1;
+}
+
+message CensusCID {
+  optional string user = 1;
+  optional string isolation_class = 2;
+  optional string service_class = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .stats_census.CensusCID message_set_extension = 24283191;
+  }
+}
+
+message CensusDapperInfo {
+  message HandleInfo {
+    optional .stats_census.CensusID id = 1;
+    optional uint64 id_hash = 2;
+    optional uint64 parent_id_hash = 3;
+  }
+  message ModifyTags {
+    message Tag {
+      optional string key = 1;
+      optional string value = 2;
+    }
+    optional uint64 base_id_hash = 1;
+    repeated .stats_census.CensusDapperInfo.ModifyTags.Tag tag = 2;
+    optional uint64 id_hash = 3;
+  }
+  message RecordUsage {
+    optional uint32 resource_id = 1;
+    optional uint64 id_hash = 2;
+    repeated double quantity = 3;
+  }
+  message ComposeHandleWithCid {
+    optional .stats_census.CensusCID cid = 1;
+    optional uint64 base_id_hash = 2;
+    optional uint64 id_hash = 3;
+  }
+  message FlushUsage {
+  }
+  oneof op {
+    .stats_census.CensusDapperInfo.RecordUsage record_usage = 1;
+    .stats_census.CensusDapperInfo.HandleInfo get_handle = 2;
+    .stats_census.CensusDapperInfo.HandleInfo get_rpc_server_handle = 3;
+    .stats_census.CensusDapperInfo.ModifyTags add_tag = 4;
+    .stats_census.CensusDapperInfo.ModifyTags replace_tag = 5;
+    .stats_census.CensusDapperInfo.HandleInfo get_handle_info = 6;
+    .stats_census.CensusDapperInfo.HandleInfo get_rpc_client_handle_info = 7;
+    .stats_census.CensusDapperInfo.HandleInfo transfer_thread_usage_to_handle = 8;
+    .stats_census.CensusDapperInfo.ComposeHandleWithCid compose_handle_with_cid = 9;
+    .stats_census.CensusDapperInfo.FlushUsage flush_usage = 10;
+  }
+  extend .proto2.bridge.MessageSet {
+    optional .stats_census.CensusDapperInfo message_set_extension = 77214381;
+  }
+}
+
+

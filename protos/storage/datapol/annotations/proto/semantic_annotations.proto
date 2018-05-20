@@ -1,0 +1,160 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/retention_annotations.proto";
+import "net/proto2/proto/descriptor.proto";
+package datapol;
+
+option java_package = "com.google.protos.datapol";
+option java_outer_classname = "SemanticAnnotations";
+option cc_enable_arenas = true;
+
+enum SemanticType {
+  ST_NOT_SPECIFIED = 0;
+  ST_NOT_REQUIRED = 999;
+  ST_PSEUDONYMOUS_ID = 1000;
+  ST_ZWIEBACK_ID = 1001;
+  ST_PREF_ID = 1002;
+  ST_BISCOTTI_ID = 1003;
+  ST_ANALYTICS_ID = 1004;
+  ST_MANDELBREAD_ID = 1005;
+  ST_ANDROID_LOGGING_ID2 = 1006;
+  ST_ACSA_ID = 1007;
+  ST_IDENTIFYING_ID = 1100;
+  ST_EMAIL_ID = 1102;
+  ST_NAME = 1103;
+  ST_PHONE_NUMBER = 1104;
+  ST_GAIA_ID = 1105;
+  ST_USERNAME = 1106;
+  ST_GSERVICES_ANDROID_ID = 1107;
+  ST_ARES_ID = 1108;
+  ST_SPII_ID = 1200;
+  ST_GOVERNMENT_ID_NUMBER = 1201;
+  ST_CARDHOLDER_DATA = 1202;
+  ST_HEALTHCARE_INFO = 1203;
+  ST_SENSITIVE_BACKGROUND_INFO = 1204;
+  ST_NETWORK_ENDPOINT = 1300;
+  ST_IP_ADDRESS = 1301;
+  ST_HARDWARE_ID = 1400;
+  ST_ANDROID_LOGGING_ID = 1401;
+  ST_SOFTWARE_ID = 1500;
+  ST_USER_AGENT = 1501;
+  ST_ANONYMOUS_DATA = 1600;
+  ST_DEMOGRAPHIC_INFO = 1601;
+  ST_LOCATION = 1700;
+  ST_PRECISE_LOCATION = 1701;
+  ST_COARSE_LOCATION = 1702;
+  ST_GOOGLE_RELATIONSHIP_ID = 1800;
+  ST_CUSTOMER_ID = 1801;
+  ST_PARTNER_ID = 1802;
+  ST_PUBLISHER_ID = 1803;
+  ST_USER_CONTENT = 1900;
+  ST_USER_QUERY = 1901;
+  ST_THIRD_PARTY_DATA = 2000;
+  ST_TIMESTAMP = 2100;
+  ST_SENSITIVE_TIMESTAMP = 2101;
+  ST_SESSION_ID = 2300;
+  ST_PERSONAL_DATA = 2400;
+  ST_AVOCADO_ID = 2500;
+  ST_SECURITY_MATERIAL = 2600;
+  ST_SECURITY_KEY = 2601;
+  ST_ACCOUNT_CREDENTIAL = 2602;
+  ST_CONTENT_DEPENDENT = 9900;
+  ST_DEBUG_INFO = 9901;
+  ST_KEY_VALUE_PAIR = 9902;
+  ST_KEY = 9903;
+  ST_VALUE = 9904;
+  ST_REFERER_URL = 9905;
+}
+
+enum DataFormat {
+  DF_NONE = 0;
+  DF_HTTPHEADER = 1;
+  DF_COOKIE = 2;
+  DF_URL = 3;
+  DF_CGI_ARGS = 4;
+  DF_HOST_ORDER = 5;
+  DF_BYTE_SWAPPED = 6;
+  DF_LOGGING_ELEMENT_TYPE_ID = 7;
+}
+
+message Qualifier {
+  optional bool is_public = 1 [default = false];
+  optional bool is_google = 2 [default = false];
+  optional bool other_user = 3 [default = false];
+  optional bool is_partner = 4 [default = false];
+  optional bool is_publisher = 5 [default = false];
+  optional bool has_explicit_consent = 6 [default = false];
+  optional bool is_encrypted = 7 [default = false];
+  optional int32 related_field = 8;
+  optional bool non_user_location = 9 [default = false];
+  optional bool limited_access = 10 [default = false];
+  optional bool auto_delete_within_wipeout = 11 [default = false];
+  optional bool is_access_target = 12 [default = false];
+}
+
+message LocationQualifier {
+  optional bool non_user_location = 1 [default = false];
+  optional bool precise_location = 2 [default = false];
+}
+
+message FieldDetails {
+  repeated .datapol.SemanticType semantic_type = 1;
+}
+
+message MessageDetails {
+  repeated .datapol.SemanticType semantic_type = 1;
+}
+
+extend .proto2.FieldOptions {
+  optional .datapol.SemanticType semantic_type = 40075780 [default = ST_NOT_SPECIFIED];
+}
+
+extend .proto2.FieldOptions {
+  optional .datapol.Qualifier qualifier = 40270992;
+}
+
+extend .proto2.FieldOptions {
+  optional .datapol.LocationQualifier location_qualifier = 69646961;
+}
+
+extend .proto2.FieldOptions {
+  optional .datapol.FieldDetails field_details = 40093572;
+}
+
+extend .proto2.FieldOptions {
+  optional .datapol.DataFormat data_format = 40221563 [default = DF_NONE];
+}
+
+extend .proto2.FieldOptions {
+  repeated .datapol.RetentionSpec retention = 40223876;
+}
+
+extend .proto2.MessageOptions {
+  optional .datapol.SemanticType msg_semantic_type = 41149386 [default = ST_NOT_SPECIFIED];
+}
+
+extend .proto2.MessageOptions {
+  optional .datapol.Qualifier msg_qualifier = 41551199;
+}
+
+extend .proto2.MessageOptions {
+  optional .datapol.LocationQualifier msg_location_qualifier = 69646961;
+}
+
+extend .proto2.MessageOptions {
+  optional .datapol.MessageDetails msg_details = 41744383;
+}
+
+extend .proto2.MessageOptions {
+  repeated .datapol.RetentionSpec msg_retention = 41909987;
+}
+
+extend .proto2.FileOptions {
+  optional bool file_vetted_for_datapol_annotations = 43601160 [default = false];
+}
+
+extend .proto2.FileOptions {
+  optional string file_vetting_status = 71304954;
+}
+
+

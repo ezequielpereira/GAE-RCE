@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package net_http_stats;
+
+option java_package = "com.google.gse.stats.http";
+
+message InternalUri {
+  repeated string internal_uri = 1;
+}
+
+extend .proto2.FileOptions {
+  optional .net_http_stats.InternalUri internal_uris = 28749285;
+}
+
+

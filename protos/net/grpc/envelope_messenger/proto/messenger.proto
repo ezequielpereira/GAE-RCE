@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package messenger;
+
+message Message {
+  enum Status {
+    CONTINUE = 0;
+    CLOSE = 1;
+    NOT_FOUND = 2;
+    ERROR = 3;
+  }
+  optional string method = 1;
+  optional int64 stream_id = 2;
+  optional .messenger.Message.Status status = 4 [default = CONTINUE];
+  optional bytes payload = 20;
+}
+
+

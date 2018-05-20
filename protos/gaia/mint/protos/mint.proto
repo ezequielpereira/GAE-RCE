@@ -1,0 +1,124 @@
+syntax = "proto2";
+
+import "gaia/insclient/ins_clientinfo.proto";
+import "gaia/data/authsub.proto";
+import "gaia/data/gaia_property.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/credentials/proto/authenticator.proto";
+import "security/data_access/proto/standard_dat_scope.proto";
+package gaia_mint;
+
+option java_package = "com.google.gaia.mint";
+option java_outer_classname = "MintProtos";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+option objc_class_prefix = "GMNT";
+
+message MintWrapper {
+  enum EncodingFormat {
+    KEYMASTER_RSA = 1;
+  }
+  optional string remote_host = 3;
+  optional int64 primary_user_id = 4;
+  optional int32 encoding_format = 7 [default = 1];
+  optional bytes signed_data = 5;
+  optional bytes keymaster_rsa_signature = 6;
+  optional string gaiamint_server = 9;
+  optional bytes ip_address = 1 [deprecated = true];
+  extend .proto2.bridge.MessageSet {
+    optional .gaia_mint.MintWrapper message_set_extension = 17705363;
+  }
+  reserved 2, 8;
+}
+
+message CookieInfo {
+  optional bool persistent = 1;
+  optional bool issued_with_https_continue = 3 [deprecated = true];
+  optional bool frontend_domain_migrated = 5;
+  optional bool programmatic_session = 6;
+  optional bool was_auth_token = 7;
+  optional int64 tls_channel_id = 9;
+  optional int32 service_id = 10;
+  optional string origin_domain_name = 11;
+  optional bool enforce_channel_id = 12;
+  reserved 2, 4, 8;
+}
+
+message DatInfo {
+  optional .security.data_access.StandardDatScopeProto standard_dat_scope = 1 [deprecated = true];
+  optional .security.credentials.DataAccessTokenLoggingParams logging_params = 2;
+}
+
+message ScopeOptions {
+  enum ScopeMode {
+    SCOPES = 0;
+    PRETEND_NO_SCOPES = 1;
+    NO_SCOPES = 2;
+  }
+  optional .gaia_mint.ScopeOptions.ScopeMode scope_mode = 1 [default = SCOPES];
+}
+
+message GaiaServiceData {
+  optional .GaiaKey key = 1;
+  optional bytes data = 2;
+}
+
+message GaiaOAuthTokenServiceInfo {
+  optional int32 service_id = 1;
+  optional .proto2.bridge.MessageSet info = 2;
+}
+
+message GaiaOAuthTokenInfo {
+  repeated .gaia_mint.GaiaOAuthTokenServiceInfo service_info = 1;
+  optional .gaia_data.AuthSubTokenRecordMatchPrototype match_prototype = 3;
+  optional .gaia_data.DeviceInfo device = 4 [deprecated = true];
+  optional int64 expiration_time = 5;
+  optional bool allowed_for_disabled_user = 6;
+  reserved 2;
+}
+
+message GaiaMintUserCredential {
+  optional int64 user_id = 1;
+  optional int32 session_index = 24;
+  optional int64 actual_user_id = 21;
+  repeated .gaia_mint.GaiaMintUserCredential actual_user = 25;
+  optional bool encrypted = 2;
+  repeated int32 scope_code = 3;
+  repeated int32 explicitly_requested_scope_code = 29;
+  repeated string legacy_scope = 7;
+  optional string native_app_name = 4;
+  optional string application_domain = 5;
+  optional int64 package_id = 9;
+  repeated .gaia_mint.GaiaServiceData service_data = 6;
+  repeated .GaiaKey unset_service_data = 18;
+  optional .ClientUserInfo client_user_info = 10 [lazy = true];
+  optional bool contains_gaia_groups = 12;
+  optional int64 opl_id = 11;
+  optional int64 auth_time_in_seconds = 13;
+  optional uint32 seconds_since_last_auth = 26;
+  optional int64 oauth_login_id = 19 [default = -1];
+  optional int32 access_code_id = 20 [default = -1];
+  optional bool name_lookup_failed = 14;
+  optional string given_name = 15;
+  optional string family_name = 16;
+  optional .gaia_mint.GaiaOAuthTokenInfo gaia_oauth_token_info = 17;
+  optional int32 session_type = 27;
+  optional bool deleted = 28;
+  optional string device_user_session_id = 30;
+  optional bool oauth_session_upgraded = 31;
+  optional bool cookie_server_defined_lifetime = 23 [deprecated = true];
+  optional int64 hosted_domain_id = 8 [deprecated = true];
+  optional bool is_tombstone = 32;
+  reserved 22;
+}
+
+message InvalidGaiaMintUserCredential {
+  optional .gaia_mint.GaiaMintUserCredential user = 1;
+  optional .gaia_mint.InvalidSessionInfo invalid_session_info = 2;
+}
+
+message InvalidSessionInfo {
+  repeated int32 cookie_server_invalid_reason = 1;
+}
+
+

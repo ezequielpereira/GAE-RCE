@@ -1,0 +1,63 @@
+syntax = "proto2";
+
+import "google/protobuf/timestamp.proto";
+package stats_census.tracing;
+
+option cc_enable_arenas = true;
+
+message OpStartProto {
+  optional .google.protobuf.Timestamp timestamp = 1;
+  optional uint64 span_id = 2;
+  optional uint64 parent_span_id = 3;
+  optional uint64 trace_id = 4;
+  optional bytes span_name = 5;
+}
+
+message OpEndProto {
+  message Tag {
+    optional bytes key = 1;
+    optional bytes value = 2;
+  }
+  optional .google.protobuf.Timestamp timestamp = 1;
+  optional uint64 span_id = 2;
+  optional uint64 parent_span_id = 5;
+  optional uint64 trace_id = 6;
+  optional uint32 status_code = 3;
+  repeated .stats_census.tracing.OpEndProto.Tag tags = 4;
+}
+
+message LiteralAnnotationProto {
+  optional .google.protobuf.Timestamp timestamp = 1;
+  optional uint64 span_id = 2;
+  optional uint64 literal_addr = 3;
+  optional bytes value = 4;
+  optional int32 thread_id = 5;
+}
+
+message StringAnnotationProto {
+  optional .google.protobuf.Timestamp timestamp = 1;
+  optional uint64 span_id = 2;
+  optional bytes data = 3;
+  optional int32 thread_id = 4;
+}
+
+message LinkContextsProto {
+  optional .google.protobuf.Timestamp timestamp = 1;
+  optional uint64 parents_trace_id = 2;
+  optional uint64 parents_span_id = 3;
+  optional uint64 childs_trace_id = 4;
+  optional uint64 childs_span_id = 5;
+  optional int32 thread_id = 6;
+}
+
+message TracingEvent {
+  oneof tracing_oneof {
+    .stats_census.tracing.OpStartProto op_start = 1;
+    .stats_census.tracing.OpEndProto op_end = 2;
+    .stats_census.tracing.LiteralAnnotationProto literal_annotation = 3;
+    .stats_census.tracing.StringAnnotationProto string_annotation = 4;
+    .stats_census.tracing.LinkContextsProto link_contexts = 5;
+  }
+}
+
+

@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+option java_package = "com.google.net.bns";
+option java_outer_classname = "Protocol";
+
+message BNSAddrs {
+  repeated string portname = 1;
+  repeated group Entry = 2 {
+    required int32 index = 3;
+    optional string hostname = 4;
+    repeated fixed32 ipv4 = 5;
+    required int32 unnamed_port = 6;
+    repeated int32 named_port = 7;
+    repeated bytes ipv6 = 9;
+    optional uint64 task_uid = 10;
+  }
+  repeated int32 index_purposely_descheduled = 8;
+}
+
+message BNSMeta {
+  required int32 num_tasks = 1;
+  required int32 tasks_per_file = 2;
+  optional int32 dns_ttl = 3;
+  optional int32 serving_size = 4;
+  optional bool failure_aware = 5 [default = false];
+}
+
+

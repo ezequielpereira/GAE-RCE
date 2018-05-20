@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+import "apps/appstats/proto/appstats.proto";
+package speckle;
+
+option java_package = "com.google.storage.speckle.common";
+
+message StatDefinitions {
+  message StatProto {
+    required string stat_name = 1;
+    required .speckle.StatDefinitions.StatCategory stat_category = 2;
+    optional .appstats.TimeSeriesType data_type = 3;
+    repeated string required_stats = 4;
+    optional .speckle.StatDefinitions.Visibility visibility = 5 [default = GOOGLERS];
+    optional .speckle.StatDefinitions.Formula formula = 6;
+  }
+  enum StatCategory {
+    RAW = 1;
+    DERIVED = 2;
+    SUSTAINED = 3;
+  }
+  enum Visibility {
+    GOOGLERS = 1;
+    EXTERNAL = 2;
+  }
+  enum Formula {
+    AVERAGE = 1;
+    HIT_RATIO = 2;
+    SUM = 3;
+  }
+  optional .speckle.StatDefinitions.StatProto cache_hits = 1;
+  optional .speckle.StatDefinitions.StatProto cache_misses = 2;
+  optional .speckle.StatDefinitions.StatProto reads = 3;
+  optional .speckle.StatDefinitions.StatProto writes = 4;
+  optional .speckle.StatDefinitions.StatProto read_throttled_time_ms = 5;
+  optional .speckle.StatDefinitions.StatProto num_reads_throttled = 6;
+  optional .speckle.StatDefinitions.StatProto storage_usage_bytes = 7;
+  optional .speckle.StatDefinitions.StatProto num_open_network_connections = 8;
+  optional .speckle.StatDefinitions.StatProto num_queries = 9;
+  optional .speckle.StatDefinitions.StatProto clone_memory_usage_bytes = 10;
+  optional .speckle.StatDefinitions.StatProto read_latency = 11;
+  optional .speckle.StatDefinitions.StatProto write_latency = 12;
+  optional .speckle.StatDefinitions.StatProto data_read = 13;
+  optional .speckle.StatDefinitions.StatProto data_written = 14;
+  optional .speckle.StatDefinitions.StatProto up_count = 15;
+  optional .speckle.StatDefinitions.StatProto query_latency_usec = 16;
+  optional .speckle.StatDefinitions.StatProto num_sql_exceptions = 17;
+  optional .speckle.StatDefinitions.StatProto hit_ratio = 20;
+  optional .speckle.StatDefinitions.StatProto avg_wait_time_per_throttled_req = 21;
+  optional .speckle.StatDefinitions.StatProto avg_read_latency = 22;
+  optional .speckle.StatDefinitions.StatProto avg_write_latency = 23;
+  optional .speckle.StatDefinitions.StatProto reads_and_writes = 24;
+  optional .speckle.StatDefinitions.StatProto apiary_ingress_bytes = 25;
+  optional .speckle.StatDefinitions.StatProto apiary_egress_bytes = 26;
+  optional .speckle.StatDefinitions.StatProto num_concurrent_requests = 27;
+  optional .speckle.StatDefinitions.StatProto num_abandoned_connections = 28;
+  optional .speckle.StatDefinitions.StatProto clone_cpu_usage_millicores = 29;
+  optional .speckle.StatDefinitions.StatProto clone_num_throttled_requests = 30;
+  optional .speckle.StatDefinitions.StatProto clone_uptime_seconds = 31;
+  optional .speckle.StatDefinitions.StatProto write_throttled_time_ms = 32;
+  optional .speckle.StatDefinitions.StatProto num_writes_throttled = 33;
+  optional .speckle.StatDefinitions.StatProto num_active_connections = 34;
+  optional .speckle.StatDefinitions.StatProto num_native_connections = 35;
+  optional .speckle.StatDefinitions.StatProto external_egress_bytes = 36;
+}
+
+

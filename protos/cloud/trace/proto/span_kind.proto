@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package cloud_trace;
+
+option java_package = "com.google.protos.cloud.trace";
+
+enum SpanKind {
+  SPAN_DEFAULT = 0;
+  RPC_SERVER = 1;
+  RPC_CLIENT = 2;
+}
+

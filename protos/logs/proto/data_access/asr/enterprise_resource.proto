@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "EnterpriseResourceProtoFile";
+option java_multiple_files = true;
+
+message EnterpriseResource {
+  message EnterpriseUser {
+    required int64 user_id = 1;
+  }
+  message EnterpriseCustomer {
+    oneof customer {
+      int64 customer_id = 1;
+      bool new_customer = 2;
+    }
+  }
+  message EnterpriseOrgUnit {
+    required int64 org_unit_id = 1;
+    required int64 customer_id = 2;
+  }
+  message EnterpriseGroup {
+    required int64 group_id = 1;
+  }
+  message EnterpriseTeamDrive {
+    optional int64 team_drive_id = 1;
+  }
+  message EnterpriseDevice {
+    optional string device_id = 1;
+    optional string device_type = 2;
+    optional int64 customer_id = 3;
+  }
+  message EnterpriseBaseDomain {
+    optional string base_domain_name = 1;
+  }
+  oneof resource {
+    .security.data_access.asr.EnterpriseResource.EnterpriseUser user = 1;
+    .security.data_access.asr.EnterpriseResource.EnterpriseCustomer customer = 2;
+    .security.data_access.asr.EnterpriseResource.EnterpriseOrgUnit org_unit = 3;
+    .security.data_access.asr.EnterpriseResource.EnterpriseGroup group = 4;
+    .security.data_access.asr.EnterpriseResource.EnterpriseTeamDrive team_drive = 5;
+    .security.data_access.asr.EnterpriseResource.EnterpriseDevice device = 6;
+    .security.data_access.asr.EnterpriseResource.EnterpriseBaseDomain base_domain = 7;
+  }
+}
+

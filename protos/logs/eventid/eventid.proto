@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+option java_package = "com.google.common.logging";
+option go_package = "eventid";
+option cc_enable_arenas = true;
+option objc_class_prefix = "EID";
+
+message EventIdMessage {
+  required int64 time_usec = 1;
+  required fixed32 server_ip = 2;
+  required fixed32 process_id = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .EventIdMessage message_set_extension = 4156379;
+  }
+}
+
+message ClientEventIdMessage {
+  optional .EventIdMessage base = 1;
+  optional int64 client_counter = 2;
+}
+

@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "DispatchPb";
+
+message DispatchConfig {
+  message Rule {
+    optional string hostname_suffix = 1;
+    optional string hostname_exact = 2;
+    optional string path_prefix = 3;
+    optional string path_exact = 4;
+    optional string target_engine = 5 [default = "default"];
+  }
+  repeated .apphosting.DispatchConfig.Rule rules = 1;
+}
+
+

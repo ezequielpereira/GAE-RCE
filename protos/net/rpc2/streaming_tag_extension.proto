@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package net.rpc2;
+
+message InternalStreamingRpcTag {
+  extend .proto2.bridge.MessageSet {
+    optional .net.rpc2.InternalStreamingRpcTag message_set_extension = 93325171;
+  }
+}
+
+

@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+import "util/task/status.proto";
+package net.rpc4.transport;
+
+enum CurrentGalliumWireVersion {
+  CURRENT_GALLIUM_WIRE_VERSION = 2;
+}
+
+message GalliumConnectRequest {
+  required string banner = 1;
+  repeated int32 offered_wire_versions = 2;
+}
+
+message GalliumConnectResponse {
+  required string banner = 1;
+  optional .util.StatusProto status = 2;
+  optional int32 gallium_wire_version = 3;
+}
+
+

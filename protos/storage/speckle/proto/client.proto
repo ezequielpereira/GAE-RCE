@@ -1,0 +1,384 @@
+syntax = "proto2";
+
+package speckle;
+
+option java_package = "com.google.protos.cloud.sql";
+
+enum TransactionIsolationLevel {
+  TRANSACTIONISOLATIONLEVEL_TRANSACTION_NONE = 0;
+  TRANSACTIONISOLATIONLEVEL_TRANSACTION_READ_COMMITTED = 2;
+  TRANSACTIONISOLATIONLEVEL_TRANSACTION_READ_UNCOMMITTED = 1;
+  TRANSACTIONISOLATIONLEVEL_TRANSACTION_REPEATABLE_READ = 4;
+  TRANSACTIONISOLATIONLEVEL_TRANSACTION_SERIALIZABLE = 8;
+}
+
+enum ResultSetType {
+  RESULTSETTYPE_TYPE_FORWARD_ONLY = 1003;
+  RESULTSETTYPE_TYPE_SCROLL_INSENSITIVE = 1004;
+  RESULTSETTYPE_TYPE_SCROLL_SENSITIVE = 1005;
+}
+
+enum ResultSetConcurrency {
+  RESULTSETCONCURRENCY_CONCUR_READ_ONLY = 1007;
+  RESULTSETCONCURRENCY_CONCUR_UPDATABLE = 1008;
+}
+
+enum ResultSetHoldability {
+  RESULTSETHOLDABILITY_HOLD_CURSORS_OVER_COMMIT = 1;
+  RESULTSETHOLDABILITY_CLOSE_CURSORS_AT_COMMIT = 2;
+}
+
+enum FetchDirection {
+  FETCH_FORWARD = 1000;
+  FETCH_REVERSE = 1001;
+  FETCH_UNKNOWN = 1002;
+}
+
+enum MetadataType {
+  METADATATYPE_DATABASE_METADATA_BASIC = 1;
+  METADATATYPE_DATABASE_METADATA_GET_TABLES = 2;
+  METADATATYPE_DATABASE_METADATA_GET_PROCEDURES = 3;
+  METADATATYPE_DATABASE_METADATA_GET_PROCEDURE_COLUMNS = 4;
+  METADATATYPE_DATABASE_METADATA_GET_COLUMNS = 5;
+  METADATATYPE_DATABASE_METADATA_GET_COLUMN_PRIVILEGES = 6;
+  METADATATYPE_DATABASE_METADATA_GET_TABLE_PRIVILEGES = 7;
+  METADATATYPE_DATABASE_METADATA_GET_BEST_ROW_IDENTIFIER = 8;
+  METADATATYPE_DATABASE_METADATA_GET_VERSION_COLUMNS = 9;
+  METADATATYPE_DATABASE_METADATA_GET_PRIMARY_KEYS = 10;
+  METADATATYPE_DATABASE_METADATA_GET_IMPORTED_KEYS = 11;
+  METADATATYPE_DATABASE_METADATA_GET_EXPORTED_KEYS = 12;
+  METADATATYPE_DATABASE_METADATA_GET_CROSS_REFERENCE = 13;
+  METADATATYPE_DATABASE_METADATA_GET_INDEX_INFO = 14;
+  METADATATYPE_DATABASE_METADATA_GET_UDTS = 15;
+  METADATATYPE_DATABASE_METADATA_GET_SUPER_TYPES = 16;
+  METADATATYPE_DATABASE_METADATA_GET_SUPER_TABLES = 17;
+  METADATATYPE_DATABASE_METADATA_GET_ATTRIBUTES = 18;
+  METADATATYPE_DATABASE_METADATA_GET_FUNCTIONS = 19;
+  METADATATYPE_DATABASE_METADATA_GET_FUNCTION_COLUMNS = 20;
+  METADATATYPE_DATABASE_METADATA_GET_TYPE_INFO = 21;
+  METADATATYPE_DATABASE_METADATA_GET_SCHEMAS = 22;
+  METADATATYPE_DATABASE_METADATA_GET_PSEUDO_COLUMNS = 23;
+}
+
+enum ClientType {
+  CLIENT_TYPE_JAVA_JDBC = 1;
+  CLIENT_TYPE_PYTHON_DBAPI = 2;
+  CLIENT_TYPE_UNKNOWN = 3;
+  CLIENT_TYPE_GO = 4;
+  CLIENT_TYPE_EXPERIMENTAL_1 = 5;
+  CLIENT_TYPE_NATIVE = 6;
+  CLIENT_TYPE_UNKNOWN_LANGUAGE7 = 7;
+  CLIENT_TYPE_UNKNOWN_LANGUAGE8 = 8;
+  CLIENT_TYPE_UNKNOWN_LANGUAGE9 = 9;
+  CLIENT_TYPE_UNKNOWN_LANGUAGE10 = 10;
+  CLIENT_TYPE_UNKNOWN_LANGUAGE11 = 11;
+}
+
+message BindVariableProto {
+  enum Direction {
+    IN = 1;
+    OUT = 2;
+    INOUT = 3;
+  }
+  optional bytes value = 1;
+  optional int32 type = 2;
+  optional int32 position = 3;
+  optional string name = 4;
+  optional .speckle.BindVariableProto.Direction direction = 5 [default = IN];
+}
+
+message ResultProto {
+  optional .speckle.RowSetProto rows = 1;
+  optional int64 rows_updated = 2;
+  repeated bytes generated_keys = 3;
+  repeated .speckle.SqlException warnings = 4;
+  optional .speckle.SqlException sql_exception = 5;
+  optional uint64 statement_id = 6;
+  optional bool more_rows = 7 [default = false];
+  optional bool more_results = 8 [default = false];
+  repeated .speckle.BindVariableProto output_variable = 9;
+  repeated int64 batch_rows_updated = 10;
+  repeated .speckle.ParameterMetadata parameter_metadata = 11;
+}
+
+message OpProto {
+  enum OpType {
+    NATIVE_SQL = 1;
+    ROLLBACK = 2;
+    SET_SAVEPOINT = 3;
+    SET_AUTO_COMMIT = 4;
+    SET_READ_ONLY = 5;
+    SET_TRANSACTION_ISOLATION_LEVEL = 6;
+    COMMIT = 7;
+    SET_CATALOG = 8;
+    CLOSE_STATEMENT = 9;
+    PING = 10;
+    NEXT_RESULT = 11;
+    RETRY = 12;
+    VALUE_ENUM_UNKNOWN_VALUE13 = 13;
+    VALUE_ENUM_UNKNOWN_VALUE14 = 14;
+    VALUE_ENUM_UNKNOWN_VALUE15 = 15;
+    VALUE_ENUM_UNKNOWN_VALUE16 = 16;
+    VALUE_ENUM_UNKNOWN_VALUE17 = 17;
+    VALUE_ENUM_UNKNOWN_VALUE18 = 18;
+    VALUE_ENUM_UNKNOWN_VALUE19 = 19;
+    VALUE_ENUM_UNKNOWN_VALUE20 = 20;
+  }
+  required .speckle.OpProto.OpType type = 1;
+  optional string catalog = 2;
+  optional string sql = 3;
+  optional .speckle.SavePoint savepoint = 4;
+  optional bool auto_commit = 5;
+  optional bool read_only = 6;
+  optional .speckle.TransactionIsolationLevel transaction_isolation_level = 7;
+  optional uint64 statement_id = 8;
+  optional uint64 request_id = 9;
+}
+
+message SavePoint {
+  optional int64 id = 1;
+  required string name = 2;
+}
+
+message SqlException {
+  required string message = 1;
+  required int32 code = 2 [default = 0];
+  optional string sql_state = 3;
+  optional int32 application_error_code = 4;
+}
+
+message TupleProto {
+  repeated bytes values = 1;
+  repeated int32 nulls = 2;
+}
+
+message ColumnProto {
+  required string name = 1;
+  optional string label = 2;
+  optional int32 type = 3 [default = 12];
+  optional string table_name = 4;
+  optional string schema_name = 5;
+  optional string catalog_name = 6;
+  optional int32 precision = 7 [default = 0];
+  optional int32 scale = 8 [default = 0];
+  optional bool nullable = 9;
+  optional bool searchable = 10;
+  optional int32 display_size = 11;
+  optional bool auto_increment = 12 [default = false];
+  optional bool case_sensitive = 13 [default = false];
+  optional bool currency = 14 [default = false];
+  optional bool definitely_writable = 15 [default = false];
+  optional bool read_only = 16 [default = false];
+  optional bool signed = 17 [default = false];
+  optional bool writable = 18 [default = false];
+  optional string column_type_name = 19 [default = ""];
+}
+
+message RowSetProto {
+  repeated .speckle.ColumnProto columns = 1;
+  repeated .speckle.TupleProto tuples = 2;
+}
+
+message JdbcDatabaseMetaDataProto {
+  message Schema {
+    optional string table_schema = 1;
+    optional string table_catalog = 2;
+  }
+  enum RowIdLifetime {
+    ROWIDLIFETIME_ROWID_UNSUPPORTED = 0;
+    ROWIDLIFETIME_ROWID_VALID_FOREVER = 1;
+    ROWIDLIFETIME_ROWID_VALID_OTHER = 2;
+    ROWIDLIFETIME_ROWID_VALID_SESSION = 3;
+    ROWIDLIFETIME_ROWID_VALID_TRANSACTION = 4;
+  }
+  enum SqlStateType {
+    SQLSTATETYPE_SQL_STATE_SQL = 0;
+    SQLSTATETYPE_SQL_STATE_SQL99 = 1;
+    SQLSTATETYPE_SQL_STATE_XOPEN = 2;
+  }
+  optional bool all_procedures_are_callable = 1 [default = false];
+  optional bool all_tables_are_selectable = 2 [default = false];
+  optional bool auto_commit_failure_closes_all_result_sets = 3 [default = false];
+  optional bool data_definition_causes_transaction_commit = 4 [default = false];
+  optional bool data_definition_ignored_in_transactions = 5 [default = false];
+  optional bool does_max_row_size_include_blobs = 6 [default = false];
+  optional string catalog_separator = 7;
+  optional string catalog_term = 8;
+  optional int32 database_major_version = 9 [default = 0];
+  optional int32 database_minor_version = 10 [default = 0];
+  optional string database_product_name = 11 [default = "Speckle"];
+  optional string database_product_version = 12 [default = ""];
+  optional .speckle.TransactionIsolationLevel default_transaction_isolation = 13 [default = TRANSACTIONISOLATIONLEVEL_TRANSACTION_NONE];
+  optional string extra_name_characters = 14 [default = ""];
+  optional string identifier_quote_string = 15 [default = ""];
+  optional int32 jdbc_major_version = 16 [default = 1];
+  optional int32 jdbc_minor_version = 17 [default = 0];
+  optional int32 max_binary_literal_length = 18 [default = 0];
+  optional int32 max_catalog_name_length = 19 [default = 0];
+  optional int32 max_char_literal_length = 20 [default = 0];
+  optional int32 max_column_name_length = 21 [default = 0];
+  optional int32 max_columns_in_group_by = 22 [default = 0];
+  optional int32 max_columns_in_index = 23 [default = 0];
+  optional int32 max_columns_in_order_by = 24 [default = 0];
+  optional int32 max_columns_in_select = 25 [default = 0];
+  optional int32 max_columns_in_table = 26 [default = 0];
+  optional int32 max_connections = 27 [default = 0];
+  optional int32 max_cursor_name_length = 28 [default = 0];
+  optional int32 max_index_length = 29 [default = 0];
+  optional int32 max_procedure_name_length = 30 [default = 0];
+  optional int32 max_row_size = 31 [default = 0];
+  optional int32 max_schema_name_length = 32 [default = 0];
+  optional int32 max_statement_length = 33 [default = 0];
+  optional int32 max_statements = 34 [default = 0];
+  optional int32 max_table_name_length = 35 [default = 0];
+  optional int32 max_tables_in_select = 36 [default = 0];
+  optional int32 max_user_name_length = 37 [default = 0];
+  optional string numeric_functions = 38 [default = ""];
+  optional string procedure_term = 39 [default = ""];
+  optional .speckle.ResultSetHoldability resultset_holdability = 40 [default = RESULTSETHOLDABILITY_CLOSE_CURSORS_AT_COMMIT];
+  optional .speckle.JdbcDatabaseMetaDataProto.RowIdLifetime rowid_lifetime = 41 [default = ROWIDLIFETIME_ROWID_UNSUPPORTED];
+  optional string sql_keywords = 42;
+  optional .speckle.JdbcDatabaseMetaDataProto.SqlStateType sql_state_type = 43 [default = SQLSTATETYPE_SQL_STATE_SQL];
+  optional string schema_term = 44 [default = ""];
+  optional string search_string_escape = 45;
+  optional string string_functions = 46 [default = ""];
+  optional string system_functions = 47 [default = ""];
+  optional string time_date_functions = 48 [default = ""];
+  optional string user_name = 49 [default = ""];
+  optional bool catalog_at_start = 50 [default = false];
+  optional bool locators_update_copy = 51 [default = false];
+  optional bool null_plus_non_null_is_null = 52 [default = false];
+  optional bool nulls_are_sorted_at_end = 53 [default = false];
+  optional bool nulls_are_sorted_at_start = 54 [default = false];
+  optional bool nulls_are_sorted_high = 55 [default = false];
+  optional bool nulls_are_sorted_low = 56 [default = false];
+  optional bool stores_lower_case_identifiers = 57 [default = false];
+  optional bool stores_lower_case_quoted_identifiers = 58 [default = false];
+  optional bool stores_mixed_case_identifiers = 59 [default = false];
+  optional bool stores_mixed_case_quoted_identifiers = 60 [default = false];
+  optional bool stores_upper_case_identifiers = 61 [default = false];
+  optional bool stores_upper_case_quoted_identifiers = 62 [default = false];
+  optional bool supports_ansi92_entry_level_sql = 63 [default = false];
+  optional bool supports_ansi92_full_sql = 64 [default = false];
+  optional bool supports_ansi92_intermediate_sql = 65 [default = false];
+  optional bool supports_alter_table_with_add_column = 66 [default = false];
+  optional bool supports_alter_table_with_drop_column = 67 [default = false];
+  optional bool supports_batch_updates = 68 [default = false];
+  optional bool supports_catalogs_in_data_manipulation = 69 [default = false];
+  optional bool supports_catalogs_in_index_definitions = 70 [default = false];
+  optional bool supports_catalogs_in_privilege_definitions = 71 [default = false];
+  optional bool supports_catalogs_in_procedure_calls = 72 [default = false];
+  optional bool supports_catalogs_in_table_definitions = 73 [default = false];
+  optional bool supports_column_aliasing = 74 [default = false];
+  optional bool supports_convert = 75 [default = false];
+  optional bool supports_core_sql_grammar = 76 [default = false];
+  optional bool supports_correlated_subqueries = 77 [default = false];
+  optional bool supports_data_definition_and_data_manipulation_transactions = 78 [default = false];
+  optional bool supports_data_manipulation_transactions_only = 79 [default = false];
+  optional bool supports_different_table_correlation_names = 80 [default = false];
+  optional bool supports_expressions_in_order_by = 81 [default = false];
+  optional bool supports_extended_sql_grammar = 82 [default = false];
+  optional bool supports_full_outer_joins = 83 [default = false];
+  optional bool supports_get_generated_keys = 84 [default = false];
+  optional bool supports_group_by = 85 [default = false];
+  optional bool supports_group_by_beyond_select = 86 [default = false];
+  optional bool supports_group_by_unrelated = 87 [default = false];
+  optional bool supports_integrity_enhancement_facility = 88 [default = false];
+  optional bool supports_like_escape_clause = 89 [default = false];
+  optional bool supports_limited_outer_joins = 90 [default = false];
+  optional bool supports_minimum_sql_grammar = 91 [default = false];
+  optional bool supports_mixed_case_identifiers = 92 [default = false];
+  optional bool supports_mixed_case_quoted_identifiers = 93 [default = false];
+  optional bool supports_multiple_open_results = 94 [default = false];
+  optional bool supports_multiple_result_sets = 95 [default = false];
+  optional bool supports_multiple_transactions = 96 [default = false];
+  optional bool supports_named_parameters = 97 [default = false];
+  optional bool supports_non_nullable_columns = 98 [default = false];
+  optional bool supports_open_cursors_across_commit = 99 [default = false];
+  optional bool supports_open_cursors_across_rollback = 100 [default = false];
+  optional bool supports_open_statements_across_commit = 101 [default = false];
+  optional bool supports_open_statements_across_rollback = 102 [default = false];
+  optional bool supports_order_by_unrelated = 103 [default = false];
+  optional bool supports_outer_joins = 104 [default = false];
+  optional bool supports_positioned_delete = 105 [default = false];
+  optional bool supports_positioned_update = 106 [default = false];
+  optional bool supports_savepoints = 107 [default = false];
+  optional bool supports_schemas_in_data_manipulation = 108 [default = false];
+  optional bool supports_schemas_in_index_definitions = 109 [default = false];
+  optional bool supports_schemas_in_privilege_definitions = 110 [default = false];
+  optional bool supports_schemas_in_procedure_calls = 111 [default = false];
+  optional bool supports_schemas_in_table_definitions = 112 [default = false];
+  optional bool supports_select_for_update = 113 [default = false];
+  optional bool supports_statement_pooling = 114 [default = false];
+  optional bool supports_stored_functions_using_call_syntax = 115 [default = false];
+  optional bool supports_stored_procedures = 116 [default = false];
+  optional bool supports_subqueries_in_comparisons = 117 [default = false];
+  optional bool supports_subqueries_in_exists = 118 [default = false];
+  optional bool supports_subqueries_in_ins = 119 [default = false];
+  optional bool supports_subqueries_in_quantifieds = 120 [default = false];
+  optional bool supports_table_correlation_names = 121 [default = false];
+  optional bool supports_transactions = 122 [default = false];
+  optional bool supports_union = 123 [default = false];
+  optional bool supports_union_all = 124 [default = false];
+  optional bool uses_local_file_per_table = 125 [default = false];
+  optional bool uses_local_files = 126 [default = false];
+  optional bool read_only = 127 [default = false];
+  repeated string table_types = 128;
+  repeated string catalogs = 129;
+  repeated .speckle.JdbcDatabaseMetaDataProto.Schema schemas = 130;
+  repeated .speckle.ResultSetType deletes_are_detected = 131;
+  repeated .speckle.ResultSetType inserts_are_detected = 132;
+  repeated .speckle.ResultSetType updates_are_detected = 133;
+  repeated .speckle.ResultSetType others_deletes_are_visible = 134;
+  repeated .speckle.ResultSetType others_inserts_are_visible = 135;
+  repeated .speckle.ResultSetType others_updates_are_visible = 136;
+  repeated .speckle.ResultSetType own_deletes_are_visible = 137;
+  repeated .speckle.ResultSetType own_inserts_are_visible = 138;
+  repeated .speckle.ResultSetType own_updates_are_visible = 139;
+  repeated .speckle.ResultSetType supports_result_set_concurrency_updatable = 140;
+  repeated .speckle.ResultSetType supports_result_set_type = 141;
+  repeated .speckle.ResultSetHoldability supports_result_set_holdability = 142;
+  repeated .speckle.TransactionIsolationLevel supports_transaction_isolation_level = 143;
+  optional bool generated_key_always_returned = 144 [default = false];
+}
+
+message Property {
+  required string key = 1;
+  optional string value = 2;
+}
+
+message ExecOptions {
+  optional bool include_generated_keys = 1 [default = false];
+  repeated int32 generated_column_indices = 2;
+  repeated string generated_column_names = 3;
+  optional .speckle.ResultSetType type = 4;
+  optional .speckle.ResultSetConcurrency concurrency = 5;
+  optional .speckle.ResultSetHoldability holdability = 6;
+  optional int32 fetch_size = 7;
+  optional int32 max_rows = 8;
+  optional bool poolable = 9 [default = false];
+  optional .speckle.FetchDirection fetch_direction = 10 [default = FETCH_FORWARD];
+  optional string cursor_name = 11;
+  optional int32 max_field_size = 12 [default = 0];
+  optional bool escape_processing = 13 [default = false];
+}
+
+message BatchBindVariableProto {
+  repeated .speckle.BindVariableProto bind_variable = 1;
+}
+
+message BatchProto {
+  repeated string statement = 1;
+  repeated .speckle.BatchBindVariableProto batch_bind_variable = 2;
+}
+
+message ParameterMetadata {
+  optional string name = 1;
+}
+
+message RpcErrorProto {
+  optional int32 error_code = 1;
+  optional string error_message = 2;
+}
+
+

@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+import "apphosting/magicgin/magicgin_annotations.proto";
+package apphosting;
+
+message DeployLogEvent {
+  message Server {
+    enum Type {
+      APPSERVER = 0;
+      PFE = 1;
+      ADMIN_CONSOLE = 2;
+      COMPILER = 3;
+    }
+    required .apphosting.DeployLogEvent.Server.Type type = 1;
+    optional string group_name = 2;
+    optional int32 task_index = 3;
+    optional string borg_cell = 4;
+  }
+  enum Type {
+    LOAD = 0;
+    APP_DEFAULT = 1;
+    ENGINE_DEFAULT = 2;
+    BACKEND_DEFAULT = 3;
+    DEPLOY_START = 4;
+    DEPLOY_END = 5;
+    CODE_UPLOAD_START = 6;
+    CODE_UPLOAD_END = 7;
+    BLOB_UPLOAD_START = 8;
+    BLOB_UPLOAD_END = 9;
+    PRECOMPILE_START = 10;
+    PRECOMPILE_END = 11;
+    PRECOMPILE_ACTION = 12;
+  }
+  required string app_version_id = 1;
+  required string borg_cell = 2;
+  required int64 timestamp_usec = 3;
+  optional string runtime_id = 7;
+  required .apphosting.DeployLogEvent.Type type = 4;
+  required .apphosting.DeployLogEvent.Server server = 5;
+  optional int32 num_pfe_tasks = 6;
+  optional string action = 8;
+}
+
+message ClientDeployLogEvent {
+  message Request {
+    optional string path = 1;
+    optional string http_status = 2;
+    optional int64 start_time_usec = 3;
+    optional int64 end_time_usec = 4;
+    optional int64 request_size_bytes = 5;
+  }
+  required string app_version_id = 1;
+  optional string runtime_id = 2;
+  required int64 start_time_usec = 3;
+  required int64 end_time_usec = 4;
+  repeated .apphosting.ClientDeployLogEvent.Request requests = 5;
+  optional bool success = 6;
+  optional string sdk_version = 7;
+}
+

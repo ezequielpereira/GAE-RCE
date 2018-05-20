@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+import "google/datastore/v1/index.proto";
+import "google/longrunning/operations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+package google.datastore.v1;
+
+option java_package = "com.google.datastore.v1";
+option java_outer_classname = "DatastoreAdminProto";
+option java_multiple_files = true;
+option csharp_namespace = "Google.Cloud.Datastore.V1";
+
+enum OperationType {
+  OPERATION_TYPE_UNSPECIFIED = 0;
+  EXPORT_ENTITIES = 1;
+  IMPORT_ENTITIES = 2;
+  BUILD_INDEX = 3;
+  CLEAR_INDEX = 4;
+}
+
+message CommonMetadata {
+  .google.protobuf.Timestamp start_time = 1;
+  .google.protobuf.Timestamp end_time = 2;
+  .google.datastore.v1.OperationType operation_type = 3;
+  map<string, string> labels = 4;
+  bool cancelling = 5;
+}
+
+message Progress {
+  int64 work_completed = 1;
+  int64 work_estimated = 2;
+}
+
+message Database {
+  string project_id = 1;
+  string database_id = 2;
+  string instance_id = 3;
+}
+
+message GetDatabaseRequest {
+  string project_id = 1;
+  string database_id = 2;
+}
+
+message ListDatabasesRequest {
+  string project_id = 1;
+  int32 page_size = 2;
+  bytes page_token = 3;
+}
+
+message ListDatabasesResponse {
+  repeated .google.datastore.v1.Database databases = 1;
+  bytes next_page_token = 2;
+}
+
+message DeleteDatabaseRequest {
+  string project_id = 1;
+  string database_id = 2;
+}
+
+message ExportEntitiesRequest {
+  string project_id = 1;
+  string database_id = 5;
+  map<string, string> labels = 2;
+  .google.datastore.v1.EntityFilter entity_filter = 3;
+  string destination = 4;
+}
+
+message ImportEntitiesRequest {
+  string project_id = 1;
+  string database_id = 5;
+  map<string, string> labels = 2;
+  string data_location = 3;
+  .google.datastore.v1.EntityFilter entity_filter = 4;
+}
+
+message ExportEntitiesResponse {
+  string data_location = 1;
+}
+
+message ExportEntitiesMetadata {
+  .google.datastore.v1.CommonMetadata common = 1;
+  .google.datastore.v1.Progress progress_entities = 2;
+  .google.datastore.v1.Progress progress_bytes = 3;
+  .google.datastore.v1.EntityFilter entity_filter = 4;
+  string destination = 5;
+}
+
+message ImportEntitiesMetadata {
+  .google.datastore.v1.CommonMetadata common = 1;
+  .google.datastore.v1.Progress progress_entities = 2;
+  .google.datastore.v1.Progress progress_bytes = 3;
+  .google.datastore.v1.EntityFilter entity_filter = 4;
+  string data_location = 5;
+}
+
+message EntityFilter {
+  repeated string kinds = 1;
+  repeated string namespace_ids = 2;
+}
+
+message GetIndexRequest {
+  string project_id = 1;
+  string database_id = 2;
+  string index_id = 3;
+}
+
+message ListIndexesRequest {
+  string project_id = 1;
+  string database_id = 2;
+  string filter = 3;
+  int32 page_size = 4;
+  bytes page_token = 5;
+}
+
+message ListIndexesResponse {
+  repeated .google.datastore.v1.Index indexes = 1;
+  bytes next_page_token = 2;
+}
+
+message LookupIndexRequest {
+  string project_id = 1;
+  string database_id = 2;
+  .google.datastore.v1.IndexDefinition index_definition = 3;
+}
+
+message UpdateIndexMetadata {
+  .google.datastore.v1.CommonMetadata common = 1;
+  string index_id = 2;
+  .google.datastore.v1.IndexDefinition index_definition = 3;
+}
+
+service DatastoreAdmin {
+  rpc ExportEntities(.google.datastore.v1.ExportEntitiesRequest) returns (.google.longrunning.Operation);
+  rpc ImportEntities(.google.datastore.v1.ImportEntitiesRequest) returns (.google.longrunning.Operation);
+  rpc UpdateIndex(.google.datastore.v1.Index) returns (.google.longrunning.Operation);
+  rpc ListIndexes(.google.datastore.v1.ListIndexesRequest) returns (.google.datastore.v1.ListIndexesResponse);
+  rpc GetIndex(.google.datastore.v1.GetIndexRequest) returns (.google.datastore.v1.Index);
+  rpc LookupIndex(.google.datastore.v1.LookupIndexRequest) returns (.google.datastore.v1.Index);
+  rpc CreateDatabase(.google.datastore.v1.Database) returns (.google.datastore.v1.Database);
+  rpc GetDatabase(.google.datastore.v1.GetDatabaseRequest) returns (.google.datastore.v1.Database);
+  rpc ListDatabases(.google.datastore.v1.ListDatabasesRequest) returns (.google.datastore.v1.ListDatabasesResponse);
+  rpc DeleteDatabase(.google.datastore.v1.DeleteDatabaseRequest) returns (.google.protobuf.Empty);
+}
+

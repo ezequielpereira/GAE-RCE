@@ -1,0 +1,103 @@
+syntax = "proto2";
+
+import "net/base/qos.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+
+message RPCFlags {
+  enum Flags {
+    REQUEST_COMPRESSION_ZIPPY = 1;
+    DUPLICATE_SUPPRESSION = 2;
+    STREAMING = 4;
+    FAIL_FAST = 8;
+    RESPONSE_COMPRESSION_ZIPPY = 16;
+    REQUEST_COMPRESSION_GIPFELI = 32;
+    RESPONSE_COMPRESSION_GIPFELI = 64;
+    BIDIRECTIONAL_STREAMING = 128;
+  }
+}
+
+message RPCClientRequestInfo {
+  required int32 size_bytes_wire = 1;
+  optional int32 size_bytes_app = 2;
+  optional int32 protocol = 10 [default = 0];
+  optional int32 security_level = 3;
+  optional int32 server_ip = 4;
+  optional bytes server_ip46 = 12;
+  optional int32 server_port = 5;
+  optional int32 client_port = 11;
+  optional double enqueue_time = 7;
+  optional double deadline = 8;
+  optional int32 flags = 9 [default = 1];
+  optional string message = 100;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.RPCClientRequestInfo message_set_extension = 6120541;
+  }
+}
+
+message RPCServerProcessingInfo {
+  optional double server_start_time = 3;
+  optional double server_elapsed_time = 4;
+}
+
+message RPCClientResponseInfo {
+  required int32 size_bytes_wire = 1;
+  optional int32 size_bytes_app = 5;
+  optional int32 status = 2 [default = 0];
+  optional int32 security_level = 4;
+  optional .perftools.tracing.RPCServerProcessingInfo server_info = 3;
+  optional double client_receive_time = 6;
+  optional int32 num_responses = 7;
+  optional .net_base.qos.TrafficClass rcvd_traffic_class = 8;
+  optional bool rcvd_b4_path_selector = 9;
+  optional float query_cost = 10;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.RPCClientResponseInfo message_set_extension = 6128373;
+  }
+}
+
+message RPCServerRequestInfo {
+  required int32 size_bytes_wire = 1;
+  optional int32 size_bytes_app = 2;
+  optional int32 protocol = 7 [default = 0];
+  optional int32 security_level = 3;
+  optional int32 client_ip = 4;
+  optional bytes client_ip46 = 12;
+  optional int32 client_port = 5;
+  optional int32 server_port = 9;
+  optional double deadline = 6;
+  optional double server_receive_time = 8;
+  optional .net_base.qos.TrafficClass rcvd_traffic_class = 10;
+  optional bool rcvd_b4_path_selector = 11;
+  optional string message = 100;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.RPCServerRequestInfo message_set_extension = 6131050;
+  }
+}
+
+message RPCServerResponseInfo {
+  required int32 size_bytes_wire = 1;
+  optional int32 size_bytes_app = 5;
+  optional double enqueue_time = 2;
+  optional .perftools.tracing.RPCServerProcessingInfo processing_info = 3;
+  optional int32 flags = 4 [default = 1];
+  optional int32 num_responses = 6;
+  optional float query_cost = 7;
+  optional string message = 100;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.RPCServerResponseInfo message_set_extension = 6145233;
+  }
+}
+
+message RPCStreamingResponseInfo {
+  required int32 size_bytes_app = 1;
+  required int32 size_bytes_wire = 2;
+  optional int32 seqno = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.RPCStreamingResponseInfo message_set_extension = 6815927;
+  }
+}
+
+

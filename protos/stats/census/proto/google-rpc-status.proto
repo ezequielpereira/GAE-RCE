@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+package stats_census;
+
+option java_package = "com.google.tracing";
+option java_outer_classname = "StatusProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/rpc/status;status";
+option cc_enable_arenas = true;
+option objc_class_prefix = "RPC";
+
+message Status {
+  int32 code = 1;
+  string message = 2;
+  repeated .google.protobuf.Any details = 3;
+}
+
+

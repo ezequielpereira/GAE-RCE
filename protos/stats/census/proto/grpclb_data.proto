@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option java_outer_classname = "GrpclbData";
+
+message ViewDataProto {
+  message TableRow {
+    repeated string tag_values = 1;
+    repeated double data = 2;
+  }
+  optional bool rate_limited = 1;
+  optional bool data_dropped = 2;
+  repeated .stats_census.ViewDataProto.TableRow op_start_table = 3;
+  repeated .stats_census.ViewDataProto.TableRow op_end_table = 4;
+  repeated .stats_census.ViewDataProto.TableRow cost_table = 5;
+}
+
+

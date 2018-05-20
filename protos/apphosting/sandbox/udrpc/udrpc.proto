@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package udrpc;
+
+message UdrpcFieldExtensions {
+  optional bool fd = 1;
+}
+
+message UdrpcFileExtensions {
+  optional bool stubby_compatibility = 1;
+}
+
+extend .proto2.FieldOptions {
+  optional .udrpc.UdrpcFieldExtensions options = 1006;
+}
+
+extend .proto2.FileOptions {
+  optional .udrpc.UdrpcFileExtensions file_options = 1006;
+}
+
+

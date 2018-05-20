@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "google/api/visibility.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "FilteringProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+enum FilterType {
+  UNKNOWN_FIELD_FILTER = 0;
+  VISIBILITY_FILTER = 1;
+}
+
+message Filtering {
+  repeated .google.api.FilterRule rules = 1;
+}
+
+message FilterRule {
+  string selector = 1;
+  repeated .google.api.FilterType skip_filters = 2;
+}
+

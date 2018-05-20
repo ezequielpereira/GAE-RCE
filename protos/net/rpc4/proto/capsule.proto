@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package net.rpc4;
+
+enum CapsuleType {
+  EMPTY_CAPSULE = 0;
+  PAYLOAD_CAPSULE = 1;
+  V1_HEADER_CAPSULE = 100;
+  V1_HEADER_EXTENSION_CAPSULE = 101;
+}
+
+

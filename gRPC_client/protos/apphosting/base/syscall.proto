@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "SyscallPb";
+
+message Registers {
+  required uint64 bx = 1;
+  required uint64 cx = 2;
+  required uint64 dx = 3;
+  required uint64 si = 4;
+  required uint64 di = 5;
+  required uint64 bp = 6;
+  required uint64 ax = 7;
+  required uint64 ds = 8;
+  required uint64 es = 9;
+  required uint64 fs = 10;
+  required uint64 gs = 11;
+  required uint64 orig_ax = 12;
+  required uint64 ip = 13;
+  required uint64 cs = 14;
+  required uint64 flags = 15;
+  required uint64 sp = 16;
+  required uint64 ss = 17;
+  optional uint64 fs_base = 18;
+  optional uint64 gs_base = 19;
+  optional uint64 r8 = 20;
+  optional uint64 r9 = 21;
+  optional uint64 r10 = 22;
+  optional uint64 r11 = 23;
+  optional uint64 r12 = 24;
+  optional uint64 r13 = 25;
+  optional uint64 r14 = 26;
+  optional uint64 r15 = 27;
+}
+
+message SyscallEventInfo {
+  enum Event {
+    NO_EVENT = 0;
+    ALLOWED = 1;
+    DENIED = 2;
+    ERRORED = 3;
+    SERIOUS_PROBLEM = 4;
+    UNIMPLEMENTED = 5;
+  }
+  required uint64 pid = 1;
+  optional .apphosting.SyscallEventInfo.Event event = 2 [default = NO_EVENT];
+  required uint64 syscall = 3;
+  required .apphosting.Registers registers = 4;
+  optional string message = 5;
+  required double event_time = 6;
+  optional string stack_trace = 7;
+  optional string runtime_id = 8;
+  optional string app_version_id = 9;
+  optional string hostname = 10;
+  optional string bns = 11;
+}
+

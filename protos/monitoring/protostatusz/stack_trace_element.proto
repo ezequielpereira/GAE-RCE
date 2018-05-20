@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+option java_package = "com.google.monitoring.protostatusz";
+option java_outer_classname = "StackTraceElementOuterClass";
+option java_multiple_files = true;
+
+message StackTraceElementProto {
+  enum LANGUAGE {
+    JAVA = 1;
+    CPP = 2;
+    PYTHON = 3;
+  }
+  required bytes ClassName = 1;
+  required bytes MethodName = 2;
+  optional bytes FileName = 3;
+  required int32 LineNumber = 4;
+  optional .StackTraceElementProto.LANGUAGE Language = 5 [default = JAVA];
+}
+

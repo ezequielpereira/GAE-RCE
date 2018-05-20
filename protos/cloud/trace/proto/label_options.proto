@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package cloud_trace;
+
+option java_package = "com.google.protos.cloud.trace";
+
+message LabelOptions {
+  optional string key = 1;
+  optional bool is_hash_id = 2;
+  extend .proto2.FieldOptions {
+    optional .cloud_trace.LabelOptions ext = 110382012;
+  }
+}
+

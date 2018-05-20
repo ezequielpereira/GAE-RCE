@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package ccc_socialgraph;
+
+option java_package = "com.google.protos.ccc.socialgraph";
+option cc_enable_arenas = true;
+
+message SgnNode {
+  required string sgn_domain = 1;
+  optional string sgn_pk = 2;
+  optional string sgn_ident = 3;
+}
+
+

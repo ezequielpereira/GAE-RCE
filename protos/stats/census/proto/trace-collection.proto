@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "stats/census/proto/google-trace.proto";
+package stats_census;
+
+option java_package = "com.google.tracing";
+option java_outer_classname = "TraceCollectionProto";
+option cc_enable_arenas = true;
+
+message Tag {
+  string key = 1;
+  string value = 2;
+}
+
+message GetRequestzRequest {
+  string proxied_user = 1;
+  string service_name = 2;
+  string method_name = 3;
+  double latency_lower_bound_sec = 4;
+  double latency_upper_bound_sec = 5;
+  repeated .stats_census.Tag census_tags = 6;
+  int32 max_ops_to_return = 7;
+  bool fetch_active_ops = 8;
+  bool fetch_succeeded_ops = 9;
+  bool fetch_errored_ops = 10;
+}
+
+message GetRequestzResponse {
+  repeated .stats_census.Trace traces = 1;
+}
+
+message BorgCellToCollectorCellMap {
+  map<string, string> borg_cell_to_collector_cell = 1;
+}
+
+

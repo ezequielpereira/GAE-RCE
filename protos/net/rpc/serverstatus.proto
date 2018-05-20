@@ -1,0 +1,171 @@
+syntax = "proto2";
+
+import "stats/io/proto/expvar.proto";
+import "net/rpc/empty-message.proto";
+import "net/proto/protocoltype.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+import "stats/request/statsrequest.proto";
+import "net/rpc/descriptor.proto";
+package rpc;
+
+option java_package = "com.google.net.rpc.proto";
+
+message ServiceList {
+  option no_standard_descriptor_accessor = true;
+  repeated group Service = 1 {
+    option no_standard_descriptor_accessor = true;
+    required string name = 2;
+    required .RPC_ServiceDescriptor descriptor = 3;
+  }
+}
+
+message TypeRequest {
+  optional string type = 1;
+}
+
+message SymbolRequest {
+  optional string symbol = 1;
+}
+
+message ExtensionRequest {
+  optional string containing_type = 1;
+  optional int32 extension_number = 2;
+}
+
+message ExtensionBatchRequest {
+  repeated .rpc.ExtensionRequest extension_request = 1;
+}
+
+message TypeIdRequest {
+  required int32 type_id = 1;
+}
+
+message FileNameRequest {
+  optional string filename = 1;
+}
+
+message ExtensionNumbersResponse {
+  repeated int32 extension_number = 1;
+}
+
+message ProtocolDescriptorList {
+  option no_standard_descriptor_accessor = true;
+  repeated .ProtocolDescriptor descriptor = 1;
+}
+
+message VarzRequest {
+  repeated string var = 1;
+}
+
+message FlagsRequest {
+  repeated string flag = 1;
+}
+
+message PerfRequest {
+  enum TYPE {
+    BY_METHOD = 0;
+    BY_SERVER = 1;
+    BY_CLIENT = 2;
+    BACKENDS = 3;
+  }
+  optional .rpc.PerfRequest.TYPE type = 1 [default = BY_METHOD];
+}
+
+message PerfResponseErrorCount {
+  required int32 status = 1;
+  required int64 count = 2;
+}
+
+message PerfResponseStats {
+  required int64 count = 2;
+  required int32 latency = 3;
+  required int32 max_latency = 4;
+  required float rate = 5;
+  required float arg_bytes_rate = 6;
+  required float result_bytes_rate = 7;
+  required float uncompressed_result_bytes_rate = 8;
+  required int64 rpc_errors = 9;
+  required int64 app_errors = 10;
+  optional float server_elapsed_deprecated = 11;
+  optional int64 retransmissions = 12;
+  optional int64 duplicates = 13;
+  optional int64 latency_sum_msec = 14;
+  optional int64 server_latency_sum_msec = 15;
+  optional int64 interval_msec = 16;
+  optional int64 request_bytes_sum = 17;
+  optional int64 response_bytes_sum = 18;
+  optional int64 uncompressed_response_bytes_sum = 19;
+  repeated .rpc.PerfResponseErrorCount error_count = 20;
+  optional int64 uncompressed_request_bytes_sum = 21;
+  optional float uncompressed_arg_bytes_rate = 22;
+  optional int64 count_ipv4 = 23;
+  optional int64 count_ipv6 = 24;
+  optional int64 count_other = 25;
+  optional int64 local_stall_time_sum_msec = 26;
+}
+
+message PerfResponseGroupRow {
+  required string name = 1;
+  required .rpc.PerfResponseStats minute = 2;
+  required .rpc.PerfResponseStats hour = 3;
+  required .rpc.PerfResponseStats total = 4;
+}
+
+message PerfResponseGroup {
+  required string name = 1;
+  required .rpc.PerfResponseGroupRow total = 2;
+  repeated .rpc.PerfResponseGroupRow row = 3;
+}
+
+message PerfResponseCategory {
+  optional string name = 1;
+  repeated .rpc.PerfResponseGroup group = 2;
+}
+
+message PerfResponse {
+  repeated .rpc.PerfResponseCategory category = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .rpc.PerfResponse message_set_extension = 7620611;
+  }
+}
+
+message LatencyHistogramsRequest {
+  enum TYPE {
+    ALL = 0;
+  }
+  optional .rpc.LatencyHistogramsRequest.TYPE type = 1 [default = ALL];
+}
+
+message LatencyHistogramsResponse {
+  repeated .statsrequest.LatencyHistogramsForFamily family = 1;
+}
+
+message FlagRequest {
+  optional .EV_KeyValuePair flag = 1;
+}
+
+message FlagResponse {
+}
+
+service ServerStatus {
+  rpc GetExportedVariables(.EmptyMessage) returns (.EV_KeyValueList);
+  rpc GetNamedVariables(.rpc.VarzRequest) returns (.EV_KeyValueList);
+  rpc GetFlags(.rpc.FlagsRequest) returns (.EV_KeyValueList);
+  rpc SetFlag(.rpc.FlagRequest) returns (.rpc.FlagResponse);
+  rpc GetServices(.EmptyMessage) returns (.rpc.ServiceList);
+  rpc GetFileByName(.rpc.FileNameRequest) returns (.rpc.FileDescriptorProtoResponse);
+  rpc GetFileContainingSymbol(.rpc.SymbolRequest) returns (.rpc.FileDescriptorProtoResponse);
+  rpc GetFileContainingExtension(.rpc.ExtensionRequest) returns (.rpc.FileDescriptorProtoResponse);
+  rpc GetAllExtensionNumbers(.rpc.TypeRequest) returns (.rpc.ExtensionNumbersResponse);
+  rpc GetFileDescriptorSetForFileName(.rpc.FileNameRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetFileDescriptorSetForSymbol(.rpc.SymbolRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetFileDescriptorSetForAllExtensions(.rpc.TypeRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetFileDescriptorSetForExtensions(.rpc.ExtensionBatchRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetType(.rpc.TypeRequest) returns (.ProtocolDescriptor);
+  rpc GetTypeById(.rpc.TypeIdRequest) returns (.ProtocolDescriptor);
+  rpc GetTypesByFileName(.rpc.FileNameRequest) returns (.rpc.ProtocolDescriptorList);
+  rpc GetPerf(.rpc.PerfRequest) returns (.rpc.PerfResponse);
+  rpc GetLatencyHistograms(.rpc.LatencyHistogramsRequest) returns (.rpc.LatencyHistogramsResponse);
+  rpc GetRequestz(.statsrequest.GetRequestzRequest) returns (.statsrequest.GetRequestzResponse);
+}
+

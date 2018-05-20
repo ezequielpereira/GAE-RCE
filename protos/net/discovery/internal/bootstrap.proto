@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package net_discovery;
+
+message ClientID {
+  optional bytes addr = 1;
+  optional bytes user = 2;
+  optional bytes zone = 3;
+  optional bytes task = 4;
+  optional uint64 build_timestamp = 5;
+}
+
+message NetworkConfigRequest {
+  enum Operation {
+    JOIN = 0;
+    WATCH = 1;
+  }
+  optional bytes partition = 1;
+  optional .net_discovery.NetworkConfigRequest.Operation operation = 2;
+}
+
+message BootstrapRequest {
+  enum Kind {
+    PARTITION_TABLE = 0;
+    NETWORK_CONFIG = 1;
+  }
+  required .net_discovery.BootstrapRequest.Kind kind = 1;
+  optional .net_discovery.ClientID client_id = 2;
+  optional .net_discovery.NetworkConfigRequest network_config = 3;
+}
+
+

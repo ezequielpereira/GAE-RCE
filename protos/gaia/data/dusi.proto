@@ -1,0 +1,44 @@
+syntax = "proto2";
+
+import "logs/proto/gaia/dusi.proto";
+package gaia_data;
+
+option java_package = "com.google.gaia.data.proto";
+option cc_enable_arenas = true;
+
+message DeviceUserSessionEnvelope {
+  optional .gaia_data.DeviceUserSession UserSession = 1;
+}
+
+message DeviceUserSession {
+  enum DeviceType {
+    ANDROID = 0;
+    IOS = 1;
+    UNSPECIFIED = 2;
+    WINDOWS = 3;
+    BLACKBERRY = 4;
+    CHROME = 5;
+    SERVICE_ACCOUNT = 6;
+    SONY_PSN = 7;
+    CHROME_PLAYPEN = 8;
+    OSX_SYSTEM = 9;
+    IOS_SYSTEM = 10;
+    ROKU = 11;
+    FIBER_VOICE = 12;
+    GOOGLE_CLOUD_DEVICE = 13;
+    ARC_PLUS_PLUS = 14;
+    JAMBOARD = 15;
+  }
+  optional .logs.proto.gaia.DeviceUserSessionIdProto key = 1;
+  optional int64 creation_timestamp_micro = 2;
+  optional int32 type = 3;
+  optional string device_id = 4;
+  optional string device_name = 5;
+  optional string device_model = 6;
+}
+
+message DusiGenerationInputs {
+  optional int64 gaps_value = 1;
+}
+
+

@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+import "security/credentials/proto/principal.proto";
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+
+message Loas2Delegation {
+  optional .security.credentials.PrincipalProto role = 1;
+}
+
+

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "net/rpc/contrib/rpcinjectz2/rpcinjectz2.proto";
+package net.rpc.rpcinjectz2;
+
+option java_package = "com.google.net.rpc.contrib.rpcinjectz2";
+option java_outer_classname = "RpcInjectz2ServiceProto";
+
+service RPCInjectz2Service {
+  rpc CreateRule(.net.rpc.rpcinjectz2.CreateRuleReq) returns (.net.rpc.rpcinjectz2.CreateRuleResp);
+  rpc BatchCreateRules(.net.rpc.rpcinjectz2.BatchCreateRulesReq) returns (.net.rpc.rpcinjectz2.BatchCreateRulesResp);
+  rpc DeleteRule(.net.rpc.rpcinjectz2.DeleteRuleReq) returns (.net.rpc.rpcinjectz2.DeleteRuleResp);
+  rpc DeleteAllRules(.net.rpc.rpcinjectz2.DeleteAllRulesReq) returns (.net.rpc.rpcinjectz2.DeleteAllRulesResp);
+  rpc LookupRule(.net.rpc.rpcinjectz2.LookupRuleReq) returns (.net.rpc.rpcinjectz2.LookupRuleResp);
+  rpc LookupAllRules(.net.rpc.rpcinjectz2.LookupAllRulesReq) returns (.net.rpc.rpcinjectz2.LookupAllRulesResp);
+}
+

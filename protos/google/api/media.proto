@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "MediaProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/annotations;annotations";
+option cc_enable_arenas = true;
+option objc_class_prefix = "GAPI";
+
+message MediaUpload {
+  bool enabled = 3;
+  string upload_service = 4;
+  string dropzone = 5;
+  repeated string mime_types = 6;
+  int64 max_size = 7;
+  bool start_notification = 8;
+  bool progress_notification = 9;
+  bool complete_notification = 10;
+}
+
+message MediaDownload {
+  bool enabled = 1;
+  string download_service = 2;
+  string dropzone = 3;
+  bool complete_notification = 4;
+  bool use_direct_download = 5;
+  int64 max_direct_download_size = 6;
+}
+
+

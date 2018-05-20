@@ -1,0 +1,196 @@
+syntax = "proto2";
+
+package storage_onestore_v3;
+
+option java_package = "com.google.storage.onestore.v3";
+option java_outer_classname = "OnestoreEntity";
+option go_package = "storage_onestore_v3";
+
+message PropertyValue {
+  optional int64 int64Value = 1;
+  optional bool booleanValue = 2;
+  optional string stringValue = 3;
+  optional double doubleValue = 4;
+  optional group PointValue = 5 {
+    required double x = 6;
+    required double y = 7;
+  }
+  optional group UserValue = 8 {
+    required string email = 9;
+    required string auth_domain = 10;
+    optional string nickname = 11;
+    required int64 gaiaid = 18;
+    optional string obfuscated_gaiaid = 19;
+    optional string federated_identity = 21;
+    optional string federated_provider = 22;
+  }
+  optional group ReferenceValue = 12 {
+    required string app = 13;
+    optional string name_space = 20;
+    repeated group PathElement = 14 {
+      required string type = 15;
+      optional int64 id = 16;
+      optional string name = 17;
+    }
+    optional string database_id = 23;
+  }
+}
+
+message Property {
+  enum Meaning {
+    NO_MEANING = 0;
+    BLOB = 14;
+    TEXT = 15;
+    BYTESTRING = 16;
+    ATOM_CATEGORY = 1;
+    ATOM_LINK = 2;
+    ATOM_TITLE = 3;
+    ATOM_CONTENT = 4;
+    ATOM_SUMMARY = 5;
+    ATOM_AUTHOR = 6;
+    GD_WHEN = 7;
+    GD_EMAIL = 8;
+    GEORSS_POINT = 9;
+    GD_IM = 10;
+    GD_PHONENUMBER = 11;
+    GD_POSTALADDRESS = 12;
+    GD_RATING = 13;
+    BLOBKEY = 17;
+    ENTITY_PROTO = 19;
+    INDEX_VALUE = 18;
+    EMPTY_LIST = 24;
+  }
+  optional .storage_onestore_v3.Property.Meaning meaning = 1 [default = NO_MEANING];
+  optional string meaning_uri = 2;
+  required string name = 3;
+  required .storage_onestore_v3.PropertyValue value = 5;
+  required bool multiple = 4;
+  optional int32 stashed = 6 [default = -1];
+  optional bool computed = 7 [default = false];
+}
+
+message Path {
+  repeated group Element = 1 {
+    required string type = 2;
+    optional int64 id = 3;
+    optional string name = 4;
+  }
+}
+
+message Reference {
+  required string app = 13;
+  optional string name_space = 20;
+  required .storage_onestore_v3.Path path = 14;
+  optional string database_id = 23;
+}
+
+message User {
+  required string email = 1;
+  required string auth_domain = 2;
+  optional string nickname = 3;
+  required int64 gaiaid = 4;
+  optional string obfuscated_gaiaid = 5;
+  optional string federated_identity = 6;
+  optional string federated_provider = 7;
+}
+
+message EntityProto {
+  enum Kind {
+    GD_CONTACT = 1;
+    GD_EVENT = 2;
+    GD_MESSAGE = 3;
+  }
+  required .storage_onestore_v3.Reference key = 13;
+  required .storage_onestore_v3.Path entity_group = 16;
+  optional .storage_onestore_v3.User owner = 17;
+  optional .storage_onestore_v3.EntityProto.Kind kind = 4;
+  optional string kind_uri = 5;
+  repeated .storage_onestore_v3.Property property = 14;
+  repeated .storage_onestore_v3.Property raw_property = 15;
+}
+
+message EntityMetadata {
+  optional int64 created_version = 1;
+  optional int64 updated_version = 2;
+}
+
+message CompositeProperty {
+  required int64 index_id = 1;
+  repeated string value = 2;
+}
+
+message Index {
+  enum Version {
+    VERSION_UNSPECIFIED = 0;
+    V1 = 1;
+    V2 = 2;
+  }
+  required string entity_type = 1;
+  required bool ancestor = 5;
+  optional bool parent = 7;
+  optional .storage_onestore_v3.Index.Version version = 8 [default = VERSION_UNSPECIFIED];
+  repeated group Property = 2 {
+    enum Direction {
+      DIRECTION_UNSPECIFIED = 0;
+      ASCENDING = 1;
+      DESCENDING = 2;
+    }
+    enum Mode {
+      MODE_UNSPECIFIED = 0;
+      GEOSPATIAL = 3;
+    }
+    required string name = 3;
+    optional .storage_onestore_v3.Index.Property.Direction direction = 4 [default = DIRECTION_UNSPECIFIED];
+    optional .storage_onestore_v3.Index.Property.Mode mode = 6 [default = MODE_UNSPECIFIED];
+  }
+}
+
+message CompositeIndex {
+  enum State {
+    WRITE_ONLY = 1;
+    READ_WRITE = 2;
+    DELETED = 3;
+    ERROR = 4;
+  }
+  enum WorkflowState {
+    PENDING = 1;
+    ACTIVE = 2;
+    COMPLETED = 3;
+  }
+  required string app_id = 1;
+  optional string database_id = 12;
+  required int64 id = 2;
+  required .storage_onestore_v3.Index definition = 3;
+  required .storage_onestore_v3.CompositeIndex.State state = 4;
+  optional .storage_onestore_v3.CompositeIndex.WorkflowState workflow_state = 10;
+  optional string error_message = 11;
+  optional bool only_use_if_required = 6 [default = false];
+  optional bool disabled_index = 9 [default = false];
+  repeated string deprecated_read_division_family = 7;
+  optional string deprecated_write_division_family = 8;
+}
+
+message SearchIndexEntry {
+  required int64 index_id = 1;
+  required string write_division_family = 2;
+  optional fixed64 fingerprint_1999 = 3;
+  optional fixed64 fingerprint_2011 = 4;
+}
+
+message IndexPostfix {
+  message IndexValue {
+    required string property_name = 1;
+    required .storage_onestore_v3.PropertyValue value = 2;
+  }
+  repeated .storage_onestore_v3.IndexPostfix.IndexValue index_value = 1;
+  optional .storage_onestore_v3.Reference key = 2;
+  optional bool before = 3 [default = true];
+  optional bool before_ascending = 4;
+}
+
+message IndexPosition {
+  optional string key = 1;
+  optional bool before = 2 [default = true];
+  optional bool before_ascending = 3;
+}
+

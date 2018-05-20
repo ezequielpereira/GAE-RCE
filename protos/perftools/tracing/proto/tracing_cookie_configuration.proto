@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package perftools.tracing;
+
+option java_multiple_files = true;
+
+message ClientRootedTracingCookieConfiguration {
+  optional bool issue_cookies = 1 [default = false];
+  optional bool accept_cookies = 2 [default = true];
+  optional int32 immediate_use_lifetime_secs = 3 [default = 60];
+  optional int32 deferred_use_lifetime_secs = 4 [default = 300];
+  optional int32 logging_window_secs = 5 [default = 300];
+  optional int32 priority = 6 [default = 0];
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.ClientRootedTracingCookieConfiguration message_set_extension = 16498872;
+  }
+}
+
+

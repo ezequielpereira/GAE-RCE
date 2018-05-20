@@ -1,0 +1,63 @@
+syntax = "proto2";
+
+package net.rpc4;
+
+option java_outer_classname = "Rpc4ServiceConfig";
+
+message StubbyPartCfg {
+  repeated .net.rpc4.ServiceConfig service = 1;
+}
+
+message ServiceConfig {
+  optional string name = 1;
+  optional .net.rpc4.ChannelConfig channel_config = 2;
+  repeated .net.rpc4.MethodConfig method_config = 3;
+  optional .net.rpc4.DistributionConfig distribution_config = 4;
+}
+
+message ChannelConfig {
+  enum LoadBalancingPolicy {
+    AUTOMATIC_LB_POLICY = 0;
+    ROUND_ROBIN_LB_POLICY = 1;
+    SLICER_LB_POLICY = 2;
+  }
+  enum SubsettingPolicy {
+    AUTOMATIC_SUBSETTING = 0;
+    DISABLED_SUBSETTING = 1;
+    DETERMINISTIC_SUBSETTING = 2;
+  }
+  enum SecurityLevel {
+    NO_LOAS_SECURITY_LEVEL = -1;
+    AUTOMATIC_SECURITY_LEVEL = 0;
+    NONE_SECURITY_LEVEL = 1;
+    INTEGRITY_SECURITY_LEVEL = 2;
+    PRIVACY_AND_INTEGRITY_SECURITY_LEVEL = 3;
+    STRONG_PRIVACY_AND_INTEGRITY_SECURITY_LEVEL = 4;
+  }
+  optional .net.rpc4.ChannelConfig.LoadBalancingPolicy load_balancing_policy = 1 [default = AUTOMATIC_LB_POLICY];
+  optional .net.rpc4.ChannelConfig.SubsettingPolicy subsetting_policy = 2 [default = AUTOMATIC_SUBSETTING];
+  optional int64 subset_size = 3;
+  optional double failure_detection_delay = 4;
+  optional double max_idle_failure_detection_delay = 5;
+  optional double idle_shutdown_delay = 6;
+  optional double connection_timeout_delay = 7;
+  optional .net.rpc4.ChannelConfig.SecurityLevel min_security_level = 10 [default = AUTOMATIC_SECURITY_LEVEL];
+  optional string temp_target = 9;
+}
+
+message MethodConfig {
+  repeated string name = 1;
+  optional bool fail_fast = 2;
+  optional double deadline = 3;
+  optional int32 max_request_message_bytes = 4;
+  optional int32 max_response_message_bytes = 5;
+  optional int64 max_bytes_in_flight_from_client = 6;
+  optional int64 max_bytes_in_flight_from_server = 7;
+  optional bool end_user_creds_requested = 8 [default = false];
+}
+
+message DistributionConfig {
+  optional double temp_jitter_time = 4;
+}
+
+

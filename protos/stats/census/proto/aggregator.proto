@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+import "monitoring/streamz/proto/distribution.proto";
+import "google/protobuf/timestamp.proto";
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option java_outer_classname = "Aggregator";
+
+message AggregatedDataMapProto {
+  message TableRow {
+    optional string view_tags = 1;
+    optional .google.protobuf.Timestamp reset_timestamp = 2;
+    optional double data = 3;
+    optional .monitoring.streamz.DistributionProto distribution = 4;
+  }
+  repeated .stats_census.AggregatedDataMapProto.TableRow entries = 1;
+  optional .google.protobuf.Timestamp get_stats_timestamp = 2;
+}
+
+

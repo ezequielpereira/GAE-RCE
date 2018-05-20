@@ -1,0 +1,496 @@
+syntax = "proto2";
+
+import "net/rpc/empty-message.proto";
+import "security/thinmint/proto/core/thinmint_core.proto";
+import "security/util/proto/permission.proto";
+option java_package = "com.google.net.loas.genfiles";
+
+message LOASProtoStatus {
+  enum CODE {
+    OK = 0;
+    BAD_AUTHENTICATOR = 1;
+    BAD_PEER_LOCAS_TOKEN = 2;
+    UNKNOWN_HOST_TO_HOST_KEY_VERSION = 3;
+    REPLAY_OF_LOCAS_TOKEN = 4;
+    BAD_SERVER_HOSTNAME = 5;
+    BAD_CLIENT_HOSTNAME = 6;
+    BAD_ENCRYPTED_APP_KEY = 7;
+    NO_HOST_TO_HOST_KEY = 8;
+    BAD_RSA_CERT_ENCODING = 9;
+    UNTRUSTED_RSA_CERT = 10;
+    BAD_RSA_CERT_SUBJECT = 11;
+    PUBLIC_KEY_NOT_RSA = 12;
+    CLIENT_LOCAS_FAILED_TO_ESTAB_HOST_KEY = 13;
+    BAD_LOCAS_TICKET = 14;
+    OLD_LOCAS_TICKET = 15;
+    PEER_LOASD_SENT_ERROR = 17;
+    SERVER_BUSY_RETRY_LATER = 20;
+    BAD_REQUESTED_ROLE = 21;
+    CLIENT_LOCAS_FAILED_SERVER_LOCAS_BUSY = 22;
+    CLIENT_LOCAS_FAILED_SERVER_HOST_DOWN = 23;
+    CLIENT_LOCAS_FAILED_SERVER_LOCAS_BAD = 24;
+    CLIENT_LOCAS_FAILED_APP_DEADLINE_EXCEEDED = 25;
+    CLIENT_LOCAS_FAILED_BAD_LOCAL_CERT = 26;
+    SERVER_REVERSAL_RATE_EXCEEDED = 27;
+    SERVER_BUSY_REVERSAL_DENIED = 28;
+    BAD_PROOF = 29;
+    BAD_SHARED_SECRET = 30;
+    BAD_CLIENT_STATE = 35;
+    NO_LOCAS_COOKIE = 36;
+    SERVICE_UNAVAILABLE = 37;
+    INTERNAL_LOCAS_ERROR = 38;
+    NO_SUCH_USER = 39;
+    BAD_RSA_KEY_ENCODING = 40;
+    BAD_REGISTRATION = 41;
+    SERVER_LOCAS_FAILED_BAD_LOCAL_CERT = 42;
+    BAD_DESTROYKEY = 43;
+    SERVER_LOCAS_FAILED_APP_DEADLINE_EXCEEDED = 44;
+    NO_ROTATION_IN_CORP = 45;
+    AUTHENTICATION_FAILED = 46;
+    UNSUPPORTED_KEY_LENGTH = 47;
+    BAD_CERT = 48;
+    MISSING_CSR = 49;
+    BAD_REQUEST = 50;
+  }
+  optional int32 code = 1 [default = 0];
+  optional string error_detail = 2;
+}
+
+message LOASDelegationData {
+  required string client_app_name = 1;
+  required string proxy_username = 2;
+}
+
+message LOASDelegationToken {
+  required .LOASDelegationData data = 1;
+  required bytes mac = 2;
+  required uint64 issued_at = 3;
+}
+
+message LOASCompactHostname {
+  enum FORM {
+    UNKNOWN = 0;
+    CORP = 1;
+    PROD = 2;
+    IP = 3;
+  }
+  required .LOASCompactHostname.FORM form = 1;
+  required string hostname = 2;
+}
+
+message LOASServerSessionResumptionToken {
+  enum LOCAL_TYPE {
+    EMPTY = 0;
+    SAME_AS_USERNAME = 1;
+    CLIENT_PROVIDED = 2;
+  }
+  required string client_username = 1;
+  optional .AcctRestrictions client_restrictions = 12;
+  optional .LOASCompactHostname client_hostname = 2;
+  optional bool client_borgjob = 3 [default = true];
+  optional string client_borgcell = 4 [default = "corp"];
+  required bytes encrypted_session_resumption_key = 5;
+  required bytes nonce = 6;
+  optional int32 task_id = 7;
+  optional .LOASServerSessionResumptionToken.LOCAL_TYPE local_username_form = 8;
+  optional string jobname_chosen_by_client = 9;
+  optional bool client_ip_hashed = 10;
+  required bytes mac_token = 11;
+}
+
+message LOASSessionResumptionSharedState {
+  enum MAC {
+    HMAC = 1;
+    VMAC = 2;
+  }
+  optional .LOASSessionResumptionSharedState.MAC established_mac_scheme = 1 [default = VMAC];
+  required double token_expiry_time = 2;
+}
+
+message LOASClientResumptionToken {
+  required bytes server_resumption_token = 1;
+  required bytes server_client_shared_state = 2;
+  required double timestamp = 3;
+  required bytes nonce = 4;
+  required bytes encrypted_client_challenge = 5;
+  required string client_supplied_local_username = 6;
+  required string jobname_chosen_by_client = 7;
+}
+
+message LOASClientResumptionTokenWithMAC {
+  required bytes client_resumption_token = 1;
+  required bytes mac_token = 2;
+}
+
+message LOASServerResumptionResponse {
+  required bytes random_nonce = 1;
+  required bytes encrypted_new_session_key = 2;
+  required bytes mac_token = 3;
+}
+
+message ClientGetLocASHintReq {
+  required string magic_cookie_id = 1;
+  required bytes app_authenticator = 2;
+  required string server_app_name = 3;
+  required string server_ip = 4;
+  optional string server_hostname = 5;
+  optional string app_logging_name = 6;
+  optional string alternate_role = 9;
+  optional string alternate_cert_username = 10;
+  optional .LocASClientStateWithMAC client_state = 11;
+  optional int32 client_lib_version = 12 [default = 0];
+  optional int32 server_lib_version = 13 [default = 0];
+  optional bytes locas_token = 14;
+  optional bool handshake_complete = 15 [default = false];
+  optional int32 client_port = 16;
+  optional int32 server_port = 17;
+}
+
+message ClientGetLocASHintResp {
+  required bytes locas_authenticator = 1;
+  optional .LOASProtoStatus status = 2;
+  optional bytes locas_token = 3;
+  optional .LocASClientStateWithMAC client_state = 4;
+  optional bool handshake_complete = 5 [default = true];
+}
+
+message MACType {
+  enum MAC_ID {
+    HMAC_MD5 = 0;
+    VMAC_64_AES = 1;
+  }
+  optional int32 id = 1 [default = 0];
+}
+
+message CipherType {
+  enum CipherId {
+    AES_128_OFB = 0;
+    AES_128_CTR = 1;
+  }
+  optional int32 id = 1 [default = 0];
+}
+
+message ClientHello {
+  required bytes locas_token = 1;
+  required bytes app_nonce = 2;
+  optional int32 version = 3 [default = 0];
+  optional .MACType mac_type = 4;
+  optional bool handshake_complete = 6 [default = true];
+  optional int32 resumption_validity_period_preference_seconds = 7 [default = -1];
+  optional bytes session_resumption_token = 8;
+  optional bytes rollout_tracker = 9;
+  optional .CipherType cipher_type = 10;
+}
+
+message ServerGetNewSessionKeyReq {
+  required string magic_cookie_id = 1;
+  required bytes app_authenticator = 2;
+  optional bytes locas_token = 3;
+  required bytes client_app_nonce = 4;
+  optional string app_logging_name = 5;
+  optional int32 client_lib_version = 7 [default = 0];
+  optional int32 server_lib_version = 8 [default = 0];
+  optional bool handshake_complete = 9 [default = true];
+  optional bool disable_crl_check = 10 [default = false];
+  optional string alternate_role = 11;
+  optional bytes nonce = 13;
+  optional string alternate_cert_username = 14;
+  optional string client_address = 15;
+  optional int32 client_port = 16;
+  optional int32 server_port = 17;
+}
+
+message ServerGetNewSessionKeyResp {
+  required bytes locas_authenticator = 1;
+  optional .LOASProtoStatus status = 2;
+  optional string client_app_name = 3;
+  optional bytes session_key = 5;
+  optional bytes locas_token = 6;
+  optional string client_hostname = 7;
+  optional string client_unauthenticated_username = 10;
+  optional bool handshake_complete = 11 [default = true];
+  optional string client_owner = 12;
+  optional .AcctRestrictions client_restrictions = 13;
+}
+
+message ServerHello {
+  required bytes locas_token = 1;
+  optional .LOASProtoStatus status = 2;
+  optional int32 version = 3 [default = 0];
+  optional .MACType mac_type = 4;
+  optional bool handshake_complete = 6 [default = true];
+  optional bytes server_resumption_token = 7;
+  optional bytes shared_state = 8;
+  optional .LOASServerResumptionResponse resumption_response = 9;
+  optional .CipherType cipher_type = 10;
+}
+
+message ClientGetSessionKeyReq {
+  required string magic_cookie_id = 1;
+  required bytes app_authenticator = 2;
+  required bytes locas_token = 3;
+  required bytes client_app_nonce = 4;
+  optional string app_logging_name = 5;
+  optional bool server_full_authentication = 6;
+  optional string alternate_cert_username = 7;
+  optional .LocASClientStateWithMAC client_state = 8;
+  optional int32 client_lib_version = 9 [default = 0];
+  optional int32 server_lib_version = 10 [default = 0];
+  optional bool disable_crl_check = 11 [default = false];
+  optional string alternate_role = 12;
+  optional bytes nonce = 13;
+}
+
+message ClientGetSessionKeyResp {
+  required bytes locas_authenticator = 1;
+  optional .LOASProtoStatus status = 2;
+  optional bytes session_key = 3;
+  optional string server_app_name = 4;
+  optional string server_hostname = 5;
+  optional string server_cn = 6;
+  optional string server_owner = 8;
+  optional string server_unauthenticated_username = 9;
+  optional bytes client_ip_address = 10;
+  optional bytes server_ip_address = 11;
+  optional int32 client_port = 12;
+  optional int32 server_port = 13;
+}
+
+message LocAS2LocASTicketData {
+  required string client_locas_id = 1;
+  required string server_locas_id = 2;
+  required uint64 issued_at = 4;
+  optional uint64 expires_at = 5 [default = 2147483647];
+  required string client_key_id = 6;
+  required bytes encrypted_shared_secret = 7;
+  optional bytes rsa_encrypted_shared_secret_hash = 8;
+  optional int64 client_locas_serial = 9;
+  optional bytes client_restriction_set = 10;
+}
+
+message LocAS2LocASTicket {
+  required bytes data = 1;
+  required bytes mac = 2;
+}
+
+message LocASInfo {
+  optional int32 locas_version = 3 [default = 1];
+  optional bool reversal_enabled = 4 [default = false];
+}
+
+message LocAS2LocASKeyReq {
+  required string client_hostname = 1;
+  required string server_hostname = 2;
+  optional .LocASInfo locas_info = 3;
+  required string client_rsa_cert = 4;
+  required bytes client_key_id = 5;
+  optional string app_logging_name = 6;
+}
+
+message LocAS2LocASTmpCert {
+  required bytes tmp_pubkey = 1;
+  required string rsa_cert = 2;
+  required bytes rsa_sig = 3;
+}
+
+message LocAS2LocASTmpCertAndSig {
+  required .LocAS2LocASTmpCert tmp_cert = 1;
+  required bytes tmp_sig = 2;
+}
+
+message LocAS2LocASKeyResp {
+  optional .LOASProtoStatus status = 1;
+  optional .LocAS2LocASTicket ticket = 2;
+  optional bytes encrypted_shared_secret = 3;
+  optional bytes authenticator = 4;
+  optional .LocASInfo locas_info = 5;
+  optional .LocAS2LocASTmpCertAndSig tmp_cert_and_sig = 6;
+}
+
+message LocAS2LocASReverseKeyReqData {
+  required string client_hostname = 1;
+  required string server_hostname = 2;
+  optional .LocASInfo locas_info = 3;
+  required bytes encrypted_shared_secret = 4;
+  required bytes client_key_id = 5;
+  optional string app_logging_name = 6;
+}
+
+message LocAS2LocASReverseKeyReq {
+  required bytes data = 1;
+  required .LocAS2LocASTmpCertAndSig tmp_cert_and_sig = 2;
+}
+
+message LocAS2LocASReverseKeyResp {
+  optional .LOASProtoStatus status = 1;
+  optional .LocAS2LocASTicket ticket = 2;
+  optional bytes authenticator = 4;
+  optional .LocASInfo locas_info = 5;
+}
+
+message WarmupLocAS2LocASReq {
+  required string host = 1;
+}
+
+message LocAS2LocASError {
+  required .LOASProtoStatus status = 1;
+  optional string invalid_client_key_id = 2;
+  optional string server_locas_id = 3;
+}
+
+message BakeCookieReq {
+  required string username = 1;
+  required string principal = 2;
+  optional bytes update_authenticator = 3;
+}
+
+message KeyRegistration {
+  required string username = 1;
+  required string principal = 2;
+  required string cert_pem = 3;
+  required bytes encrypted_key_pem = 4;
+  required uint64 timestamp = 5;
+}
+
+message RegisterKeyReq {
+  required bytes registration_data = 1;
+  required bytes mac_token = 2;
+}
+
+message DestroyRequest {
+  required string username = 1;
+  required string principal = 2;
+}
+
+message DestroyKeyReq {
+  required bytes request_data = 1;
+  required bytes mac_token = 2;
+}
+
+message LocASKeyCertStorage {
+  required string username = 1;
+  required string principal = 2;
+  required bytes encrypted_key = 3;
+  required string pem_cert = 4;
+}
+
+message LocASToken {
+  required string client_hostname = 1;
+  required string server_hostname = 2;
+  optional string client_app_name = 3;
+  optional string server_app_name = 4;
+  optional bytes client_app_nonce = 5;
+  optional int32 host_key_version = 6 [default = 0];
+  optional bytes encrypted_app_key = 7;
+  optional int32 version = 8 [default = 0];
+  optional .LocAS2LocASTicket ticket = 9;
+  optional int32 locas_version = 10 [default = 1];
+  optional string client_app_logging_name = 11;
+  optional string server_app_logging_name = 12;
+  optional .LocAS2LocASKeyReq key_req = 17;
+  optional .LocAS2LocASKeyResp key_resp = 18;
+  optional .LocAS2LocASReverseKeyReq reverse_key_req = 19;
+  optional .LocAS2LocASReverseKeyResp reverse_key_resp = 20;
+  optional bool inband_exchange_enabled = 21 [default = false];
+  optional .thinmint.ThinMint idmint = 23;
+  optional string server_unauthenticated_username = 24;
+  optional bytes client_ip_address = 25;
+  optional bytes server_ip_address = 26;
+  optional int32 client_port = 27;
+  optional int32 server_port = 28;
+}
+
+message LocASTokenWithMAC {
+  required bytes locas_token = 1;
+  optional bytes mac = 2;
+  optional .LocAS2LocASError locas_error = 3;
+}
+
+message LocASInfoReq {
+  optional string username = 1;
+  optional string principal = 2;
+}
+
+message LocASInfoResp {
+  optional int32 version = 1 [default = 1];
+  optional bool pem_cert_error = 4;
+  optional bool pem_rsa_key_error = 5;
+  optional bool mdb_owner_available = 6;
+  optional string mdb_owner = 7;
+  optional string corp_app_cookie_dir = 8;
+  optional int32 corp_ip_port = 9 [default = 0];
+  optional string client_user_name = 10;
+  optional int32 connection_security_level = 11;
+  optional bool corp_systemwide = 12 [default = false];
+  optional string pem_cert = 13;
+  optional int32 cert_status = 14;
+  extensions 15 to 15;
+  extensions 16 to 16;
+}
+
+message CertReq {
+  optional bytes username = 1;
+  optional bytes principal = 2;
+}
+
+message CertResp {
+  optional .LOASProtoStatus status = 1;
+  optional bytes cert_pem = 2;
+  optional int32 cert_status = 3;
+  optional .AcctRestrictions restrictions = 4;
+}
+
+message LocASClientState {
+  optional string canonical_server_hostname = 2;
+  optional string server_hostname = 3;
+  optional string server_locas_id = 4;
+}
+
+message LocASClientStateWithMAC {
+  required bytes data = 1;
+  required bytes mac = 2;
+}
+
+message GenerateCsrReq {
+  optional int32 key_length_bits = 1;
+}
+
+message GenerateCsrResp {
+  optional .LOASProtoStatus status = 1;
+  optional bytes csr = 2;
+}
+
+message InstallCertReq {
+  optional bytes cert = 1;
+}
+
+message GenerateKeypairReq {
+  optional int32 key_length_bits = 1;
+}
+
+message GenerateKeypairResp {
+  optional .LOASProtoStatus status = 1;
+  optional bytes public_key = 2;
+}
+
+message InstallMachineCertReq {
+  optional .thinmint.ThinMint base = 1;
+}
+
+message GetRevocationStatusReq {
+  optional uint64 serial = 1;
+  repeated uint64 serial_list = 2;
+}
+
+message GetRevocationStatusResp {
+  optional .LOASProtoStatus status = 1;
+  optional bool revoked = 2;
+  repeated bool revoked_list = 3;
+}
+
+message LocASLocalSecret {
+  required uint64 timestamp = 1;
+  required bytes encryption_secret = 2;
+  required bytes mac_secret = 3;
+}
+

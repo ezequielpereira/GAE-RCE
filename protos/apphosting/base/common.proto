@@ -1,0 +1,115 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "CommonPb";
+
+message LoadBalancingPolicy {
+  enum Enum {
+    ERROR_ADVERSE = 0;
+    FIRST_REACHABLE = 1;
+    LEAST_LOADED = 3;
+    ROUND_ROBIN = 4;
+    ROUND_ROBIN_CLASSIC = 5;
+    RANDOM = 6;
+    DETERMINISTIC_ROUND_ROBIN = 10;
+  }
+}
+
+message CloneBalancingPolicy {
+  enum Enum {
+    MRU = 0;
+    LRU = 1;
+    MOST_ACTIVE = 2;
+    LEAST_ACTIVE = 3;
+    OLDEST = 4;
+    YOUNGEST = 5;
+    MOST_CPU = 6;
+    LEAST_CPU = 7;
+  }
+}
+
+message ProfilerSettings {
+  enum Type {
+    PROCESS_CPU = 1;
+    THREAD_CPU = 2;
+    THREAD_WALLCLOCK = 3;
+  }
+  required .apphosting.ProfilerSettings.Type type = 1;
+  optional int32 sampling_rate = 2;
+  optional int32 inverse_request_probability = 3 [default = 1];
+}
+
+message ProfilerResults {
+  optional string event_id_hash = 2;
+  optional bytes binary_pprof = 1 [ctype = CORD];
+  optional bool was_loading_request = 3;
+}
+
+message InstanceClassType {
+  enum Enum {
+    DEFAULT = 0;
+    FRONTEND = 1;
+    BACKEND = 2;
+  }
+}
+
+message InstanceClassDefaults {
+  optional uint32 ram = 1;
+  optional uint32 cpu = 2;
+  optional uint32 weight = 3;
+  optional .apphosting.InstanceClassType.Enum type = 4;
+  optional bool internal = 5;
+  optional bool experimental = 6;
+}
+
+message InstanceClass {
+  enum Enum {
+    B1 = 0;
+    B2 = 1;
+    B4 = 2;
+    B8 = 3;
+    F1 = 4;
+    F2 = 5;
+    F4 = 6;
+    F4_1G = 7;
+    B4_1G = 8;
+    CF1 = 9;
+    CF2 = 10;
+    CF4 = 11;
+    CF8 = 12;
+    CF16 = 13;
+    F8 = 14;
+    F16 = 15;
+    MLF1 = 16;
+    MLB1 = 17;
+    MLF2 = 18;
+    MLB2 = 19;
+    TF1 = 20;
+    TB1 = 21;
+  }
+}
+
+message FrontendQuotaPolicy {
+  enum Enum {
+    CLASSIC_MODE = 0;
+    ENFORCE_QUOTAS = 1;
+    DEDUCT_BUT_IGNORE = 2;
+    TRIVIAL_MODE = 3;
+  }
+}
+
+message DiversionMethod {
+  enum Enum {
+    COOKIE = 1;
+    IP = 2;
+  }
+}
+
+extend .proto2.EnumValueOptions {
+  optional .apphosting.InstanceClassDefaults ic_default = 131846377;
+}
+
+

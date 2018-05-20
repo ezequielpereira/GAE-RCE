@@ -1,0 +1,90 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package security.authentication.authchains;
+
+option java_package = "com.google.security.authentication.authchains";
+option java_multiple_files = true;
+
+enum AuthChainKeyAlgorithm {
+  AUTHCHAIN_ALGORITHM_SHA1_128 = 1;
+  AUTHCHAIN_ALGORITHM_SHA256_128 = 2;
+  AUTHCHAIN_ALGORITHM_HMAC_SHA1_128 = 3;
+  AUTHCHAIN_ALGORITHM_KEYSTORE_HMAC_SHA1_128 = 4;
+}
+
+enum AuthChainUniverse {
+  option allow_alias = true;
+  AUTHCHAIN_UNIVERSE_PROD = 0;
+  AUTHCHAIN_UNIVERSE_DEFAULT = 0;
+  AUTHCHAIN_UNIVERSE_TEST_STATIC = 1;
+  AUTHCHAIN_UNIVERSE_DEV = 2;
+  AUTHCHAIN_UNIVERSE_DEV_CHECKED = 3;
+  AUTHCHAIN_UNIVERSE_ROOT = 4;
+  AUTHCHAIN_UNIVERSE_MAX = 128;
+}
+
+enum SignatureMetadataType {
+  META_TYPE_DEFAULT = 0;
+  META_TYPE_GAIA_FORWARD = 1;
+  META_TYPE_GAIA_BACKWARD = 2;
+  META_TYPE_GAIA_BOTH = 3;
+}
+
+enum AuthChainInternalSigtype {
+  AUTHCHAIN_INTERNAL_SIGTYPE_KEY_DERIVATION = 0;
+  AUTHCHAIN_INTERNAL_SIGTYPE_SIGNATURE = 1;
+}
+
+message AuthChainKeyIdentifier {
+  optional int32 algorithm = 1;
+  optional int32 universe = 3 [default = 0];
+  optional int32 root_key_version = 4;
+  oneof principal {
+    string mdb_role = 5;
+    int64 gaia_id = 6;
+    uint64 compact_id = 7;
+  }
+  optional .security.authentication.authchains.AuthChainKeyIdentifier parent_identifier = 2;
+  optional string fqdn = 10;
+  optional int32 expiration_hour = 11;
+  repeated fixed64 revocation_id = 12;
+}
+
+message SignatureMetadata {
+  oneof forward_link {
+    string next_mdb_role = 1;
+    int64 next_gaia_id = 2;
+  }
+  oneof backward_link {
+    string prev_mdb_role = 3;
+    int64 prev_gaia_id = 4;
+  }
+}
+
+message AuthChainHopProto {
+  enum HopPropertyBits {
+    HAS_AUTHORITY = 1;
+  }
+  optional int32 hop_properties = 1;
+  optional .proto2.bridge.MessageSet request_extensions = 10;
+  optional .security.authentication.authchains.SignatureMetadataType metadata_type = 11;
+  optional int64 creation_timestamp = 16;
+  optional int64 expiration_timestamp = 17;
+}
+
+message AuthChainKeyMaterial {
+  message Key {
+    required .security.authentication.authchains.AuthChainKeyIdentifier identifier = 1;
+    required bytes secret_key = 2;
+  }
+  enum Usage {
+    USE_NEVER = 1;
+    USE_ALWAYS = 2;
+    USE_IF_PRESENT = 3;
+  }
+  repeated .security.authentication.authchains.AuthChainKeyMaterial.Key keys = 1;
+  optional .security.authentication.authchains.AuthChainKeyMaterial.Usage usage = 2 [default = USE_IF_PRESENT];
+}
+
+

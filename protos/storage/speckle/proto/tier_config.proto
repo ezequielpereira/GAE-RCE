@@ -1,0 +1,157 @@
+syntax = "proto2";
+
+import "storage/speckle/proto/enums.proto";
+package speckle;
+
+option java_outer_classname = "TierConfiguration";
+
+enum TierEnum {
+  UNKNOWN_TIER = 0;
+  WEB_DEV_1 = 1;
+  WEB_DEV_2 = 2;
+  WEB_DEV_3 = 3;
+  TEST_N1_STANDARD_1_PRIVATE = 4;
+  TEST_N1_STANDARD_1_FREE = 5;
+  STD_BASIC_1 = 1000;
+  STD_BASIC_2 = 1001;
+  STD_BASIC_3 = 1002;
+  STD_BASIC_4 = 1003;
+  STD_HIGH_MEM_1 = 2000;
+  STD_HIGH_MEM_2 = 2001;
+  STD_HIGH_MEM_3 = 2002;
+  STD_HIGH_MEM_4 = 2003;
+  ENTERPRISE = 10000;
+  D0 = 9999;
+  D1 = 10001;
+  D2 = 10002;
+  D4 = 10003;
+  D8 = 10004;
+  D16 = 10005;
+  D32 = 10006;
+  R4 = 20001;
+  R8 = 20002;
+  R16 = 20003;
+  RD4 = 20004;
+  RD8 = 20005;
+  RD16 = 20006;
+  N1_STANDARD_1 = 30001;
+  N1_STANDARD_2 = 30002;
+  N1_STANDARD_4 = 30003;
+  N1_STANDARD_8 = 30004;
+  N1_STANDARD_16 = 30005;
+  N1_STANDARD_32 = 30006;
+  N1_STANDARD_64 = 30007;
+  N1_HIGHMEM_2 = 31001;
+  N1_HIGHMEM_4 = 31002;
+  N1_HIGHMEM_8 = 31003;
+  N1_HIGHMEM_16 = 31004;
+  N1_HIGHMEM_32 = 31005;
+  N1_HIGHMEM_64 = 31006;
+  F1_MICRO = 32001;
+  G1_SMALL = 32002;
+  GCE_CUSTOM = 33001;
+}
+
+message TierProto {
+  required .speckle.TierEnum tier = 1;
+  required .speckle.TierResourcesProto resources = 2;
+  optional bool public = 3 [default = false];
+  optional .speckle.TierQuotaProto quotas = 4;
+  optional bool deprecated = 5;
+  optional bool mob_instance = 6 [default = false];
+  repeated .speckle.Region region = 7;
+  optional bool free_tier = 8 [default = false];
+  optional int64 unit_price = 9;
+  optional .speckle.DeviceType device_type = 10;
+  optional .speckle.BackendType backend_type = 11;
+  optional bool visible_for_list = 12 [default = true];
+}
+
+message MySqlVersionProto {
+  optional string pool = 1;
+  repeated string cell_using_mysql55_fallback = 2;
+  repeated string cell_using_mysql56_fallback = 3;
+}
+
+message CloudLoggingProto {
+  optional bool enable = 1 [default = true];
+}
+
+message SpeckleTiersProto {
+  repeated .speckle.TierProto tier = 1;
+  required .speckle.TierEnum default_tier = 2;
+  repeated .speckle.PricingPlanProto pricing_plan = 3;
+  repeated .speckle.RegionCellMap region_cells = 4;
+  repeated .speckle.MySqlVersionProto mysql_version = 5;
+  optional string cdd_client_name = 6;
+  repeated .speckle.Region private_region = 7;
+  optional .speckle.CloudLoggingProto cloud_logging = 8;
+}
+
+message TiersConfigurationProto {
+  optional string cdd_client_name = 1;
+  repeated .speckle.TierProto tier = 2;
+  optional .speckle.TierEnum default_tier = 3;
+  repeated .speckle.Region private_region = 4;
+}
+
+message InstanceSettingsProto {
+  optional int32 idle_timeout_secs = 1;
+  optional int32 volume_block_size_bytes = 11 [default = 4096];
+  optional int32 iops_tmp = 12 [default = 1000];
+  optional bool fs_scheduled_backup = 13 [default = true, deprecated = true];
+  optional int32 block_size_tmp = 14 [default = 1024];
+  optional bool innodb_doublewrite = 15 [default = false];
+  optional bool mysqldump_single_transaction = 16 [default = true];
+  optional int32 backup_volume_lock_wait_timeout_secs = 17 [default = 180];
+  optional int32 mysqld_thread_cache_size = 18 [default = 10];
+  optional int64 tmp_disk_bytes = 19 [default = 10737418240];
+  optional bool enable_bin_log = 20 [default = false];
+  optional bool enable_lock_free_backup = 21 [default = false];
+  optional int32 max_connections = 22 [default = 1000];
+  optional bool users_have_super_privilege = 23 [default = true];
+  optional bool use_vfs_for_tmpdir_access = 24 [default = true];
+  optional int32 innodb_rollback_segments = 25 [default = 128];
+  optional int32 innodb_sync_spin_loops = 26;
+  optional bool obsolete_force_require_x509 = 27 [default = false, deprecated = true];
+  optional int32 innodb_fast_shutdown = 28 [default = 2];
+  optional bool use_encrypted_tmpdir = 29 [default = true];
+  optional bool enable_gtid = 30;
+}
+
+message TierResourcesProto {
+  optional int64 ram = 1;
+  optional float cpu = 2;
+  optional int32 iops = 3;
+  optional int64 disk = 4;
+  optional int32 max_app_ids = 5 [default = 2147483647, deprecated = true];
+  optional int32 cpu_shares = 6 [default = 2];
+  optional float overhead_ram_ratio = 17 [default = 0];
+  optional float vfs_cache_ratio = 18 [default = 0];
+  optional float innodb_buffer_pool_ratio = 19 [default = 1];
+  optional int64 innodb_log_file_size = 20 [default = 134217728];
+  optional .speckle.InstanceSettingsProto settings = 21;
+  optional string gce_machine_type = 22;
+}
+
+message TierQuotaProto {
+  optional int64 disk_size_bytes = 1;
+  optional int64 disk_io_per_day = 2;
+}
+
+message PricingPlanProto {
+  required int32 plan = 1;
+  optional .speckle.PricingPlanSettingsProto settings = 2;
+}
+
+message PricingPlanSettingsProto {
+  optional int32 idle_timeout_secs = 1 [default = 900];
+}
+
+message RegionCellMap {
+  optional .speckle.Region region = 1;
+  repeated string cell = 2;
+  optional string colocated_service = 3;
+}
+
+

@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+option java_package = "com.google.net.rpc.proto";
+option java_outer_classname = "EmptyMessageProtos";
+option java_multiple_files = true;
+option go_package = "empty_proto";
+option cc_enable_arenas = true;
+
+message EmptyMessage {
+  extend .proto2.bridge.MessageSet {
+    optional .EmptyMessage message_set_extension = 4311348;
+  }
+}
+
+

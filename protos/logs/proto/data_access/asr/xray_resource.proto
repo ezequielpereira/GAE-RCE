@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "XrayResourceProtoFile";
+option java_multiple_files = true;
+
+message XrayResource {
+  optional string query = 1;
+}
+

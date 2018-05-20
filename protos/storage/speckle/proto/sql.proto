@@ -1,0 +1,90 @@
+syntax = "proto2";
+
+import "storage/speckle/proto/client.proto";
+package speckle.sql;
+
+option java_package = "com.google.protos.cloud.sql";
+option java_multiple_files = true;
+
+message ExecRequest {
+  enum StatementType {
+    STATEMENT = 1;
+    PREPARED_STATEMENT = 2;
+    CALLABLE_STATEMENT = 3;
+  }
+  required string instance = 1;
+  optional uint64 statement_id = 2;
+  optional string statement = 3;
+  repeated .speckle.BindVariableProto bind_variable = 4;
+  required bytes connection_id = 5;
+  optional .speckle.ExecOptions options = 6;
+  optional .speckle.sql.ExecRequest.StatementType statement_type = 9 [default = STATEMENT];
+  optional .speckle.BatchProto batch = 10;
+  optional uint64 request_id = 11;
+}
+
+message ExecResponse {
+  optional .speckle.ResultProto result = 1;
+  optional .speckle.SqlException sql_exception = 2;
+}
+
+message ExecOpRequest {
+  required string instance = 1;
+  required bytes connection_id = 2;
+  required .speckle.OpProto op = 3;
+  optional uint64 request_id = 8;
+}
+
+message ExecOpResponse {
+  optional string native_sql = 1;
+  optional .speckle.SavePoint savepoint = 2;
+  optional .speckle.SqlException sql_exception = 3;
+  optional .speckle.ResultProto result = 4;
+  optional .speckle.RpcErrorProto cached_rpc_error = 5;
+  optional bytes cached_payload = 6 [ctype = CORD];
+}
+
+message MetadataRequest {
+  required string instance = 1;
+  required .speckle.MetadataType metadata = 3;
+  repeated .speckle.BindVariableProto bind_variable = 4;
+  required bytes connection_id = 5;
+  optional uint64 request_id = 8;
+}
+
+message MetadataResponse {
+  optional .speckle.ResultProto result = 1;
+  optional .speckle.JdbcDatabaseMetaDataProto jdbc_database_metadata = 2;
+  optional .speckle.SqlException sql_exception = 3;
+}
+
+message OpenConnectionRequest {
+  required string instance = 1;
+  repeated .speckle.Property property = 2;
+  optional uint64 protocol_version = 5 [default = 1];
+  optional .speckle.ClientType client_type = 6 [default = CLIENT_TYPE_JAVA_JDBC];
+}
+
+message OpenConnectionResponse {
+  optional bytes connection_id = 1;
+  optional .speckle.SqlException sql_exception = 2;
+  repeated .speckle.SqlException warnings = 6;
+}
+
+message CloseConnectionRequest {
+  required string instance = 1;
+  required bytes connection_id = 2;
+}
+
+message CloseConnectionResponse {
+  optional .speckle.SqlException sql_exception = 1;
+}
+
+service SqlService {
+  rpc Exec(.speckle.sql.ExecRequest) returns (.speckle.sql.ExecResponse);
+  rpc ExecOp(.speckle.sql.ExecOpRequest) returns (.speckle.sql.ExecOpResponse);
+  rpc GetMetadata(.speckle.sql.MetadataRequest) returns (.speckle.sql.MetadataResponse);
+  rpc OpenConnection(.speckle.sql.OpenConnectionRequest) returns (.speckle.sql.OpenConnectionResponse);
+  rpc CloseConnection(.speckle.sql.CloseConnectionRequest) returns (.speckle.sql.CloseConnectionResponse);
+}
+

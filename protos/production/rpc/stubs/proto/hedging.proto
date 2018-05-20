@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package production.rpc.stubs.proto;
+
+message HedgingConfiguration {
+  message Policy {
+    repeated double percentile = 1;
+  }
+  map<string, .production.rpc.stubs.proto.HedgingConfiguration.Policy> policy = 1;
+  optional .production.rpc.stubs.proto.HedgingConfiguration.Policy default = 2;
+  optional double shortest_hedging_delay_seconds = 3 [default = 0.001];
+  optional bool enable_latency_monitoring = 4 [default = false];
+}
+
+

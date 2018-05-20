@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package rpc;
+
+option java_package = "com.google.net.security";
+
+message NeedsBetterSecurityLevel {
+  enum SecurityLevel {
+    NONE = 1;
+    INTEGRITY = 2;
+    PRIVACY_AND_INTEGRITY = 3;
+    STRONG_PRIVACY_AND_INTEGRITY = 4;
+  }
+  required .rpc.NeedsBetterSecurityLevel.SecurityLevel needed_security_level = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .rpc.NeedsBetterSecurityLevel message_set_extension = 34012622;
+  }
+}
+
+

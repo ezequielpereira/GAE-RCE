@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/api/label.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "LogProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message LogDescriptor {
+  string name = 1;
+  repeated .google.api.LabelDescriptor labels = 2;
+  string description = 3;
+  string display_name = 4;
+}
+
+

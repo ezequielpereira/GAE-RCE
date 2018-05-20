@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package appengine_proto;
+
+message ExtraBillingLog {
+  optional string app_id = 1;
+  optional int32 usage_id = 2;
+  optional int64 amount = 3;
+}
+

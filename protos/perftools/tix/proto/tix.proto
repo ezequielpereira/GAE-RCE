@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+package perftools_tix;
+
+option cc_generic_services = false;
+option java_generic_services = false;
+option py_generic_services = false;
+
+message KeyValue {
+  required string key = 1;
+  optional string value = 2;
+  optional int64 value_long = 3;
+}
+
+message TraceEvent {
+  required int64 start_time = 1;
+  optional int64 end_time = 2;
+  required string name = 3;
+  repeated .perftools_tix.KeyValue property = 4;
+}
+
+message TraceEventSet {
+  repeated .perftools_tix.TraceEvent event = 1;
+}
+
+message TraceDirectory {
+  repeated .perftools_tix.KeyValue property = 1;
+  repeated .perftools_tix.TraceDirectory directory = 2;
+  repeated .perftools_tix.TraceShard shard = 3;
+  optional .perftools_tix.StringTable string_table = 4;
+}
+
+message TraceShard {
+  repeated .perftools_tix.KeyValue property = 1;
+  repeated string trace_id = 2;
+}
+
+message StringTable {
+  repeated .perftools_tix.StringEntry entry = 1;
+}
+
+message StringEntry {
+  required string symbol = 1;
+  required int32 id = 2;
+}
+
+

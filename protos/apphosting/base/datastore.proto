@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+import "cloud/datastore/proto/database_type.proto";
+import "net/proto2/proto/descriptor.proto";
+import "net/proto2/contrib/validator/annotations.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base.proto1api";
+option java_outer_classname = "DatastorePb";
+
+enum DatastoreFieldOptions {
+  TRUTH_IN_DATASTORE = 1;
+}
+
+message DatastoreQosOverride {
+  enum FractionMode {
+    RANDOM_BY_RPC = 0;
+    RANDOM_BY_BACKEND = 1;
+  }
+  repeated string cells = 1;
+  optional string qos = 2;
+  optional double fraction = 3;
+  optional .apphosting.DatastoreQosOverride.FractionMode fraction_mode = 4 [default = RANDOM_BY_RPC];
+}
+
+message FineGrainedDatastoreQos {
+  repeated .apphosting.DatastoreQosOverride fine_grained_qos = 1;
+}
+
+message DatastoreApiSettings {
+  optional string datastore_qos = 1;
+  optional .apphosting.FineGrainedDatastoreQos fine_grained_qos = 16;
+  optional float datastore_thread_limit = 2;
+  optional float datastore_frontend_thread_limit = 8;
+  optional float datastore_frontend_request_size_limit = 9;
+  optional bool datastore_monitor = 3;
+  optional bool datastore_allow_geospatial_search = 4;
+  optional string iam_dispatch_mode_override = 5;
+  optional bool short_term_audit_enabled = 6;
+  repeated int64 short_term_audit_ignored_gaia_ids = 7;
+  optional bool clc_integration_enabled = 10;
+  optional string instance = 11 [default = ""];
+  optional string pool = 12 [default = ""];
+  optional string shard = 13 [default = ""];
+  optional int32 index_job_delay_seconds = 14;
+  optional int32 index_cache_expiration_seconds = 15;
+  optional string mirror_target = 17;
+  optional .cloud_datastore.internal.DatabaseType database_type = 18;
+  optional string storage_info_key = 19;
+  optional .cloud_datastore.internal.ProjectStorageState storage_state = 20;
+  optional int32 iam_checking_mode_override = 21;
+}
+
+extend .proto2.FieldOptions {
+  repeated .apphosting.DatastoreFieldOptions options = 147386019;
+}
+
+

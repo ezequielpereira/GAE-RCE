@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "QuotaProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Quota {
+  repeated .google.api.QuotaGroup groups = 1;
+  repeated .google.api.QuotaRule rules = 2;
+  repeated .google.api.QuotaLimit limits = 3;
+  repeated .google.api.MetricRule metric_rules = 4;
+}
+
+message MetricRule {
+  string selector = 1;
+  map<string, int64> metric_costs = 2;
+}
+
+message QuotaRule {
+  string selector = 1;
+  repeated .google.api.QuotaGroupMapping groups = 2;
+  bool disable_quota = 3 [deprecated = true];
+}
+
+message QuotaGroupMapping {
+  string group = 1;
+  int32 cost = 2;
+}
+
+message QuotaGroup {
+  string name = 1;
+  string description = 2;
+  repeated .google.api.QuotaLimit limits = 3;
+  bool billable = 4;
+}
+
+message QuotaLimit {
+  enum LimitType {
+    CLIENT_PROJECT = 0;
+    USER = 1;
+  }
+  string name = 6;
+  .google.api.QuotaLimit.LimitType limit_by = 1;
+  string description = 2;
+  int64 default_limit = 3;
+  int64 max_limit = 4;
+  int64 free_tier = 7;
+  string duration = 5;
+  string metric = 8;
+  string unit = 9;
+  map<string, int64> values = 10;
+  bool is_precise = 11;
+  string display_name = 12;
+  bool is_fixed = 13;
+  string visibility_restriction = 14;
+}
+
+

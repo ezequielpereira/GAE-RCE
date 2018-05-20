@@ -1,0 +1,71 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package security.context;
+
+option java_package = "com.google.security.context";
+option java_outer_classname = "ContextMetricsProtoFile";
+option java_multiple_files = true;
+
+message Monitoring {
+  enum UserType {
+    UNKNOWN_USER_TYPE = 0;
+    NONE = 1;
+    ALL_PRINCIPALS = 2;
+    GAIA_USER = 3;
+    MDB_USER = 4;
+  }
+  enum ValidationStatus {
+    UNKNOWN_STATUS = 0;
+    EXPIRED = 1;
+    UNSUPPORTED = 2;
+    INSUFFICIENT = 3;
+    MISSING_SCOPE = 4;
+    INVALID = 5;
+    AUDIT_REQUIREMENT_ERROR = 6;
+    INTERNAL_ERROR = 50;
+    OK = 100;
+    IGNORED = 101;
+  }
+  enum AccessType {
+    UNKNOWN_ACCESS_TYPE = 0;
+    LEGACY_WHITELISTED = 1001;
+    LEGACY_NON_WHITELISTED = 1002;
+  }
+  enum AuthorityScope {
+    UNKNOWN_AUTHORITY_SCOPE = 0;
+    LEGACY_LOGIC = 1;
+    RPC_SCOPE = 2;
+    OTHER = 3;
+  }
+  enum AuthoritySource {
+    UNKNOWN_AUTHORITY_SOURCE = 0;
+    SELF = 1;
+    CONTEXT = 2;
+    CONTEXT_ASSERTION = 3;
+    EXPLICIT_EUC = 4;
+    LEGACY_SELF = 5;
+    LEGACY_CONTEXT = 6;
+    LEGACY_EUC = 7;
+  }
+  enum VersionNumber {
+    VERSION_NUMBER = 126873739;
+  }
+}
+
+message EucInfo {
+  enum EucReason {
+    UNKNOWN_EUC_REASON = 0;
+    EXPLICIT = 1;
+    RPC_AUTHORITY = 2;
+    EUC_REQUESTED = 3;
+    LEGACY_FLAG = 4;
+  }
+  optional int32 client_binary_version = 1;
+  optional .security.context.EucInfo.EucReason euc_reason = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .security.context.EucInfo message_set_extension = 127230044;
+  }
+}
+
+

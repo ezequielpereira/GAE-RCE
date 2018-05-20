@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package apphosting;
+
+message AppFilterProto {
+  enum BillingStatus {
+    ANY = 0;
+    FREE = 1;
+    GOOGLER = 2;
+    GOOGLER_AUTH_DOMAIN = 4;
+    BILLED = 3;
+    PREMIUM = 5;
+  }
+  optional double percent = 5;
+  optional double percent_offset = 6;
+  optional .apphosting.AppFilterProto.BillingStatus billing = 1;
+  repeated int32 permission = 2;
+  repeated int32 does_not_have_permission = 3;
+  repeated string attribute = 7;
+  optional string app_id_range = 4;
+  optional int64 start_date_s = 8;
+  optional int64 end_date_s = 9;
+}
+
+message AppFilterUnionProto {
+  repeated .apphosting.AppFilterProto item = 1;
+  optional string blacklist = 2;
+}
+
+

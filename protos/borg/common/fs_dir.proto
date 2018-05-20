@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package borg;
+
+option cc_enable_arenas = true;
+
+enum PrimaryFsDirEligible {
+  UNSPECIFIED_ELIGIBILITY = 0;
+  PRIMARY_ELIGIBLE = 1;
+  NOT_PRIMARY_ELIGIBLE = 2;
+}
+
+enum FsDirUpdatePolicy {
+  NO_FSDIR_UPDATE_POLICY = 0;
+  FORCE_RESCHEDULE_ON_FSDIR_RESIZE = 1;
+}
+
+message LocalRamFsDirUsage {
+  optional string name = 1;
+  optional int64 size = 2;
+  optional int64 usage = 3;
+}
+
+message RemoteHddFsDirUsage {
+  optional string name = 1;
+  optional int64 size = 2;
+  optional int64 usage = 3;
+  optional int64 memory_bytes = 4;
+  optional int64 cpu_millicores = 5;
+}
+
+

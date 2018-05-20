@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package net_httpsconnection;
+
+option optimize_for = CODE_SIZE;
+
+message HandoffState {
+  message RC4State {
+    required uint32 x = 1;
+    required uint32 y = 2;
+    required bytes state = 3;
+  }
+  required uint32 ciphersuite = 1;
+  required uint32 tls_version = 2;
+  required uint64 in_sequence = 3;
+  required uint64 out_sequence = 4;
+  optional bytes in_key = 9;
+  optional bytes out_key = 10;
+  optional bytes in_fixed_nonce = 11;
+  optional bytes out_fixed_nonce = 12;
+  optional .net_httpsconnection.HandoffState.RC4State in_rc4 = 5;
+  optional .net_httpsconnection.HandoffState.RC4State out_rc4 = 6;
+  optional bytes in_mac_secret = 7;
+  optional bytes out_mac_secret = 8;
+}
+
+

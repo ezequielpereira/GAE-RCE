@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package production.rpc.stubs.proto;
+
+option java_outer_classname = "StubOuterClass";
+
+message Stub {
+  extensions 100 to 536870911;
+}
+
+

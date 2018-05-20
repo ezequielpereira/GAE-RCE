@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+import "cloud/trace/proto/labels.proto";
+import "cloud/trace/proto/span_details.proto";
+import "cloud/trace/proto/span_id.proto";
+import "cloud/trace/proto/span_kind.proto";
+import "cloud/trace/proto/trace_id.proto";
+package cloud_trace;
+
+option java_package = "com.google.protos.cloud.trace";
+
+message TraceEventsProto {
+  optional int64 project_id = 1;
+  optional .cloud_trace.TraceIdProto trace_id = 2;
+  repeated .cloud_trace.EventDictionaryEntry dictionary_entries = 6;
+  repeated .cloud_trace.SpanEventsProto span_events = 4;
+  reserved 5;
+}
+
+message EventDictionaryValue {
+  optional .cloud_trace.StackTraceDetails stack_trace_value = 1;
+  optional string str_value = 2;
+}
+
+message EventDictionaryEntry {
+  optional uint64 key = 1;
+  optional .cloud_trace.StackTraceDetails stack_trace_value = 2;
+  optional string str_value = 3;
+}
+
+message TraceEventsListProto {
+  repeated .cloud_trace.TraceEventsProto events = 1;
+}
+
+message SpanEventsProto {
+  optional .cloud_trace.SpanIdProto span_id = 1;
+  repeated .cloud_trace.SpanEventProto event = 2;
+}
+
+message SpanEventProto {
+  enum EventType {
+    INVALID_EVENT = 0;
+    START_SPAN = 1;
+    END_SPAN = 2;
+    ANNOTATE_SPAN = 3;
+    LOG_MESSAGE = 4;
+    UNKNOWN_EVENT_TYPE = 6;
+  }
+  optional int64 timestamp = 1;
+  optional .cloud_trace.StartSpanProto start_span = 2;
+  optional .cloud_trace.EndSpanProto end_span = 3;
+  optional .cloud_trace.AnnotateSpanProto annotate_span = 4;
+  optional .cloud_trace.LogMessageProto log_message = 5;
+}
+
+message StartSpanProto {
+  optional .cloud_trace.SpanIdProto parent_span_id = 1;
+  optional string name = 3;
+  optional .cloud_trace.SpanKind kind = 4;
+  optional bool is_primary = 5;
+  reserved 2;
+}
+
+message EndSpanProto {
+  reserved 1, 2;
+}
+
+message AnnotateSpanProto {
+  optional .cloud_trace.LabelsProto labels = 2;
+  optional .cloud_trace.SpanDetailsProto span_details = 3;
+  reserved 1;
+}
+
+message LogMessageProto {
+  enum Level {
+    INVALID_LEVEL = 0;
+    DEBUG = 1;
+    INFO = 2;
+    WARNING = 3;
+    ERROR = 4;
+  }
+  optional .cloud_trace.LogMessageProto.Level level = 2;
+  optional string message = 3;
+}
+

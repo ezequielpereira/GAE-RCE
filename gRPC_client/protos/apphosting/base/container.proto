@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package riptide;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "ContainerPb";
+
+enum ContainerCapability {
+  UNSPECIFIED = 0;
+  ROOT = 1;
+  PRIMARY = 2;
+  USER_SUPPLIED_CODE = 3;
+}
+
+message PodInfo {
+  string pod_id = 1;
+  repeated .riptide.PodContainerConfig container = 2;
+}
+
+message PodContainerConfig {
+  .riptide.Container internal_config = 1;
+  .riptide.ExternalConfig external_config = 2;
+}
+
+message ExternalConfig {
+  message Env {
+    string name = 1;
+    string value = 2;
+  }
+  string name = 1;
+  repeated .riptide.ContainerCapability capabilities = 2 [packed = true];
+  int64 container_gaia_id = 9;
+  string service_account = 3;
+  repeated string service_account_scopes = 4;
+  repeated .riptide.ExternalConfig.Env env = 5;
+  uint32 disk_gb = 6;
+  string base_service_account = 7;
+  int64 base_gaia_id = 8;
+}
+
+message Config {
+  message Port {
+    enum Protocol {
+      PROTO_NONE = 0;
+      PROTO_TCP = 1;
+      PROTO_UDP = 2;
+    }
+    .riptide.Config.Port.Protocol protocol = 1;
+    int32 container_port = 2;
+    int32 host_port = 3;
+  }
+  message Env {
+    string name = 1;
+    string value = 2;
+  }
+  message Cmd {
+    string exec = 1;
+    repeated string args = 2;
+  }
+  string image = 1;
+  repeated .riptide.Config.Port port = 2;
+  repeated .riptide.Config.Env env = 3;
+  .riptide.Config.Cmd cmd = 4;
+  string dir = 5;
+}
+
+message Layer {
+  enum Status {
+    UNKNOWN = 0;
+    ACTIVE = 1;
+    READY = 2;
+    ERROR = 3;
+    HIDDEN = 4;
+  }
+  string id = 1;
+  .riptide.Layer.Status status = 2;
+}
+
+message Container {
+  string name = 1;
+  string tag = 2;
+  string id = 3;
+  .riptide.Config config = 4;
+  repeated .riptide.Layer layers = 5;
+}
+
+message RuntimeVersion {
+  string runtime_fqin = 1;
+  string runtime_version = 2;
+}
+
+

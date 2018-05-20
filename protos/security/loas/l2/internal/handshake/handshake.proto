@@ -1,0 +1,99 @@
+syntax = "proto2";
+
+import "security/loas/l2/proto/common.proto";
+package security_loas_l2;
+
+enum CertificateType {
+  UNSPECIFIED_CERTIFICATE = 0;
+  TEST_CERTIFICATE = 1;
+  THINMINT_CERTIFICATE = 100;
+}
+
+message Certificate {
+  optional .security_loas_l2.CertificateType certificate_type = 1;
+  extensions 100 to 536870911;
+}
+
+message ResumptionTicketKey {
+  enum ResumptionTicketKeyType {
+    RESERVED = 0;
+    TEST_KEY = 1;
+    GOOGLE_AES128_CTR_SHA512_HMAC = 100;
+  }
+  optional .security_loas_l2.ResumptionTicketKey.ResumptionTicketKeyType key_type = 1;
+  extensions 100 to 536870911;
+}
+
+message ResumptionTicket {
+  optional uint32 version = 1;
+  optional .security_loas_l2.HandshakeCipher handshake_cipher = 2;
+  optional .security_loas_l2.Identity resumption_identity = 3;
+  optional bytes resumption_secret = 4;
+}
+
+message Alert {
+  enum AlertType {
+    BAD_MESSAGE = 1;
+    DESERIALIZATION_FAILED = 2;
+    PROTOCOL_ERROR = 3;
+    BAD_HANDSHAKECIPHER = 4;
+    BAD_CERTIFICATE = 5;
+    BAD_NEXTPROTOCOL = 6;
+    BAD_TICKET = 7;
+    BAD_AUTHENTICATOR = 8;
+    INTERNAL_ERROR = 9;
+    BAD_EPHEMERAL_PARAMETERS = 10;
+  }
+  optional .security_loas_l2.Alert.AlertType type = 1;
+}
+
+message EphemeralParameter {
+  repeated .security_loas_l2.HandshakeCipher handshake_ciphers = 1;
+  optional bytes public_key = 2;
+}
+
+message ClientInit {
+  message ServerResumptionTicketData {
+    optional bytes family_id = 1;
+    optional bytes ticket = 2;
+    repeated string supported_next_protocols = 3;
+  }
+  optional bytes random = 1;
+  optional .security_loas_l2.Certificate certificate = 2;
+  repeated .security_loas_l2.HandshakeCipher handshake_ciphers = 3;
+  repeated string next_protocols = 4;
+  repeated bytes accepted_client_resumption_ticket_family_ids = 5;
+  optional .security_loas_l2.AuthenticatedOptions authenticated_options = 6;
+  repeated .security_loas_l2.ClientInit.ServerResumptionTicketData server_resumption_tickets = 7;
+  repeated .security_loas_l2.EphemeralParameter ephemeral_parameters = 8;
+  extensions 100 to 536870911;
+}
+
+message ServerInit {
+  optional bytes random = 1;
+  optional .security_loas_l2.HandshakeCipher handshake_cipher = 2;
+  optional string next_protocol = 3;
+  optional .security_loas_l2.Certificate certificate = 4;
+  optional bytes client_resumption_ticket = 5;
+  optional bytes client_resumption_ticket_family_id = 6;
+  optional .security_loas_l2.AuthenticatedOptions authenticated_options = 7;
+  optional bytes server_resumption_ticket_family_id = 8;
+  optional bytes server_ephemeral_public_key = 9;
+  extensions 100 to 536870911;
+}
+
+message ServerFinished {
+  optional bytes handshake_authenticator = 1;
+  optional bytes new_server_resumption_ticket_family_id = 2;
+  optional bytes encrypted_new_server_resumption_ticket = 3;
+  extensions 100 to 536870911;
+}
+
+message ClientFinished {
+  optional bytes handshake_authenticator = 1;
+  optional bytes new_client_resumption_ticket_family_id = 2;
+  optional bytes encrypted_new_client_resumption_ticket = 3;
+  extensions 100 to 536870911;
+}
+
+

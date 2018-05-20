@@ -1,0 +1,133 @@
+syntax = "proto2";
+
+package appengine_proto;
+
+message Experiment {
+  required string id = 1;
+  required string value = 2;
+}
+
+message UserProfile {
+  enum UserOrigin {
+    CHARITY_ADMIN = 1;
+    MOBILE_APP = 2;
+    WEB = 3;
+    OTHER = 4;
+  }
+  required int64 user_id = 1;
+  required int64 created_date = 2;
+  optional int64 mobile_app_first_access_date = 3;
+  optional int64 first_donation_date = 4;
+  required .appengine_proto.UserProfile.UserOrigin origin = 5;
+}
+
+message Project {
+  required int64 id = 1;
+  repeated string categories = 2;
+  required int64 unit_cost_micro_usd = 3;
+  required int32 unit_description_quantity = 4;
+  required int64 charity_id = 5;
+}
+
+message ProjectOffer {
+  enum OfferOrigin {
+    WEB_LINK = 1;
+    ALGO = 2;
+    MATCH_LINK = 3;
+    API_REQUEST = 4;
+    VOUCHER = 5;
+  }
+  enum SelectionCriteria {
+    USER_CATEGORIES = 1;
+    USER_CHARITY = 2;
+    SOCIAL = 3;
+    RANDOM = 4;
+    TRENDING = 5;
+    MATCHED_PRIVATE = 6;
+    MATCHED_PUBLIC = 7;
+    HIGH_DONATION_RATE = 8;
+    SPECIAL_MOMENTS = 9;
+    CATEGORY_REQUEST = 10;
+    USER_PREFERRED_CATEGORIES = 11;
+    METATAG_REQUEST = 12;
+  }
+  required .appengine_proto.ProjectOffer.OfferOrigin origin = 1;
+  repeated .appengine_proto.ProjectOffer.SelectionCriteria selection_criteria = 2;
+}
+
+message Donation {
+  required int64 donation_time_ms = 1;
+  required .appengine_proto.ProjectOffer project_offer = 2;
+  required int64 outgoing_match_amount_micro_usd = 3;
+  required int64 incoming_match_amount_micro_usd = 4;
+  repeated int64 incoming_match_user_id = 5;
+  required int32 incoming_match_number_people = 6;
+  required int32 incoming_match_number_friends = 7;
+  required .appengine_proto.Project project = 8;
+  required bool primary_project = 9;
+  required bool secondary_project = 10;
+  required int32 number_friends_donated = 11;
+  required int32 affinity_friends_donated = 12;
+}
+
+message ProjectView {
+  required .appengine_proto.ProjectOffer project_offer = 1;
+  required .appengine_proto.Project project = 2;
+  required int64 view_time_ms = 3;
+  repeated int64 project_share_time_ms = 4;
+  repeated string project_share_destination = 5;
+  repeated int64 pace_yourself_time_ms = 6 [deprecated = true];
+  repeated int64 gift_clicked_time_ms = 7;
+  repeated int64 give_dollar_clicked_time_ms = 8;
+  repeated int64 match_clicked_time_ms = 9;
+  repeated int64 match_confirm_clicked_time_ms = 10;
+  repeated int64 match_cancel_clicked_time_ms = 11;
+}
+
+message CauseListUpdate {
+  required int64 view_time_ms = 1;
+  repeated string causes = 2;
+}
+
+message MobileAppSession {
+  enum Client {
+    ANDROID = 1;
+    IOS = 2;
+  }
+  required .appengine_proto.MobileAppSession.Client client = 1;
+  required int32 version = 2;
+  required bool dogfood = 3;
+  required int64 session_time_ms = 4;
+  required int64 session_start_time_ms = 5;
+  repeated .appengine_proto.ProjectView project_views = 6;
+  repeated int64 balance_checked_time_ms = 7;
+  repeated int64 balance_amount_micro_usd = 8;
+  repeated int64 error_display_time_ms = 9;
+  repeated .appengine_proto.CauseListUpdate cause_list_updates = 10;
+}
+
+message DailyActivity {
+  repeated .appengine_proto.Experiment experiments = 1;
+  required int64 utc_day = 2;
+  required int32 num_offer_checked = 3;
+  repeated .appengine_proto.Donation donations = 4;
+  optional int64 primary_project_id = 5;
+  optional bool payment_required = 6;
+  required bool payment_received = 7;
+  optional int64 expected_notification_time_ms = 8;
+  optional int64 actual_notification_time_ms = 9;
+  optional int64 notification_dismissed_time_ms = 10;
+  repeated .appengine_proto.MobileAppSession mobile_app_sessions = 11;
+}
+
+message OneTodayLog {
+  enum Environment {
+    PRODUCTION = 1;
+    STAGING = 2;
+  }
+  required .appengine_proto.OneTodayLog.Environment environment = 1;
+  required .appengine_proto.UserProfile user_profile = 2;
+  repeated .appengine_proto.DailyActivity daily_activity = 3;
+  required string report_id = 4;
+}
+

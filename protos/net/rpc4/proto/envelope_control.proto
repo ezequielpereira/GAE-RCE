@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+package net.rpc4;
+
+option java_package = "com.google.net.rpc4";
+
+message ConnectClientRequest {
+  optional int32 client_pid = 1;
+}
+
+message ConnectClientResponse {
+  optional string application_id = 1;
+  optional int32 envelope_pid = 2;
+  optional string envelope_version = 3;
+}
+
+message ResolveServiceRequest {
+  optional string service_name = 1;
+  optional string application_id = 2;
+}
+
+message ResolveServiceResponse {
+  optional string uds_path = 1;
+}
+
+service EnvelopeControlService {
+  rpc ConnectClient(stream .net.rpc4.ConnectClientRequest) returns (stream .net.rpc4.ConnectClientResponse);
+  rpc ResolveService(.net.rpc4.ResolveServiceRequest) returns (.net.rpc4.ResolveServiceResponse);
+}
+
+

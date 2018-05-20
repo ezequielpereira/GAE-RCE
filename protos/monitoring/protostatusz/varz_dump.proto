@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "logs/eventid/eventid.proto";
+option java_package = "com.google.monitoring.protostatusz";
+option java_multiple_files = true;
+
+message VarzProto {
+  required bytes Name = 1;
+  required bytes Value = 2;
+}
+
+message VarzDumpProto {
+  required .EventIdMessage Id = 1;
+  repeated .VarzProto Varz = 2;
+}
+

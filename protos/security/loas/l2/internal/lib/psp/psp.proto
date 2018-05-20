@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+import "security/loas/l2/proto/common.proto";
+package security_loas_l2;
+
+message PspTrafficKeyProto {
+  optional uint32 spi = 1 [default = 0];
+  optional bytes key = 2;
+}
+
+message AuthenticatedPspOptions {
+  optional uint32 highest_version_supported = 1 [default = 0];
+  extend .security_loas_l2.AuthenticatedOptions {
+    optional .security_loas_l2.AuthenticatedPspOptions psp_opts = 1002;
+  }
+}
+
+

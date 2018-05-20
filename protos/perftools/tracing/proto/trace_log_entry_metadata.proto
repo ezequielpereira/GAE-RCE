@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+
+message TraceLogEntryMetadata {
+  required double timestamp = 1;
+  optional fixed64 global_process_id = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .perftools.tracing.TraceLogEntryMetadata message_set_extension = 6173117;
+  }
+}
+
+

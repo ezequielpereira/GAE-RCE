@@ -1,0 +1,129 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+import "logs/eventid/eventid.proto";
+package apphosting;
+
+option java_outer_classname = "QueueEventProto";
+
+message TaskEvent {
+  enum TaskEventType {
+    ADD_TASK = 1;
+    DELETE_TASK = 2;
+    NOTIFY_ADD_TASK = 3;
+    NOTIFY_DELETE_TASK = 4;
+    QUEUED_TASK_START = 5;
+    TASK_EXECUTED = 6;
+    TASK_LEASE_UPDATED = 7;
+    TASK_BUFFERED = 8;
+  }
+  enum AddTaskStrategy {
+    UNKNOWN = 0;
+    VERIFY_ALL = 1;
+    VERIFY_QUEUE = 2;
+  }
+  optional int64 name_hash = 13;
+  optional int64 eta_usec = 2;
+  optional uint64 tag_hash = 3;
+  optional int64 start_time_usec = 4;
+  optional int64 end_time_usec = 5;
+  optional .apphosting.TaskEvent.TaskEventType type = 6;
+  optional int32 canonical_error = 7;
+  optional int32 scanner_error = 8;
+  optional int32 queue_error = 9;
+  optional int32 executor_error = 12;
+  optional int32 http_response = 10;
+  optional int64 payload_url_hash = 14;
+  optional int64 payload_size_bytes = 15;
+  optional .apphosting.RequestSourceIdentifier.SourceType creation_source_type = 16;
+  optional .apphosting.TaskEvent.AddTaskStrategy add_task_strategy = 17;
+}
+
+message RPCEvent {
+  enum RPCType {
+    ADD_TASK_NOTIFY = 1;
+    QUERY_AND_OWN_TASKS = 2;
+    DELETE_TASK_NOTIFY = 3;
+    MODIFY_TASK_LEASE = 4;
+    ADD_TASK = 5;
+    DELETE_TASK = 6;
+  }
+  optional .apphosting.RPCEvent.RPCType type = 1;
+  optional int64 start_time_usec = 2;
+  optional int64 end_time_usec = 3;
+  optional int32 error = 4;
+  optional int32 num_returned = 5;
+}
+
+message BigtableEvent {
+  enum BigtableEventType {
+    SCAN = 0;
+    WRITE = 1;
+    READ = 2;
+    DELETE_ROW = 3;
+  }
+  enum ExecutorTable {
+    QUEUES = 0;
+    TASKS = 1;
+    TASKS_BY_ETA = 2;
+    TASKS_BY_TAG = 3;
+  }
+  optional .apphosting.BigtableEvent.BigtableEventType type = 1;
+  optional .apphosting.BigtableEvent.ExecutorTable table_type = 2;
+  optional string row = 3;
+  optional uint64 row_hash = 4;
+  optional int64 start_time_usec = 5;
+  optional int64 end_time_usec = 6;
+  optional int32 num_results = 7;
+  optional int32 error = 8;
+}
+
+message RequestSourceIdentifier {
+  enum SourceType {
+    UNKNOWN = 0;
+    APP_ENGINE_RUNTIME = 1;
+    TASK_QUEUE_BRIDGE = 2;
+    CLOUD_TASKS_FRONTEND = 3;
+    CLOUD_SCHEDULER_FRONTEND = 4;
+  }
+  optional .EventIdMessage event_id = 1;
+  optional .apphosting.RequestSourceIdentifier.SourceType source_type = 2;
+}
+
+message TempQueueEvent {
+  enum ProcessType {
+    SERVER = 1;
+    SCANNER = 2;
+  }
+  enum EventType {
+    UNKNOWN = 0;
+    ADD_TASK = 1;
+    QUERY_AND_OWN_TASKS = 2;
+    DELETE_TASK = 3;
+    MODIFY_TASK_LEASE = 4;
+    NOTIFY_ADD_TASK = 5;
+    NOTIFY_DELETE_TASK = 6;
+    QUEUE_SCAN = 7;
+    UPDATE_TASK = 8;
+    FETCH_QUEUE_INFO = 9;
+    EXECUTION_BUFFER = 10;
+  }
+  optional string queue_name = 14;
+  optional string group_name = 15;
+  optional string customer_name = 16;
+  optional int64 start_time_usec = 2;
+  optional int64 end_time_usec = 3;
+  optional .apphosting.TempQueueEvent.ProcessType process_type = 4;
+  optional string process_id = 5;
+  optional .apphosting.TempQueueEvent.EventType type = 6;
+  optional int64 rpc_sent_time_usec = 8;
+  optional int32 error = 9;
+  optional int32 application_error = 17;
+  repeated .apphosting.RPCEvent rpc_event = 10;
+  repeated .apphosting.TaskEvent task_event = 11;
+  repeated .apphosting.BigtableEvent bigtable_event = 12;
+  optional .EventIdMessage event_id = 18;
+  optional .apphosting.RequestSourceIdentifier request_source_identifier = 20;
+  optional uint64 trace_id = 21;
+}
+

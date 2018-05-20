@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "net/proto2/proto/descriptor.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ErrorFormatProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/annotations;annotations";
+option cc_enable_arenas = true;
+option objc_class_prefix = "GAPI";
+
+message CustomError {
+  repeated .google.api.CustomErrorRule rules = 1;
+  repeated string types = 2;
+}
+
+message CustomErrorRule {
+  string selector = 1;
+  bool is_error_type = 3;
+}
+
+extend .proto2.MessageOptions {
+  .google.api.CustomErrorRule custom_error = 79365461;
+}
+
+

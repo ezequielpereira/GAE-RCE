@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package logs_anonymization;
+
+option java_package = "com.google.common.logging";
+option cc_enable_arenas = true;
+
+message SavedIPDataProto {
+  optional int32 CityNum = 1;
+  optional bool IsInternal = 2;
+}
+
+message SavedCookieDataProto {
+  optional bool IsRaterCookie = 1;
+}
+
+

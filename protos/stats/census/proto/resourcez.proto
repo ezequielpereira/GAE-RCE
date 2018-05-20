@@ -1,0 +1,77 @@
+syntax = "proto2";
+
+import "stats/census/proto/view.proto";
+package stats_census.store.resourcez;
+
+message TaskInfo {
+  optional string user = 1;
+  optional string job_name = 2;
+  optional int32 task_number = 3;
+}
+
+message Resource {
+  optional int32 id = 1;
+  optional string name = 2;
+  optional int64 record_count = 3;
+  repeated string tag_keys = 4;
+}
+
+message TagSelector {
+  optional string tag_key = 1;
+  optional string whitelist_regexp = 2;
+  optional string blacklist_regexp = 3;
+}
+
+message View {
+  enum CanaryState {
+    NONE = 0;
+    IN_PROGRESS = 1;
+    SUCCEEDED = 2;
+    FAILED = 3;
+  }
+  optional .stats_census.store.resourcez.Resource resource = 1;
+  repeated .stats_census.store.resourcez.TagSelector tag_selectors = 2;
+  optional bool ephemeral = 3;
+  optional int64 bytes = 4;
+  optional int64 num_records = 5;
+  optional string creation_time = 6;
+  optional string command_line_flag = 7;
+  optional .stats_census.store.resourcez.View.CanaryState canary_state = 8;
+  optional string canary_summary = 9;
+  optional string canary_details = 10;
+  optional .stats_census.TopKProto top_k = 11;
+}
+
+message ResourceList {
+  repeated .stats_census.store.resourcez.Resource resources = 1;
+  optional string process_start_time = 2;
+  optional string current_time = 3;
+}
+
+message ViewList {
+  repeated .stats_census.store.resourcez.View views = 1;
+  optional string process_start_time = 2;
+  optional string current_time = 3;
+  optional int32 da_num_replicas = 4;
+}
+
+message ViewResponse {
+  message Error {
+    optional string reason = 1;
+    optional string tag_key = 2;
+    optional string regexp_name = 3;
+  }
+  optional string result = 1;
+  repeated .stats_census.store.resourcez.ViewResponse.Error errors = 2;
+  optional string process_start_time = 3;
+  optional string current_time = 4;
+}
+
+message HealthIssues {
+  optional string summary = 1;
+  optional string suggestions = 2;
+  optional string process_start_time = 3;
+  optional string current_time = 4;
+}
+
+

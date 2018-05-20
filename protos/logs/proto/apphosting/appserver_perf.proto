@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+import "apphosting/base/container.proto";
+import "logs/eventid/eventid.proto";
+import "logs/proto/apphosting/base.proto";
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.logs";
+
+message AppServerPerformanceIdentifier {
+  optional .EventIdMessage EventId = 1;
+  optional string app_id = 2;
+  optional string version_id = 3;
+  optional uint64 project_number = 10;
+  optional .apphosting.AppServerLogData appserver = 4;
+  repeated string experiment = 5;
+  optional int32 runtime_id = 11;
+  optional int32 original_runtime_id = 12;
+  optional string runtime_specialization = 13;
+}
+
+message AppProfileTuple {
+  optional string label = 1;
+  optional int64 timestamp_usec = 2;
+}
+
+message ProfileTuple {
+  optional string label = 1;
+  optional int64 timestamp_usec = 2;
+}
+
+message CloneResourceUsage {
+  repeated .apphosting.ContainerMemUsage container_mem_usage = 1;
+  optional int64 gofer_container_cpu_time_ns = 2;
+  optional int64 gofer_container_mem_bytes = 3;
+}
+
+message ContainerMemUsage {
+  repeated .riptide.ContainerCapability capabilities = 1;
+  optional int64 app_mem_bytes = 2;
+  optional int64 sentry_mem_bytes = 3;
+}
+
+message AppServerRequestPerformance {
+  optional .apphosting.AppServerPerformanceIdentifier id = 1;
+  optional bool incomplete = 2;
+  optional int64 appserver_arrival_time = 3;
+  optional int64 arrival_phase = 25;
+  optional int64 add_app_phase = 11;
+  optional int64 get_app_info_phase_phase = 12;
+  optional int64 request_validation_phase = 13;
+  optional int64 authentication_phase = 14;
+  optional int64 early_pushback_evaluation_phase = 15;
+  optional int64 authorization_phase = 16;
+  optional int64 quota_check_phase = 17;
+  optional int64 static_serving_phase = 18;
+  optional int64 clone_scheduling_phase = 19;
+  optional int64 wait_for_clone_creation_phase = 26;
+  optional int64 clone_loading_phase = 20;
+  optional int64 pre_sending_to_clone_phase = 21;
+  optional int64 clone_rpc_phase = 22;
+  optional int64 response_validation_phase = 23;
+  optional int64 report_usage_phase = 24;
+  optional int32 current_phase = 4;
+  optional int32 num_requests = 5;
+  optional int32 num_active_clones = 6;
+  optional float cpu_utilization = 7;
+  optional float select_server_utilization = 27;
+  repeated string admin_enduser_provided_appengine_header = 28;
+  repeated .apphosting.AppProfileTuple app_profile_data = 29;
+  repeated .apphosting.ProfileTuple sandbox_profile_data = 32;
+  optional string cloud_trace_context_id = 30;
+  optional .apphosting.CloneResourceUsage clone_resource_usage = 31;
+}
+
+message ClientProfilingMetrics {
+  optional string cloud_trace_context_id = 1;
+  optional string app_url = 2;
+  optional int64 start_usec = 3;
+  optional int64 end_usec = 4;
+  repeated .apphosting.AppProfileTuple app_profile_data = 5;
+}
+

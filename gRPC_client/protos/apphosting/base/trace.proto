@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "TracePb";
+
+message TraceContextProto {
+  optional bytes trace_id = 1;
+  optional fixed64 span_id = 2;
+  optional uint32 trace_mask = 3;
+}
+

@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package ls_backup_sequence;
+
+option java_package = "com.google.chubby.impl";
+option java_outer_classname = "BackupSequenceProtos";
+option java_multiple_files = true;
+
+message BackupSequencer {
+  repeated bytes seq = 1;
+}
+
+

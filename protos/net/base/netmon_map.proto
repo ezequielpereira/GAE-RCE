@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+package net_base;
+
+option java_package = "com.google.net.util";
+
+message ConnectionData {
+  enum ConnectionMode {
+    UNKNOWN = 0;
+    CLIENT = 1;
+    SERVER = 2;
+  }
+  enum TransportLayer {
+    INET_TCP = 0;
+    INET_UDP = 1;
+    INET_IB_OVER_IP = 2;
+    INET_PONY_OVER_IP = 3;
+    INET_TIKI_OVER_UDP = 4;
+    INET_UNKNOWN = 256;
+  }
+  required int32 local_port = 1;
+  required int32 remote_port = 2;
+  optional fixed32 remote_ipv4 = 3 [default = 0];
+  optional bytes remote_ip = 10;
+  required string remote_label = 4;
+  required int32 mode = 5;
+  optional .net_base.ConnectionData.TransportLayer transport_layer = 6 [default = INET_TCP];
+  repeated group Owner = 7 {
+    required string name = 8;
+    required int32 bytes = 9;
+  }
+}
+
+message NetmonPortMap {
+  required string local_label = 1;
+  optional int32 addrspace_id = 5;
+  optional int32 deletion_threshold_secs = 2;
+  repeated .net_base.ConnectionData active_connection = 3;
+  repeated .net_base.ConnectionData deleted_connection = 4;
+}
+

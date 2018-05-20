@@ -1,0 +1,50 @@
+syntax = "proto2";
+
+import "google/iam/v1/policy.proto";
+import "security/context/proto/policy/authentication_policy.proto";
+import "security/context/proto/creds_policy_config.proto";
+package security.context;
+
+option java_package = "com.google.security.context";
+option java_outer_classname = "RpcSecurityPolicyProtoFile";
+option java_multiple_files = true;
+
+message RpcSecurityPolicyMapping {
+  repeated string rpc_method = 1;
+  repeated string action = 5;
+  optional .security.context.AuthenticationPolicy authentication_policy = 2;
+  optional .security.context.AuthorizationMode authorization_mode = 3;
+  optional string permission_to_check = 4;
+  repeated .security.context.AuthorizationMethod authorization_method = 6;
+}
+
+message AuthorizationMethod {
+  message LocalIam {
+  }
+  message CloudIam {
+  }
+  message Delegated {
+  }
+  message Custom {
+  }
+  oneof method {
+    .security.context.AuthorizationMethod.LocalIam local_iam = 1;
+    .security.context.AuthorizationMethod.CloudIam cloud_iam = 2;
+    .security.context.AuthorizationMethod.Delegated delegated = 4;
+    .security.context.AuthorizationMethod.Custom custom = 3;
+  }
+}
+
+message AuditingConfig {
+  optional .google.api.Auditing auditing = 1;
+}
+
+message RpcSecurityPolicy {
+  repeated .security.context.RpcSecurityPolicyMapping mapping = 2;
+  optional .google.iam.v1.Policy system_authorization_policy = 3;
+  optional .security.context.AuditingConfig audit = 5;
+  optional .security.context.CredsPolicyConfigProto creds_policy_config = 1;
+  optional bool trust_esf_authentication = 4;
+}
+
+

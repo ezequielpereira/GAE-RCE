@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+option java_package = "com.google.net.resolver.proto";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message ResolvedAddr {
+  required int32 port = 1;
+  repeated bytes ipv4 = 2;
+  optional string hostname = 3;
+  optional int32 dns_ttl = 4;
+  repeated bytes ipv6 = 5;
+}
+
+

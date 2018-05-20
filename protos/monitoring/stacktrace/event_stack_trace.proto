@@ -1,0 +1,220 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package monitoring_stacktrace;
+
+option java_package = "com.google.monitoring.stacktrace";
+
+message EventFact {
+  enum FactType {
+    HEAP_BYTES_ALLOCATED = 1;
+    HEAP_BYTES_GROWN = 3;
+    CONTENTION_SEC = 2;
+  }
+  required float weight = 1;
+  required .monitoring_stacktrace.EventFact.FactType type = 2;
+}
+
+message TimeRange {
+  required int64 start_usec = 1;
+  optional int64 duration_usec = 2 [default = 0];
+}
+
+message ProgramUnit {
+  optional string program_name = 1;
+  optional int64 build_timestamp = 2;
+  optional int64 build_changelist = 3;
+  optional string build_target = 4;
+  optional string target_name = 12;
+  optional string build_label = 5;
+  optional string build_user = 6;
+  optional string build_machine = 7;
+  optional string build_client_path = 8;
+  optional string build_client_status = 9;
+  optional string build_platform = 10;
+  optional string build_depot_path = 11;
+  optional string language = 13;
+  optional string build_id = 14;
+  optional string build_tool = 15;
+  optional string build_debug = 16;
+}
+
+message Frame {
+  required string function_name = 1;
+  optional string class_name = 2;
+  optional int32 line_number = 4;
+  optional string perforce_filename = 5;
+  optional string raw_filename = 8;
+  optional string google3_filename = 9;
+  optional string perforce_version_spec = 7;
+  optional int64 program_counter = 10;
+  optional .monitoring_stacktrace.ProgramUnit program_unit = 6;
+  optional int32 error_code = 11;
+}
+
+message KeyValuePair {
+  required string key = 1;
+  optional string value = 2;
+}
+
+message RpcData {
+  required string service_name = 1;
+  required string method = 2;
+}
+
+message ThreadData {
+  repeated .monitoring_stacktrace.KeyValuePair metadata = 32;
+  optional string client = 1;
+  optional string operation = 2;
+  optional string module = 3;
+  optional string session = 4;
+  optional string user = 5;
+  optional int64 start_usec = 6;
+  optional int64 time_in_flight_usec = 7;
+  optional int64 request_duration_usec = 9;
+  repeated .monitoring_stacktrace.KeyValuePair request_parameters = 8;
+}
+
+message ProcessData {
+  required int32 id = 1;
+  optional int32 group_id = 2;
+  optional int32 user_id = 3;
+  optional string command = 4;
+}
+
+message BorgData {
+  optional string borg_job = 4;
+  optional int32 borg_tasknum = 7;
+  optional string borg_cell = 5;
+  optional string borg_user = 6;
+  optional int64 uid = 10;
+  optional string custom_bns_path = 9;
+}
+
+message Machine {
+  required string host = 1;
+  optional int32 port = 2;
+  optional string ip_address = 3;
+  optional string platform = 4;
+  optional string kernel = 5;
+  optional string arm_model_name = 6;
+}
+
+message MessageData {
+  required string type = 1;
+  required string message = 2;
+  repeated string parameters = 3;
+  optional string message_template = 4;
+}
+
+message AggregateStatistics {
+  optional int32 message_count = 1 [default = 1];
+}
+
+message EventStackTrace {
+  enum Source {
+    UNKNOWN_SOURCE = 0;
+    PROTOSTATUSZ_JAVA = 1;
+    PROFILEZ_CPP = 2;
+    PROFILEZ_JAVA = 3;
+    HEAPZ_CPP = 4;
+    HEAPZ_JAVA = 5;
+    HEAPZ_GARBAGE_JAVA = 20;
+    GROWTHZ_CPP = 17;
+    CONTENTIONZ_CPP = 6;
+    CONTENTIONZ_JAVA = 7;
+    THREADZ_CPP = 8;
+    ALLOCATIONZ_CPP = 59;
+    GOPROFILED_CYCLES = 9;
+    GOPROFILED_INSTR = 10;
+    GOPROFILED_L1_MISS = 11;
+    GOPROFILED_L2_MISS = 12;
+    GOPROFILED_BR_MISP = 13;
+    GOPROFILED_SPLIT_LD = 14;
+    GOPROFILED_SIMD_INSTR = 18;
+    GOPROFILED_FPU_INSTR = 19;
+    GOPROFILED_CYCLES_STACK = 41;
+    GOPROFILED_DTLB_LOAD_MISS = 49;
+    GOPROFILED_DTLB_STORE_MISS = 50;
+    GOPROFILED_IC_MISS = 51;
+    GOPROFILED_ITLB_MISS = 52;
+    GOPROFILED_L2_IC_MISS = 53;
+    GOPROFILED_LLC_LOAD_MISS = 54;
+    GOPROFILED_LOAD_REMOTE_MEMORY = 55;
+    GOPROFILED_LOCAL_SHARING = 56;
+    GOPROFILED_MEMORY_ORDERING = 57;
+    GOPROFILED_SPLIT_ATOMIC = 58;
+    DEATHRATTLE = 15;
+    ECATCHER = 16;
+    AWP_IFETCH_MISS = 21;
+    AWP_ITLB_MISS = 22;
+    AWP_DCACHE_REFILL = 23;
+    AWP_DCACHE_ACCESS = 24;
+    AWP_DTLB_REFILL = 25;
+    AWP_INSTR_EXECUTED = 26;
+    AWP_PC_IMM_BRANCH = 27;
+    AWP_PC_BRANCH_MIS_PRED = 28;
+    AWP_PC_BRANCH_MIS_USED = 29;
+    AWP_L2_CACHE_MISS = 30;
+    AWP_L1_DATA_MISS = 31;
+    AWP_L1_INST_MISS = 32;
+    AWP_L1_DATA_COLORING = 33;
+    AWP_PC_RETURN_MIS_PRED = 34;
+    AWP_PC_BRANCH_FAILED = 35;
+    AWP_PC_BRANCH_TAKEN = 36;
+    AWP_PC_BRANCH_EXECUTED = 37;
+    AWP_CYCLES_INST_STALL = 38;
+    AWP_CYCLES_INST = 39;
+    AWP_CPU_CYCLES = 40;
+    PROFILEZ_GO = 42;
+    HEAPZ_GO = 43;
+    CONTENTIONZ_GO = 44;
+    THREADZ_GO = 45;
+    PROTOZ_CPP = 46;
+    HEAPZ_GARBAGE_GO = 47;
+    GPUPROFILEZ_CPP = 48;
+    GPUPROFILEZ_NVIDIA_GPU = 60;
+    GPUPROFILEZ_SEASTAR = 61;
+    COLLECTOR_ERROR = 100;
+  }
+  enum Integrity {
+    UNKNOWN_INTEGRITY = 0;
+    FULL = 1;
+    FRAGMENT_LEAF = 2;
+    FRAGMENT_MIDDLE = 3;
+    FRAGMENT_ROOT = 4;
+    ERROR_INTEGRITY = 5;
+    NOT_SYMBOLIZED = 6;
+  }
+  enum Language {
+    UNKNOWN_LANGUAGE = 0;
+    JAVA = 1;
+    CPP = 2;
+    PYTHON = 3;
+    JS = 4;
+    GO = 5;
+    DART = 6;
+  }
+  required .monitoring_stacktrace.EventStackTrace.Integrity trace_integrity = 1;
+  required .monitoring_stacktrace.EventStackTrace.Source trace_source = 2;
+  repeated .monitoring_stacktrace.Frame frame = 3;
+  optional int32 count = 4 [default = 1];
+  repeated .monitoring_stacktrace.EventFact fact = 5;
+  optional .monitoring_stacktrace.TimeRange time_range = 6;
+  optional .monitoring_stacktrace.Machine machine = 7;
+  optional .monitoring_stacktrace.BorgData borg_data = 8;
+  optional .monitoring_stacktrace.ThreadData thread_data = 11;
+  optional .monitoring_stacktrace.ProcessData process_data = 12;
+  optional .monitoring_stacktrace.MessageData message = 13;
+  optional .monitoring_stacktrace.EventStackTrace.Language language = 14;
+  optional string customer = 10;
+  optional .monitoring_stacktrace.ProgramUnit main_program_unit = 9;
+  repeated .monitoring_stacktrace.RpcData outgoing_rpc_data = 15;
+  repeated .monitoring_stacktrace.KeyValuePair metadata = 32;
+  optional int32 error_code = 31;
+  optional .monitoring_stacktrace.AggregateStatistics aggregate_statistics = 33;
+  extend .proto2.bridge.MessageSet {
+    optional .monitoring_stacktrace.EventStackTrace message_set_extension = 17640693;
+  }
+}
+

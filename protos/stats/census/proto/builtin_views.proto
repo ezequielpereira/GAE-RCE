@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+import "stats/census/proto/view.proto";
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option cc_enable_arenas = true;
+
+message BuiltinViewCollection {
+  optional int64 changelist = 1;
+  repeated .stats_census.ViewProto view = 2;
+}
+
+message BuiltinViewsRequest {
+}
+
+message BuiltinViewsResponse {
+  optional .stats_census.BuiltinViewCollection views = 1;
+}
+
+

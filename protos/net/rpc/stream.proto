@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+import "util/task/status.proto";
+package rpc;
+
+option java_package = "com.google.net.rpc.impl.proto";
+
+message StreamHeader {
+  optional int64 sequence = 1;
+  optional int64 tokens = 2;
+  optional bool end_of_data = 3 [default = false];
+  optional bool end_of_stream = 4 [default = false];
+  optional bool pure_control_message = 5 [default = false];
+  optional .util.StatusProto status = 6;
+  optional int64 initial_client_tokens = 7 [default = -1];
+  optional int64 initial_server_tokens = 8 [default = -1];
+  optional bool message_based_tokens = 9 [default = false];
+}
+
+

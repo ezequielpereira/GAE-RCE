@@ -1,0 +1,74 @@
+syntax = "proto2";
+
+package appengine_proto;
+
+option java_multiple_files = true;
+
+message HelpoutsLog {
+  enum EventType {
+    ASK_QUESTION = 1;
+    SUBMIT_QUESTION = 13;
+    CANCEL_QUESTION = 15;
+    PROVIDER_ACCEPT = 2;
+    PROVIDER_REJECT = 3;
+    PROVIDER_ACK = 12;
+    PROVIDER_TIMEOUT = 14;
+    PROVIDER_RESPONSE = 4;
+    CONSUMER_RESPONSE = 5;
+    START_AUDIO_CHAT = 6;
+    START_VIDEO_CHAT = 7;
+    START_HANGOUT = 8;
+    END_QUESTION = 9;
+    FEEDBACK = 10;
+    REMATCH = 11;
+  }
+  required .appengine_proto.HelpoutsLog.EventType type = 1;
+  required uint64 question_id = 2;
+  optional uint64 conversation_id = 3;
+  optional uint64 time_since_question_millis = 15;
+  optional string question = 4;
+  optional string site = 5;
+  repeated string tags = 6;
+  optional string silo = 7;
+  optional int32 match_count = 16;
+  optional int32 filtered_match_count = 18;
+  repeated .appengine_proto.ProviderMatch matches = 8;
+  optional float cutoff_score = 19;
+  optional int32 inactive_providers = 9;
+  optional int32 offline_providers = 10;
+  repeated int32 experiment_ids = 17;
+  optional int32 effectiveness = 11;
+  optional int32 friendliness = 12;
+  optional bool willing_to_work_with = 13;
+  optional bool technical_difficulty = 14;
+}
+
+message ProviderMatch {
+  optional float score = 1;
+  optional float randomized_score = 18;
+  optional bool selected = 2;
+  optional uint64 conversation_id = 3;
+  repeated int32 provider_experiment_ids = 19;
+  repeated string matched_required_tags = 4;
+  repeated string matched_optional_tags = 5;
+  optional float est_prob_accept = 6;
+  optional float est_prob_success_given_accept = 7;
+  optional float response_time_score = 8;
+  optional float manual_rating_score = 9;
+  optional bool is_affiliated = 10;
+  optional float pre_site_boost_score = 17;
+  optional bool on_site = 20;
+  optional bool exploration = 21;
+  optional float timeout_penalty = 22;
+  optional float recent_activity_boost = 23;
+  optional float new_provider_boost = 24;
+  optional float ping_rate_adjustment = 25;
+  optional int32 questions_accepted = 11;
+  optional int32 questions_rejected = 12;
+  optional int32 questions_timed_out = 13;
+  optional int32 consecutive_time_outs = 14;
+  optional float review_score = 15;
+  optional int32 manual_rating = 16;
+  optional int32 pings_in_past_24_hours = 26;
+}
+

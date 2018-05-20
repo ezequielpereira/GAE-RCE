@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+option java_package = "com.google.gaia.client.proto";
+option cc_enable_arenas = true;
+
+message ServiceLocalePreferences {
+  optional string Mail = 1;
+}
+
+message GaiaUserPreferences {
+  optional .ServiceLocalePreferences ServiceLocalePreferences = 1;
+}
+
+message GaiaCachedUserPreferences {
+  optional string GmailOemDomain = 2;
+}
+
+

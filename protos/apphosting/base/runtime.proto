@@ -1,0 +1,222 @@
+syntax = "proto2";
+
+import "apphosting/base/app_logs.proto";
+import "apphosting/base/appinfo.proto";
+import "apphosting/base/common.proto";
+import "apphosting/base/http.proto";
+import "apphosting/base/syscall.proto";
+import "apphosting/base/trace.proto";
+import "apphosting/sandbox/udrpc/udrpc.proto";
+import "logs/proto/apphosting/apphosting_extensions.proto";
+import "logs/proto/apphosting/appserver_perf.proto";
+import "net/rpc/empty-message.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "RuntimePb";
+
+message UPRequest {
+  enum RequestType {
+    OTHER = 0;
+    SHUTDOWN = 1;
+    BACKGROUND = 2;
+  }
+  enum Deadline {
+    RPC_DEADLINE_PADDING_SECONDS = 30;
+  }
+  required string app_id = 1;
+  optional string module_id = 37 [default = "default"];
+  optional string module_version_id = 38;
+  required string version_id = 2;
+  required string nickname = 3;
+  required string security_ticket = 4;
+  optional int64 local_request_id = 41;
+  optional bool is_admin = 7 [default = false];
+  optional string email = 10 [default = ""];
+  optional string auth_domain = 11 [default = ""];
+  optional string user_organization = 17 [default = ""];
+  optional int64 current_config_version = 24;
+  required .apphosting.Handler handler = 5;
+  optional .apphosting.HttpRequest request = 6;
+  repeated .apphosting.ParsedHttpHeader runtime_headers = 13;
+  optional string obfuscated_gaia_id = 14;
+  optional int64 gaia_id = 8;
+  optional string gaia_session = 9;
+  optional string authuser = 30;
+  optional bool is_trusted_app = 12 [default = false];
+  optional string peer_username = 15;
+  optional string security_level = 16;
+  optional string executor_queue_name = 18;
+  optional string event_id_hash = 20;
+  optional bool is_server = 26;
+  optional int32 replica_index = 21 [default = -1];
+  optional bool warming_request = 22 [default = false];
+  optional .apphosting.ProfilerSettings profiler_settings = 23;
+  optional string default_version_hostname = 27;
+  optional .apphosting.UPRequest.RequestType request_type = 28 [default = OTHER];
+  optional string session_affinity_clone_id = 42;
+  optional string appserver_datacenter = 31;
+  optional string appserver_task_bns = 32;
+  optional bool enable_sliding_scale_routing = 33;
+  optional int32 attempt_number = 34;
+  optional bool enable_push_back = 39 [default = false];
+  optional string request_log_id = 35;
+  optional double start_time_s = 36;
+  optional .apphosting.TraceContextProto trace_context = 40;
+  reserved 19, 29;
+}
+
+message PendingCloudDebuggerAction {
+  optional bool debuggee_registration = 1;
+  optional bool breakpoint_updates = 2;
+}
+
+message UPResponse {
+  enum ERROR {
+    OK = 0;
+    APP_FAILURE = 1;
+    RESOURCE_NOT_FOUND = 2;
+    UNKNOWN_HANDLER = 3;
+    UNKNOWN_API_VERSION = 6;
+    LOG_FATAL_DEATH = 7;
+    CLONE_DEATH = 8;
+    USER_CONTAINER_CRASH = 23;
+    GOOGLE_CONTAINER_CRASH = 24;
+    APP_REQUESTED_KILL = 25;
+    ABORTED = 9;
+    PENDING_DISABLED = 10;
+    BUFFER_ERROR = 15;
+    INVALID_TICKET = 11;
+    UNKNOWN_APP = 4;
+    RPC_FAILURE = 5;
+    SERVER_DOWN = 12;
+    SERVER_STOPPED = 13;
+    SHUTDOWN_FAILURE = 14;
+    BACKGROUND_FAILURE = 16;
+    PENDING_QUEUE_TOO_LARGE = 17;
+    APP_BINARY_NOT_FOUND = 18;
+    THREADS_STILL_RUNNING = 19;
+    DEADLINE_DURING_LOADING = 22;
+    UNEXPECTED_ERROR = 26;
+  }
+  required int32 error = 1;
+  optional string error_message = 2;
+  optional .apphosting.HttpResponse http_response = 3;
+  repeated .apphosting.ParsedHttpHeader runtime_headers = 15;
+  optional int64 user_mcycles = 4;
+  optional int64 checkpoint_mcycles = 23;
+  repeated .ApphostingQuotaUsage quota_usages = 24;
+  repeated .ApphostingQuotaDenial quota_denials = 25;
+  optional .apphosting.CloneResourceUsage resource_usage = 41;
+  repeated .apphosting.AppLogLine app_log = 26;
+  repeated .apphosting.SyscallEventInfo syscall = 9;
+  repeated group RuntimeLogLine = 10 {
+    required int32 severity = 11;
+    required string message = 12;
+  }
+  optional uint64 runtime_pid = 13 [deprecated = true];
+  optional string clone_id = 38;
+  optional bool was_loading_request = 14 [default = false];
+  optional bool was_warming_request = 43 [default = false];
+  optional bool terminate_clone = 16 [default = false];
+  optional bool clone_is_in_unclean_state = 42 [default = false];
+  optional int32 clone_exit_reason = 18 [default = 0];
+  optional double pending_time = 19 [default = 0];
+  optional double clone_time = 31 [default = 0];
+  optional bool was_wallclock_throttled = 20 [default = false];
+  optional bool was_active_requests_throttled = 21 [default = false];
+  optional double cpu_throttled_time = 22 [default = 0];
+  optional .apphosting.RuntimeResourceStats resource_stats = 27;
+  optional .apphosting.ProfilerResults profiler_results = 29;
+  optional string clone_key = 30;
+  optional bytes trace = 32 [deprecated = true];
+  optional bytes serialized_trace = 33;
+  repeated .apphosting.DiagnosticCounter diagnostic_counters = 34;
+  optional int64 request_counter = 35;
+  optional int64 response_counter = 36;
+  optional string instance_definition_id = 37;
+  optional string base_images_definition_id = 44;
+  optional .apphosting.PendingCloudDebuggerAction pending_cloud_debugger_action = 39;
+  repeated string image_id = 40;
+}
+
+message RuntimeResourceStats {
+  optional group Disk = 1 {
+    optional double read_time_s = 2;
+    optional int64 read_bytes = 3;
+    optional double seek_time_s = 4;
+    optional double stat_time_s = 5;
+    optional double open_time_s = 6;
+  }
+}
+
+message DiagnosticCounter {
+  message Values {
+    optional string str = 1;
+  }
+  optional string name = 1;
+  optional int64 delta = 2;
+  optional string metric_name = 3;
+  repeated .apphosting.DiagnosticCounter.Values values = 4;
+}
+
+message UPAddDelete {
+  enum ERROR {
+    FAILURE = 1;
+  }
+}
+
+message APIRequest {
+  enum Encoding {
+    BINARY = 0;
+    JSON = 1;
+  }
+  required string api_package = 1;
+  required string call = 2;
+  optional bytes pb = 3 [ctype = CORD];
+  optional .apphosting.APIRequest.Encoding request_encoding = 6 [default = BINARY];
+  optional .apphosting.APIRequest.Encoding response_encoding = 7 [default = BINARY];
+  required string security_ticket = 4;
+  optional .apphosting.TraceContextProto trace_context = 8;
+}
+
+message APIResponse {
+  enum ERROR {
+    OK = 0;
+    CALL_NOT_FOUND = 1;
+    PARSE_ERROR = 2;
+    SECURITY_VIOLATION = 3;
+    OVER_QUOTA = 4;
+    REQUEST_TOO_LARGE = 5;
+    CAPABILITY_DISABLED = 6;
+    FEATURE_DISABLED = 7;
+    BAD_REQUEST = 8;
+    BUFFER_ERROR = 9;
+    RESPONSE_TOO_LARGE = 10;
+    CANCELLED = 11;
+    REPLAY_ERROR = 12;
+    RPC_ERROR = 13;
+  }
+  enum RpcError {
+    DEADLINE_EXCEEDED = 1;
+    APPLICATION_ERROR = 2;
+    UNKNOWN_ERROR = 3;
+  }
+  required int32 error = 1;
+  optional string error_message = 2;
+  optional .apphosting.APIResponse.RpcError rpc_error = 6;
+  optional int32 rpc_application_error = 7;
+  optional int64 cpu_usage = 4 [default = 0];
+  optional bytes pb = 3 [ctype = CORD];
+}
+
+service EvaluationRuntime {
+  rpc HandleRequest(.apphosting.UPRequest) returns (.apphosting.UPResponse);
+  rpc AddAppVersion(.apphosting.AppInfo) returns (.EmptyMessage);
+  rpc DeleteAppVersion(.apphosting.AppInfo) returns (.EmptyMessage);
+}
+
+service APIHost {
+  rpc Call(.apphosting.APIRequest) returns (.apphosting.APIResponse);
+}
+

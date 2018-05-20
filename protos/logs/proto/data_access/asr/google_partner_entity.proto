@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+import "partnerservices/entity/entity_id.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "GooglePartnerEntityProtoFile";
+option java_multiple_files = true;
+
+message GooglePartnerEntity {
+  optional .partnerservices.entity.Id id = 1;
+}
+

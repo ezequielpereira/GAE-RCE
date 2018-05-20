@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+
+message GroupRef {
+  required bytes customer = 1;
+  required bytes name = 2;
+}
+
+message GroupThrottlingParameters {
+  optional double override_bucket_refill_per_second = 1 [default = -1];
+  optional double override_bucket_capacity = 2 [default = -1];
+  optional int32 override_max_concurrent_requests = 3 [default = -1];
+  optional int32 override_max_pull_requests_per_second = 4 [default = -1];
+}
+
+message GroupDefinition {
+  optional bool OBSOLETE_disabled = 2;
+  required .apphosting.GroupRef group_ref = 1;
+  optional .apphosting.GroupThrottlingParameters group_throttling_parameters = 6;
+}
+

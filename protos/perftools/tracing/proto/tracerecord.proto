@@ -1,0 +1,62 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+option java_package = "com.google.tracing";
+
+message TraceRecord {
+  enum SpanType {
+    SPAN_UNKNOWN = 0;
+    SPAN_LOCAL = 1;
+    SPAN_CLIENT_HALF = 2;
+    SPAN_SERVER_HALF = 3;
+  }
+  enum SpanIdVersion {
+    SPAN_ID_VERSION_SAME_FOR_CLIENT_SERVER = 0;
+    SPAN_ID_VERSION_UNIQUE = 1;
+  }
+  enum ChannelIdsLegacy {
+    LEGACY_CHANNEL = 1073741824;
+  }
+  required fixed64 rpc_id = 1;
+  required fixed64 global_id = 2;
+  optional fixed64 parent_span_id = 14;
+  optional fixed64 grandparent_span_id = 39;
+  optional fixed64 process_id = 15;
+  optional int32 trace_mask = 16 [default = 1];
+  optional double sampling_probability = 32;
+  optional double trace_period = 17 [default = 1024];
+  optional string name = 18;
+  optional double local_start_time = 19;
+  optional double local_end_time = 20;
+  optional double local_stop_time = 31;
+  optional bool is_leaf = 26;
+  optional int32 child_span_count = 38;
+  optional bool error = 33;
+  optional .TraceRecord.SpanType span_type = 34 [default = SPAN_UNKNOWN];
+  optional string peer_address = 35;
+  optional bool tracing_initiator = 36;
+  optional .TraceRecord.SpanIdVersion span_id_version = 40 [default = SPAN_ID_VERSION_SAME_FOR_CLIENT_SERVER];
+  repeated group ChannelEntry = 9 {
+    required fixed32 channel_id = 10;
+    repeated group AnnotationEntry = 11 {
+      optional string key = 27;
+      required double timestamp = 12;
+      optional int32 thread_id = 37;
+      optional string string_value = 13;
+      optional int32 int32_value = 21;
+      optional int64 int64_value = 22;
+      optional double double_value = 23;
+      optional .proto2.bridge.MessageSet message_value = 24;
+      optional bool boolean_value = 30;
+      repeated group SymbolizedStackFrame = 25 {
+        required int64 program_counter = 28;
+        optional string function_name = 29;
+      }
+    }
+  }
+  extend .proto2.bridge.MessageSet {
+    optional .TraceRecord message_set_extension = 6076542;
+  }
+}
+
+

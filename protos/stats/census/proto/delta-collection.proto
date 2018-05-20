@@ -1,0 +1,76 @@
+syntax = "proto2";
+
+import "stats/census/proto/census.proto";
+import "stats/census/proto/view.proto";
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option java_outer_classname = "DeltaCollectionProto";
+option cc_enable_arenas = true;
+
+message MeasureIdProto {
+  optional string resource = 1;
+  optional string measure = 2;
+}
+
+message ViewHealthIndicators {
+  optional int64 memory_usage = 1;
+}
+
+message Delta {
+  optional int64 sequence_number = 1;
+  optional .stats_census.ResourceRecord resource_record = 3;
+  optional bool is_view_based = 4 [default = false];
+  optional bool uses_merged_views = 8 [default = false];
+  repeated .stats_census.TagSelectorProto tag_selectors = 5;
+  repeated .stats_census.MeasureIdProto measures = 6;
+  optional .stats_census.ViewHealthIndicators health = 7;
+  reserved 2;
+}
+
+message HealthIndicators {
+  message Assertion {
+    optional bytes uuid = 1;
+    optional double time = 2;
+    optional int32 tid = 3;
+    optional string thread_name = 4;
+    optional string message = 5;
+  }
+  optional int64 log_records_lost_in_logs = 3;
+  optional int64 total_log_records = 4;
+  optional int64 tagging_oos = 11;
+  optional double last_time_log_record_lost_in_logs = 14;
+  optional double last_interval_stats_oos_drop_time = 10;
+  optional double last_tagging_oos_time = 16;
+  optional double last_time_active_ops_reset = 18;
+  optional int64 num_assertion_failures = 20;
+  repeated .stats_census.HealthIndicators.Assertion assertions = 21;
+  reserved 1, 2, 5, 6, 7, 8, 9, 12, 13, 15, 17, 19;
+}
+
+message HTTPDeltaRequest {
+  repeated .stats_census.ViewProto views = 2;
+  reserved 1, 3;
+}
+
+message DeltaResponse {
+  message TagKey {
+    optional .stats_census.ResourceId rid = 1;
+    optional string tag_key = 2;
+  }
+  optional double exporter_start_time = 1;
+  optional double exporter_delta_retention_time_secs = 2;
+  repeated .stats_census.Delta delta = 4;
+  optional string version_map = 6;
+  optional .stats_census.HealthIndicators health = 7;
+  optional bool running_under_borglet = 8;
+  optional string task_bns = 9;
+  optional int64 task_uid = 10;
+  optional int64 pid = 11;
+  optional string job_name = 13;
+  optional string task_user = 14;
+  repeated .stats_census.DeltaResponse.TagKey tag_keys = 12;
+  reserved 3, 5;
+}
+
+

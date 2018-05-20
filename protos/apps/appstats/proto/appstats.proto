@@ -1,0 +1,102 @@
+syntax = "proto2";
+
+package appstats;
+
+option java_package = "com.google.apps.appstats.proto";
+option java_multiple_files = true;
+
+enum TimeSeriesType {
+  COUNTER = 1;
+  TOP_STRINGS = 2;
+  UNIQUE = 3;
+  AVERAGE = 4;
+  COLLECTION = 5;
+  FLOAT_COUNTER = 6;
+}
+
+enum BucketDurationType {
+  INSTANT = 1;
+  SECOND = 8;
+  MINUTE = 2;
+  HOUR = 3;
+  DAY = 4;
+  MONTH = 5;
+  YEAR = 6;
+  ALL_TIME = 7;
+}
+
+enum CollectionRetentionPolicy {
+  SMALLEST = 0;
+  LARGEST = 1;
+}
+
+message KeySpec {
+  required string key = 1;
+  required string subkey = 2;
+  required .appstats.TimeSeriesType type = 3;
+}
+
+message CollectionTimeSeriesConfig {
+  optional .appstats.TimeSeriesType primary_type = 1 [default = COUNTER];
+  optional .appstats.CollectionRetentionPolicy retention_policy = 2 [default = LARGEST];
+}
+
+message UniqueStringEntry {
+  optional int32 hash = 1;
+  optional string value = 2;
+}
+
+message UniqueStringData {
+  repeated .appstats.UniqueStringEntry entries = 1;
+  optional bool is_accurate = 2 [default = true];
+}
+
+message AverageData {
+  optional int64 sum = 1;
+  optional int64 count = 2;
+  optional int64 min = 3;
+  optional int64 max = 4;
+  optional double sum_of_squares = 5;
+}
+
+message SecondaryBucket {
+  optional int32 index = 1;
+  optional .appstats.TimeSeriesType type = 2;
+  optional .appstats.Bucket bucket = 3;
+}
+
+message CollectionEntry {
+  optional string value = 1;
+  optional .appstats.Bucket primary = 2;
+  repeated .appstats.SecondaryBucket secondaries = 3;
+}
+
+message StatsCollection {
+  repeated .appstats.CollectionEntry entries = 1;
+}
+
+message Bucket {
+  required int64 timestamp = 1;
+  optional int64 count = 2;
+  repeated group StringCount = 3 {
+    required int64 count = 4;
+    required string value = 5;
+  }
+  optional .appstats.UniqueStringData unique_string_data = 6;
+  optional .appstats.AverageData average_data = 7;
+  optional .appstats.StatsCollection collection_data = 8;
+  optional double float_count = 9;
+}
+
+message TimeSeries {
+  required .appstats.KeySpec key_spec = 1;
+  repeated group BucketGroup = 3 {
+    required .appstats.BucketDurationType duration = 4;
+    optional int32 multiple = 6 [default = 1];
+    repeated .appstats.Bucket buckets = 5;
+  }
+  optional int32 settings_index = 7 [default = 0];
+  optional .appstats.CollectionTimeSeriesConfig collection_config = 8;
+}
+
+

@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "BlobMetadataPb";
+
+message BlobMetadata {
+  required string app_id = 1;
+  optional string sha1_hash = 2;
+  optional int64 compressed_size = 3;
+  optional string filename = 4;
+  optional string source_url = 5;
+}
+
+

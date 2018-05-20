@@ -1,0 +1,43 @@
+syntax = "proto2";
+
+import "apphosting/sandbox/udrpc/udrpc.proto";
+package apphosting;
+
+message FDPathRequest {
+  required string path = 1;
+}
+
+message FDOpenRequest {
+  required string path = 1;
+  optional bool directory_only = 2;
+  optional int32 flags = 3;
+}
+
+message FDProxyResponse {
+  message Stat {
+    required int32 time = 1;
+    required int32 mode = 2;
+    required int64 size = 3;
+  }
+  optional int32 error = 1;
+  optional int32 fd = 2;
+  optional .apphosting.FDProxyResponse.Stat stat = 3;
+}
+
+message FDDirent {
+  required string name = 1;
+}
+
+message FDListDirResponse {
+  optional int32 error = 1;
+  repeated .apphosting.FDDirent entries = 2;
+}
+
+service FDProxy {
+  rpc Access(.apphosting.FDPathRequest) returns (.apphosting.FDProxyResponse);
+  rpc Stat(.apphosting.FDPathRequest) returns (.apphosting.FDProxyResponse);
+  rpc Open(.apphosting.FDOpenRequest) returns (.apphosting.FDProxyResponse);
+  rpc ListDir(.apphosting.FDPathRequest) returns (.apphosting.FDListDirResponse);
+}
+
+

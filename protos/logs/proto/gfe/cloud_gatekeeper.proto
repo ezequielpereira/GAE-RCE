@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package logs.gfe.cloud_gatekeeper;
+
+enum Status {
+  NO_GATEKEEPER = 0;
+  ERROR = 1;
+  UNAUTHORIZED = 2;
+  AUTHORIZED = 3;
+}
+

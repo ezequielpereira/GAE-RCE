@@ -1,0 +1,237 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package blobstore;
+
+option java_package = "com.google.storage.blobstore.proto";
+option java_outer_classname = "BlobServiceProtos";
+option java_multiple_files = true;
+option java_generic_services = true;
+option py_generic_services = true;
+option cc_enable_arenas = true;
+
+message BlobRef {
+  enum Option {
+    V2_BLOBREF = 1;
+    STRIPED_STORE = 2;
+  }
+  required int32 ShardBin = 1;
+  required bytes BlobID = 2;
+  required bytes RefID = 3;
+  optional int64 Size = 4;
+  optional int64 Options = 6;
+  optional string SourceV2BlobID = 7;
+  optional string V2ReadBlobToken = 8;
+}
+
+message Status {
+  enum Code {
+    SUCCESS = 0;
+    INVALID_REQUEST = 2;
+    INVALID_TICKET = 8;
+    ACCESS_DENIED = 9;
+    NOT_FOUND_VERIFIED = 20;
+    CONFLICTING_CHUNKS = 27;
+    THINMINT_VERIFICATION_ERROR = 29;
+    UNFINALIZED_BLOB_READ = 30;
+    WRITE_PAST_FINALIZED_CHUNK = 31;
+    SERVICE_NOT_AVAILABLE = 1;
+    DATA_CORRUPTION = 4;
+    SERVER_TOO_BUSY = 7;
+    FAILOVER_EXHAUSTED = 13;
+    NOT_FOUND_UNVERIFIED = 21;
+    V2_OP_FAILED = 25;
+    NETWORK_BANDWIDTH_THROTTLED = 32;
+    CANCELLED = 33;
+    NO_TABLE_FOUND = 5;
+    CONFIG_ERROR = 6;
+    UNDEFINED = 14;
+    OP_FAILED = 3;
+    BLOB_MIGRATED_TO_V2 = 26;
+    ATTEMPT_TO_GC_MIGRATED_SHARD = 22;
+    NOT_ALL_REFS_MIGRATED = 23;
+    SHARD_READ_ONLY = 11;
+    CLUSTER_READ_ONLY = 12;
+    NOT_MIGRATED_TO_V2 = 28;
+    MAX_REFS_EXCEEDED = 24;
+    GARBAGE_PENDING = 16;
+    NO_CREATE_SHARD = 18;
+    NOT_CLONEABLE = 19;
+  }
+}
+
+message ServiceConstants {
+  enum Limits {
+    option allow_alias = true;
+    MAX_BLOB_PIECE = 2097152;
+    BLOB_WRITE_ALIGNMENT = 262144;
+    LARGE_WRITE_ALIGNMENT = 2097152;
+    MAX_REF_METADATA = 8192;
+  }
+}
+
+message ReferenceMetadata {
+  required string ApplicationId = 1;
+  optional string ApplicationData = 2;
+  optional uint64 UserId = 3;
+  optional string FileName = 4;
+  optional string MimeType = 5;
+  optional bool IsPublic = 6 [default = false];
+  optional .proto2.bridge.MessageSet UserExtensions = 7;
+}
+
+message ContextVar {
+  required int32 Name = 1;
+  required string Value = 2;
+}
+
+message Context {
+  repeated .blobstore.ContextVar Vars = 1;
+}
+
+message ContextChain {
+  repeated .blobstore.Context Contexts = 1;
+}
+
+message RequestPrivateData {
+  optional .blobstore.ContextChain CtxChain = 1;
+  optional string OriginalUserName = 2;
+  optional string ShardForCreateBlob = 3;
+  optional string SourceCluster = 4;
+  repeated int32 ChunkNumbers = 5;
+  optional bool TotalBlobSizeRequired = 6 [default = false];
+}
+
+message ReplyPrivateData {
+  repeated int32 ChunkNumbers = 1;
+  optional string MissingDataErrMsg = 2;
+  optional string ApplicationId = 3;
+}
+
+message CreateRequest {
+  optional string OldBlob = 1 [ctype = CORD];
+  optional bool Cache = 2;
+  required .blobstore.ReferenceMetadata Metadata = 3;
+  optional int64 Size = 4;
+  optional bool IncompleteBlob = 7 [default = false];
+  optional string StorageClass = 5 [default = ""];
+  optional string ProximityHint = 6;
+  optional string AppIdForPlacement = 8 [default = ""];
+  optional int32 write_granularity = 9 [default = 262144];
+  optional string PolicyId = 10;
+  optional .blobstore.RequestPrivateData PrivateData = 17;
+  optional fixed32 BlobCRC32C = 18;
+  optional string BlobName = 19;
+  optional string kms_key_name = 20;
+  optional string Blob = 1000 [ctype = CORD];
+}
+
+message CreateReply {
+  optional .blobstore.BlobRef BlobRef = 2;
+  optional string CreationTicket = 3;
+  optional .blobstore.ReplyPrivateData PrivateData = 17;
+}
+
+message ContinueRequest {
+  required .blobstore.BlobRef BlobRef = 1;
+  required string CreationTicket = 4;
+  required int64 Offset = 2;
+  optional string OldBlob = 3 [ctype = CORD];
+  optional int64 TotalBlobSize = 7;
+  optional bool Cache = 5;
+  required string ApplicationId = 6;
+  optional .blobstore.RequestPrivateData PrivateData = 17;
+  optional fixed32 BlobCRC32C = 18;
+  optional string Blob = 1000 [ctype = CORD];
+}
+
+message ContinueReply {
+  optional .blobstore.ReplyPrivateData PrivateData = 17;
+}
+
+message GetRequest {
+  optional .blobstore.BlobRef OldBlobRef = 1;
+  optional int64 StartOffset = 2;
+  optional int64 EndOffset = 3;
+  optional bool Cache = 4 [default = true];
+  optional bool FetchBlob = 5 [default = true];
+  optional bool FetchMetadata = 6;
+  optional bool AllowPartialBlob = 7 [default = false];
+  optional bool FetchTotalBlobSize = 8 [default = false];
+  optional .blobstore.BlobRef BlobRef = 9;
+  optional bool AcceptRedirect = 10 [default = false];
+  optional bool FinalizedOnly = 11 [default = false];
+  optional .blobstore.RequestPrivateData PrivateData = 17;
+}
+
+message ReplicaLocation {
+  required string ClusterName = 1;
+  optional bool IsReadable = 2;
+}
+
+message GetReply {
+  optional string OldBlob = 2 [ctype = CORD];
+  optional .blobstore.ReferenceMetadata Metadata = 3;
+  optional int64 TotalBlobSize = 4;
+  repeated .blobstore.ReplicaLocation RedirectLocation = 5;
+  optional fixed32 FinalCRC32C = 6;
+  optional .blobstore.ReplyPrivateData PrivateData = 17;
+  optional string PolicyId = 18;
+  optional bool Cached = 19;
+  optional string kms_key_version = 20;
+  optional string Blob = 1000 [ctype = CORD];
+}
+
+message GetV2BlobIDRequest {
+  required .blobstore.BlobRef BlobRef = 1;
+}
+
+message GetV2BlobIDReply {
+  required string V2BlobID = 1;
+}
+
+message CloneRequest {
+  required .blobstore.BlobRef BlobRef = 1;
+  required .blobstore.ReferenceMetadata Metadata = 2;
+  optional bool copy_policy_id = 3;
+  optional string PolicyId = 4;
+  optional string BlobName = 5;
+  optional .blobstore.RequestPrivateData PrivateData = 17;
+  optional string kms_key_name = 18;
+}
+
+message CloneReply {
+  optional .blobstore.BlobRef BlobRef = 2;
+  optional .blobstore.ReplyPrivateData PrivateData = 17;
+}
+
+message DeleteRequest {
+  required .blobstore.BlobRef BlobRef = 1;
+  optional int64 tombstone_seconds = 2;
+  optional .blobstore.RequestPrivateData PrivateData = 17;
+}
+
+message DeleteReply {
+  optional .blobstore.ReplyPrivateData PrivateData = 17;
+}
+
+message ReincarnateRequest {
+  required .blobstore.BlobRef BlobRef = 1;
+  optional .blobstore.RequestPrivateData PrivateData = 17;
+}
+
+message ReincarnateReply {
+  optional .blobstore.BlobRef BlobRef = 1;
+  optional .blobstore.ReplyPrivateData PrivateData = 17;
+}
+
+service BlobService {
+  rpc CreateBlob(.blobstore.CreateRequest) returns (.blobstore.CreateReply);
+  rpc GetBlob(.blobstore.GetRequest) returns (.blobstore.GetReply);
+  rpc CloneRef(.blobstore.CloneRequest) returns (.blobstore.CloneReply);
+  rpc DeleteRef(.blobstore.DeleteRequest) returns (.blobstore.DeleteReply);
+  rpc ContinueBlob(.blobstore.ContinueRequest) returns (.blobstore.ContinueReply);
+  rpc ReincarnateRef(.blobstore.ReincarnateRequest) returns (.blobstore.ReincarnateReply);
+  rpc GetV2BlobID(.blobstore.GetV2BlobIDRequest) returns (.blobstore.GetV2BlobIDReply);
+}
+

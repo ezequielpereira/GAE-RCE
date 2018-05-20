@@ -1,0 +1,58 @@
+syntax = "proto2";
+
+option java_package = "com.google.testing.faultinjection";
+option java_multiple_files = true;
+
+message FaultDescription {
+  enum PointType {
+    FI_POINT_NO_ACTION = 0;
+    FI_POINT_RETURN_ERROR = 1;
+    FI_POINT_CRASH = 2;
+    FI_POINT_DELAY = 3;
+    FI_POINT_CALLOUT = 4;
+    FI_POINT_WAIT_FOR_POINT = 5;
+    FI_POINT_NOTIFY_CLIENT = 6;
+  }
+  required bytes name = 1;
+  required int32 type = 2;
+  optional float frequency = 3 [default = 1.1];
+  optional int64 only_after_abs_ms = 4 [default = 0];
+  optional int64 only_before_abs_ms = 5 [default = -1];
+  optional int32 error = 6 [default = 0];
+  optional int32 delay_ms = 7 [default = 0];
+  optional bytes callout_name = 8;
+  optional bytes wait_for_point_name = 9;
+  optional bytes notify_client_hostport = 10;
+  optional bytes dependant_name = 11;
+}
+
+message InjectFaultArgs {
+  required .FaultDescription point = 1;
+}
+
+message InjectFaultReply {
+  required bool point_set = 1;
+  optional bytes error_msg = 2;
+  optional bool is_created = 3;
+}
+
+message FaultTriggerNotifyArgs {
+  required bytes name = 1;
+  required bytes file = 2;
+  required fixed32 line = 3;
+  optional bytes payload = 4;
+}
+
+message FaultTriggerNotifyReply {
+  optional .FaultDescription fault_point = 1;
+}
+
+service FaultInjectionServerStub {
+  rpc InjectFault(.InjectFaultArgs) returns (.InjectFaultReply);
+}
+
+service FaultInjectionClientStub {
+  rpc FaultTriggerNotify(.FaultTriggerNotifyArgs) returns (.FaultTriggerNotifyReply);
+}
+
+

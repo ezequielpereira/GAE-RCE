@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+import "storage/blobstore/rpc/blobservice.proto";
+package blobstore;
+
+option java_package = "com.google.storage.blobstore.proto";
+
+message UrlGetRequest {
+  required .blobstore.BlobRef blobref = 10;
+  optional string protocol = 20 [default = "http"];
+  optional string suffix = 30;
+  optional bool allow_untrusted_mime_types = 31;
+  optional double expiration_time = 40;
+  optional string mimetype_override = 41;
+  optional double max_download_rate_mbps = 42;
+  optional bool cache_control_public = 43;
+  optional string quota_connection_group_id = 50;
+  optional string quota_connection_user_id = 51;
+  optional string quota_bandwidth_group_id = 52;
+  optional string quota_bandwidth_user_id = 53;
+}
+

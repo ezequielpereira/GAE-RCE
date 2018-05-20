@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+import "apphosting/magicgin/magicgin_annotations.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "PerVersionConfigPb";
+
+message PerVersionConfig {
+  optional string app_id = 1;
+  optional string version_id = 2 [default = "1"];
+  optional int64 timestamp_usec = 4;
+  optional string last_modified_by = 5;
+  optional .apphosting.GceNetwork gce_network = 3;
+}
+
+message GceNetwork {
+  optional string host_project_id = 1;
+  optional string name = 2;
+  optional uint32 vnet_id = 3;
+  optional int64 expires_at_usec = 4;
+}
+

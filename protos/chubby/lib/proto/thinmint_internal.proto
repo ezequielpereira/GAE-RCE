@@ -1,0 +1,88 @@
+syntax = "proto2";
+
+import "chubby/lib/proto/statinfo.proto";
+import public "chubby/lib/proto/thinmint_public.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package chubby.thinmint;
+
+message MintEnvelope {
+  required .chubby.thinmint.Mint mint = 1;
+  required .security.credentials.PrincipalProto granting_user = 2;
+  required int32 producer_api_code_compatibility = 3;
+  required int32 producer_api_requested_compatibility = 4;
+  optional uint64 exact_content_fingerprint = 5;
+  repeated string path_segment = 6;
+}
+
+message ACLRestrictionPayload {
+  required string owner = 1;
+  required string reader = 2;
+  required string writer = 3;
+  repeated .LockServiceACL lockservice_acl_owner = 4;
+  repeated .LockServiceACL lockservice_acl_write = 5;
+  repeated .LockServiceACL lockservice_acl_read = 6;
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.ACLRestrictionPayload message_set_extension = 57897633;
+  }
+}
+
+message InformationalFieldsRestrictionPayload {
+  required int32 producer_api_code_compatibility = 1;
+  required int32 producer_api_requested_compatibility = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.InformationalFieldsRestrictionPayload message_set_extension = 58121882;
+  }
+}
+
+message NoSetContentRestrictionPayload {
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.NoSetContentRestrictionPayload message_set_extension = 58121883;
+  }
+}
+
+message NoDeleteRestrictionPayload {
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.NoDeleteRestrictionPayload message_set_extension = 58190317;
+  }
+}
+
+message NoCreateRestrictionPayload {
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.NoCreateRestrictionPayload message_set_extension = 58190318;
+  }
+}
+
+message NoLocksRestrictionPayload {
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.NoLocksRestrictionPayload message_set_extension = 58190320;
+  }
+}
+
+message NoContentReadRestrictionPayload {
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.NoContentReadRestrictionPayload message_set_extension = 58190321;
+  }
+}
+
+message ExactContentRestrictionPayload {
+  optional uint64 exact_content_fingerprint = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.ExactContentRestrictionPayload message_set_extension = 58190322;
+  }
+}
+
+message SequencerRestrictionPayload {
+  required string sequencer = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.SequencerRestrictionPayload message_set_extension = 58190323;
+  }
+}
+
+message OldGenerationRestrictionPayload {
+  required int64 old_generation = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .chubby.thinmint.OldGenerationRestrictionPayload message_set_extension = 58190324;
+  }
+}
+
+

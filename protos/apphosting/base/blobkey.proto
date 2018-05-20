@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+import "storage/blobstore/rpc/blobservice.proto";
+package apphosting;
+
+message BlobKey {
+  enum BlobKeyType {
+    BLOBSTORE = 0;
+    BIGSTORE = 1;
+  }
+  required .apphosting.BlobKey.BlobKeyType blobkey_type = 1;
+  optional string app_id = 3;
+  optional .blobstore.BlobRef blobstore_blobref = 2;
+  optional bytes blobstore_creation_ticket = 4;
+  optional string bigstore_filename = 5;
+  optional bytes bigstore_access_token = 6;
+  optional int64 service_account_gaia_id = 7;
+  optional string refresh_token = 8;
+}
+

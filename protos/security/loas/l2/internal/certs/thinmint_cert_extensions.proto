@@ -1,0 +1,97 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/credentials/proto/principal.proto";
+import "security/loas/l2/proto/common.proto";
+package security_loas_l2;
+
+message MasterCertificate {
+  repeated uint64 revocation_ids = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.MasterCertificate message_set_extension = 43796541;
+  }
+}
+
+message MachineCertificate {
+  message Digest {
+    enum Algorithm {
+      SHA256 = 0;
+    }
+    optional bytes value = 1;
+    optional .security_loas_l2.MachineCertificate.Digest.Algorithm algorithm = 2;
+  }
+  optional string fqdn = 2;
+  optional .security_loas_l2.MachineCertificate.Digest corp_machine_cert_digest = 3;
+  extensions 1 to 1;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.MachineCertificate message_set_extension = 43673850;
+  }
+}
+
+message RoleCertificate {
+  repeated uint64 revocation_ids = 1;
+  optional .security.credentials.PrincipalProto primary = 2;
+  repeated string security_realms = 3;
+  optional bool is_emergency = 4;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.RoleCertificate message_set_extension = 43526055;
+  }
+}
+
+message ProcessCertificate {
+  optional string local_username = 2;
+  extensions 1 to 1;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.ProcessCertificate message_set_extension = 41317618;
+  }
+}
+
+message RekeHandshakeParameters {
+  repeated .security_loas_l2.HandshakeCipher ciphers = 1;
+  optional bytes serialized_public_key = 2;
+}
+
+message RekeCertificate {
+  repeated uint64 revocation_ids = 1;
+  repeated .security_loas_l2.RekeHandshakeParameters handshake = 2;
+  repeated string next_protocol = 4;
+  repeated .security_loas_l2.NextProtocol protocol = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.RekeCertificate message_set_extension = 26605557;
+  }
+}
+
+message BorgMasterCertificate {
+  optional bool resumable = 1;
+  optional string cell = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.BorgMasterCertificate message_set_extension = 44423886;
+  }
+}
+
+message BorgTaskCertificate {
+  optional bool resumable = 1;
+  optional string jobname = 2;
+  optional int32 id = 3;
+  optional int64 epoch = 4;
+  optional string fqdn = 5;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.BorgTaskCertificate message_set_extension = 44454843;
+  }
+}
+
+message UserCertificateComment {
+  optional string role = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.UserCertificateComment message_set_extension = 86999188;
+  }
+}
+
+message EmergencyCertificate {
+  optional string role = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .security_loas_l2.EmergencyCertificate message_set_extension = 62148510;
+  }
+}
+
+

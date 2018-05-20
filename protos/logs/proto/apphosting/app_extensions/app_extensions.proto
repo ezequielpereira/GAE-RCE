@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+import "logs/proto/apphosting/app_extensions/app_unit_testing_only.proto";
+import "logs/proto/apphosting/app_extensions/cluestick_log.proto";
+import "logs/proto/apphosting/app_extensions/extra_billing_log.proto";
+import "logs/proto/apphosting/app_extensions/garage_log.proto";
+import "logs/proto/apphosting/app_extensions/helpouts_log.proto";
+import "logs/proto/apphosting/app_extensions/onetoday_log.proto";
+import "logs/proto/apphosting/app_extensions/teams_log.proto";
+import "logs/proto/apphosting/app_extensions/teams_search_quality_log.proto";
+import "logs/proto/apphosting/app_extensions/les_search_log.proto";
+import "logs/proto/apphosting/app_extensions/teams_service_log.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package appengine_proto;
+
+option java_outer_classname = "GAEAppExtensions";
+option java_multiple_files = true;
+
+message AppExtensions {
+  optional .appengine_proto.AppUnitTestingOnly app_unit_testing_only = 1;
+  optional .appengine_proto.TeamsLog teams_log = 2;
+  optional .appengine_proto.OneTodayLog onetoday_log = 3;
+  optional .appengine_proto.TeamsServiceLog teamsservice_log = 5;
+  optional .garage.GarageLog garage_log = 6;
+  optional .appengine_proto.HelpoutsLog helpouts_log = 7;
+  optional .appengine_proto.TeamsSearchQualityLog teams_search_quality_log = 8;
+  optional .appengine_proto.LesSearchLog les_search_log = 9;
+  optional .appengine_proto.CluestickLog cluestick_log = 10;
+  optional .appengine_proto.ExtraBillingLog extra_billing_log = 11;
+}
+

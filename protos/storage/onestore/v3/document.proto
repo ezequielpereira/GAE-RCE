@@ -1,0 +1,106 @@
+syntax = "proto2";
+
+package storage_onestore_v3;
+
+option java_package = "com.google.apphosting.api.search";
+option java_outer_classname = "DocumentPb";
+
+message FieldValue {
+  enum ContentType {
+    TEXT = 0;
+    HTML = 1;
+    ATOM = 2;
+    DATE = 3;
+    NUMBER = 4;
+    GEO = 5;
+    UNTOKENIZED_PREFIX = 6;
+    TOKENIZED_PREFIX = 7;
+    VECTOR = 8;
+  }
+  optional .storage_onestore_v3.FieldValue.ContentType type = 1 [default = TEXT];
+  optional string language = 2 [default = "en"];
+  optional string string_value = 3;
+  optional group Geo = 4 {
+    required double lat = 5;
+    required double lng = 6;
+  }
+  repeated double vector_value = 7;
+}
+
+message Field {
+  required string name = 1;
+  required .storage_onestore_v3.FieldValue value = 2;
+}
+
+message FieldTypes {
+  required string name = 1;
+  repeated .storage_onestore_v3.FieldValue.ContentType type = 2;
+}
+
+message IndexShardSettings {
+  repeated int32 prev_num_shards = 1;
+  required int32 num_shards = 2 [default = 1];
+  repeated int32 prev_num_shards_search_false = 3;
+  optional string local_replica = 4 [default = ""];
+}
+
+message IndexMetadata {
+  message DeletionStatus {
+    optional int64 started_time = 3;
+    optional int64 completed_time = 4;
+  }
+  message IndexDeletionDetails {
+    required string replica_name = 1;
+    optional .storage_onestore_v3.IndexMetadata.DeletionStatus precheck = 2;
+    optional .storage_onestore_v3.IndexMetadata.DeletionStatus st_bti = 3;
+    optional .storage_onestore_v3.IndexMetadata.DeletionStatus ms_docs = 4;
+  }
+  enum IndexState {
+    ACTIVE = 0;
+    SOFT_DELETED = 1;
+    PURGING = 2;
+  }
+  optional bool is_over_field_number_threshold = 1 [default = false];
+  optional .storage_onestore_v3.IndexShardSettings index_shard_settings = 2;
+  optional .storage_onestore_v3.IndexMetadata.IndexState index_state = 3 [default = ACTIVE];
+  optional int64 index_delete_time = 4;
+  optional int64 max_index_size_bytes = 5;
+  repeated .storage_onestore_v3.IndexMetadata.IndexDeletionDetails replica_deletion = 6;
+}
+
+message FacetValue {
+  enum ContentType {
+    ATOM = 2;
+    NUMBER = 4;
+  }
+  optional .storage_onestore_v3.FacetValue.ContentType type = 1 [default = ATOM];
+  optional string string_value = 3;
+}
+
+message Facet {
+  required string name = 1;
+  required .storage_onestore_v3.FacetValue value = 2;
+}
+
+message DocumentMetadata {
+  optional int64 version = 1;
+  optional int64 committed_st_version = 2;
+}
+
+message Document {
+  enum OrderIdSource {
+    DEFAULTED = 0;
+    SUPPLIED = 1;
+  }
+  enum Storage {
+    DISK = 0;
+  }
+  optional string id = 1;
+  optional string language = 2 [default = "en"];
+  repeated .storage_onestore_v3.Field field = 3;
+  optional int32 order_id = 4;
+  optional .storage_onestore_v3.Document.OrderIdSource order_id_source = 6 [default = SUPPLIED];
+  optional .storage_onestore_v3.Document.Storage storage = 5 [default = DISK];
+  repeated .storage_onestore_v3.Facet facet = 8;
+}
+

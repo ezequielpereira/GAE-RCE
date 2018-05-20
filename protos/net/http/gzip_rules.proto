@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+package net_http;
+
+message CompressionRule {
+  optional .net_http.GzipUserAgents user_agents = 1;
+  optional .net_http.GzipContentTypes content_types = 2;
+}
+
+message GzipUserAgents {
+  message ConditionalAgent {
+    optional string with_string = 1 [default = ""];
+    optional string without_string = 2 [default = ""];
+  }
+  repeated string whitelist_agent = 1;
+  repeated string safe_agent = 2;
+  repeated .net_http.GzipUserAgents.ConditionalAgent conditional_whitelist_agent = 3;
+  repeated .net_http.GzipUserAgents.ConditionalAgent conditional_safe_agent = 4;
+  repeated .net_http.GzipUserAgents.ConditionalAgent conditional_blacklist_override_agent = 5;
+}
+
+message GzipContentTypes {
+  message ContentGroup {
+    optional string start_with = 1 [default = ""];
+    optional string end_with = 2 [default = ""];
+  }
+  repeated string compressible_type = 1;
+  repeated .net_http.GzipContentTypes.ContentGroup compressible_content_group = 2;
+  repeated string blacklist_type = 3;
+  repeated string incompressible_type = 4;
+}
+
+

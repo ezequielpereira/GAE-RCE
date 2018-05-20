@@ -1,0 +1,43 @@
+syntax = "proto2";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+package streamz;
+
+option java_outer_classname = "DistributionProto";
+option cc_enable_arenas = true;
+
+message Distribution {
+  message LinearOptions {
+    required int32 num_finite_buckets = 1;
+    required double width = 2;
+    optional double offset = 3 [default = 0];
+  }
+  message ExponentialOptions {
+    required int32 num_finite_buckets = 1;
+    required double growth_factor = 2;
+    optional double scale = 3 [default = 1];
+  }
+  message ExplicitOptions {
+    repeated double bound = 1 [packed = true];
+  }
+  message Exemplar {
+    required double value = 1;
+    required .google.protobuf.Timestamp timestamp = 2;
+    repeated .google.protobuf.Any attachment = 3;
+  }
+  required int64 count = 1;
+  optional double mean = 2;
+  optional double sum_of_squared_deviation = 3;
+  optional double minimum = 4;
+  optional double maximum = 5;
+  oneof bucket_options {
+    .streamz.Distribution.LinearOptions linear_buckets = 6;
+    .streamz.Distribution.ExponentialOptions exponential_buckets = 7;
+    .streamz.Distribution.ExplicitOptions explicit_buckets = 8;
+  }
+  repeated int64 bucket_count = 9 [packed = true];
+  repeated .streamz.Distribution.Exemplar exemplar = 10;
+}
+
+

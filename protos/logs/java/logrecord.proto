@@ -1,0 +1,61 @@
+syntax = "proto2";
+
+import "logs/eventid/eventid.proto";
+import "java/com/google/apps/jspb/jspb.proto";
+import "net/proto2/go/annotation/go_annotation.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+option java_package = "com.google.common.logging";
+option cc_enable_arenas = true;
+
+message ThrowableBlockProto {
+  required string OriginalClass = 1;
+  optional string Message = 2;
+  repeated group StackTraceElement = 4 {
+    required string DeclaringClass = 5;
+    required string MethodName = 6;
+    optional string FileName = 7;
+    required int32 LineNumber = 8;
+  }
+}
+
+message ThrowableProto {
+  enum LANGUAGE {
+    JAVA = 1;
+    CPP = 2;
+    PYTHON = 3;
+    JS = 4;
+    GO = 5;
+    DART = 6;
+  }
+  required .ThrowableBlockProto Outermost = 1;
+  repeated .ThrowableBlockProto Causes = 2;
+  optional .ThrowableProto.LANGUAGE Language = 3 [default = JAVA];
+}
+
+message CodeModuleProto {
+  optional int64 BaseAddress = 1;
+  optional int64 Size = 2;
+  optional string CodeFile = 3;
+  optional string CodeIdentifier = 4;
+  optional string DebugFile = 5;
+  optional string DebugIdentifier = 6;
+  optional string Version = 7;
+  optional int64 shrink_down_delta = 8;
+  optional bool is_unloaded = 9;
+}
+
+message LogRecordProto {
+  required .EventIdMessage EventId = 1;
+  required string ThreadName = 2;
+  required int32 Level = 3;
+  optional string SourceClassName = 4;
+  optional string SourceMethodName = 5;
+  optional string Message = 6;
+  optional int64 MessageHash = 9;
+  repeated string Parameter = 7;
+  optional .ThrowableProto Thrown = 8;
+  repeated string IosCallStackSymbols = 10;
+  repeated .CodeModuleProto IosCodeModules = 11;
+}
+
+

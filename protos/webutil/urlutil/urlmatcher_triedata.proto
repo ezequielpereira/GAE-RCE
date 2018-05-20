@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+message UrlTrieData {
+  optional bytes comppath = 1;
+  repeated bytes matches = 2;
+  required bool has_null_match = 3;
+  required int32 num_subseq = 4;
+  repeated int32 min_next = 5;
+  repeated int32 max_next = 6;
+  repeated int32 next_level = 7;
+}
+
+message CompactUrlTrieData {
+  required int32 code_start_addr = 8;
+  required bytes code_str = 9;
+  optional bool exact_filepart_match_ok = 10;
+}
+
+message PatternData {
+  required bool trie_layout_is_optimized = 1;
+  required int32 num_slash_tries = 2;
+  required int32 num_end_tries = 3;
+  optional bool using_compact_trie = 4;
+}
+
+message UrlMatcherData {
+  required bool contains_goodpats = 1;
+  required bool contains_badpats = 2;
+}
+
+

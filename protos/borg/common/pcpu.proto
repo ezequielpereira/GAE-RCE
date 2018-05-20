@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package borg;
+
+option java_package = "com.google.borg.rpc";
+option cc_enable_arenas = true;
+
+message PlatformSpecification {
+  optional string family = 1;
+  optional string genus = 2;
+  optional string species = 3;
+  optional string subspecies = 4;
+}
+
+message Pcpu {
+  optional .borg.PlatformSpecification platform = 15;
+  optional int64 millicores = 16;
+}
+
+

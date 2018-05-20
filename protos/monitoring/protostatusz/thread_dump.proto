@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+import "logs/java/logmessage.proto";
+import "logs/eventid/eventid.proto";
+import "monitoring/protostatusz/stack_trace_element.proto";
+option java_package = "com.google.monitoring.protostatusz";
+option java_multiple_files = true;
+
+message ThreadProto {
+  enum State {
+    UNDEFINED = 0;
+    NEW = 1;
+    RUNNABLE = 2;
+    BLOCKED = 3;
+    WAITING = 4;
+    TIMED_WAITING = 5;
+    TERMINATED = 6;
+  }
+  required bytes Name = 1;
+  required int64 Id = 2;
+  required int32 Priority = 3;
+  required int32 state = 4;
+}
+
+message ThreadStackTraceProto {
+  required .ThreadProto Thread = 1;
+  optional .ClientServerProto ClientServer = 3;
+  repeated .StackTraceElementProto Frame = 4;
+}
+
+message ThreadDumpProto {
+  required .EventIdMessage Id = 1;
+  repeated .ThreadStackTraceProto Trace = 3;
+}
+

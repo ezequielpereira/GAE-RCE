@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/credentials/proto/principal.proto";
+import public "security/thinmint/proto/core/thinmint_core.proto";
+package thinmint;
+
+option java_package = "com.google.protos.thinmint";
+
+message ThinMintDescription {
+  repeated .security.credentials.PrincipalProto delegate = 1;
+  optional int64 not_before = 2;
+  optional int64 not_after = 3;
+  repeated uint64 revocation_id = 7;
+  repeated string path_segment = 4;
+  optional .proto2.bridge.MessageSet restrictions = 5;
+  optional .proto2.bridge.MessageSet comments = 6;
+  repeated string security_realms = 8;
+}
+
+message ThinMintArgs {
+  repeated .thinmint.ThinMint mint = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .thinmint.ThinMintArgs message_set_extension = 16343551;
+  }
+}
+
+message MintResponse {
+  enum Code {
+    FAILURE = 1;
+    INVALID_REQUEST = 2;
+    INVALID_DESCRIPTION = 3;
+    INVALID_THINMINT = 4;
+    INVALID_VALIDITY_PERIOD = 5;
+    ILLEGAL_THINMINT = 6;
+    REVOKED_THINMINT = 7;
+    REQUEST_THROTTLED_RETRY = 8;
+    REQUEST_THROTTLED_NO_RETRY = 9;
+  }
+}
+
+

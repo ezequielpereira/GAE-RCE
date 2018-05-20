@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+import "tech/file/proto/blob_types.proto";
+import "tech/file/proto/types.proto";
+package file;
+
+message SetStatOptions {
+  optional string owner = 1;
+  optional string group = 2;
+  optional int32 mode = 3;
+  optional int32 attributes = 4;
+  optional int64 mtime = 5;
+  optional int64 mtime_nsecs = 9;
+  optional string encoding = 6;
+  optional string partition = 10;
+  optional string locality = 15;
+  optional int32 ttl_seconds_from_mtime = 7 [default = -1];
+  optional int32 gc_delay_seconds = 8 [default = -1];
+  optional .tech.file.EncryptionProperties encryption_properties = 11;
+  optional .tech.file.ContentProperties content_properties = 12;
+  oneof fs {
+    .tech.file.BlobV2BucketStat blob_v2_bucket = 13;
+    .tech.file.BlobV2ObjectStat blob_v2_object = 14;
+  }
+}
+
+

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "google/protobuf/source_context.proto";
+import "google/protobuf/type.proto";
+package google.protobuf;
+
+option java_package = "com.google.protobuf";
+option java_outer_classname = "ApiProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/protobuf/api;api";
+option objc_class_prefix = "GPB";
+option csharp_namespace = "Google.Protobuf.WellKnownTypes";
+
+message Api {
+  string name = 1;
+  repeated .google.protobuf.Method methods = 2;
+  repeated .google.protobuf.Option options = 3;
+  string version = 4;
+  .google.protobuf.SourceContext source_context = 5;
+  repeated .google.protobuf.Mixin mixins = 6;
+  .google.protobuf.Syntax syntax = 7;
+}
+
+message Method {
+  string name = 1;
+  string request_type_url = 2 [ctype = STRING_PIECE];
+  bool request_streaming = 3;
+  string response_type_url = 4 [ctype = STRING_PIECE];
+  bool response_streaming = 5;
+  repeated .google.protobuf.Option options = 6;
+  .google.protobuf.Syntax syntax = 7;
+}
+
+message Mixin {
+  string name = 1;
+  string root = 2;
+}
+

@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+import "google/protobuf/any.proto";
+import "monitoring/streamz/proto/distribution.proto";
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_outer_classname = "DistributionProtoExemplarExtensions";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message TraceRecordID {
+  required fixed64 span_id = 1;
+  required fixed64 trace_id = 2;
+}
+
+extend .monitoring.streamz.DistributionProto.Exemplar {
+  optional .monitoring.streamz.TraceRecordID tracerecord_id = 12093918;
+}
+
+extend .monitoring.streamz.DistributionProto.Exemplar {
+  optional string distribution_exemplar_string = 100000;
+}
+
+extend .monitoring.streamz.DistributionProto.Exemplar {
+  repeated .google.protobuf.Any any = 96715578;
+}
+
+

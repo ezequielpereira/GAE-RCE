@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+import "logs/proto/anonymization/anon_saved.proto";
+import "logs/eventid/eventid.proto";
+import "logs/java/logrecord.proto";
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "net/proto2/go/annotation/go_annotation.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+option java_package = "com.google.common.logging";
+
+message BuildDataProto {
+  required int64 Sec = 1;
+  required int64 Changelist = 2;
+  required string DepotPath = 3;
+  required string Label = 4;
+  optional string Target = 5;
+}
+
+message ClientServerProto {
+  required .EventIdMessage RequestId = 1;
+  required string Client = 2;
+  optional .logs_anonymization.SavedIPDataProto SavedClient = 10 [deprecated = true];
+  required string Operation = 3;
+  required string Parameters = 4;
+  required string Session = 5;
+  optional string User = 6;
+  optional string Module = 7;
+  required int64 TimeInFlightMillis = 8;
+  optional int64 RequestDuration = 9 [default = -1];
+}
+
+message LogMessageProto {
+  required .LogRecordProto LogRecord = 1;
+  optional .BuildDataProto BuildData = 2;
+  optional .ClientServerProto ClientServer = 3;
+  optional int64 DapperSpanId = 4;
+  optional int64 DapperTraceId = 5;
+  optional int64 Count = 6;
+}
+
+

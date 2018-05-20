@@ -1,0 +1,66 @@
+syntax = "proto2";
+
+option java_package = "com.google.chubby.impl.ChubbyProtos";
+
+enum ChubbyLatencyClass {
+  CLC_STANDARD_LATENCY = 0;
+  CLC_LOW_LATENCY = 1;
+}
+
+message LockServiceACL {
+  required string entity = 1;
+  required string security_realm = 2;
+}
+
+message LockServerWire_StatInfo {
+  message ActionInfo {
+    optional int64 time = 1;
+    optional string who = 2;
+    optional int64 session = 3;
+    optional string host = 4;
+    optional int32 pid = 5;
+    optional string binary = 6;
+    optional int64 handle = 7;
+    optional int64 call_id = 8;
+  }
+  enum ActionEntry {
+    ACTION_CREATE = 0;
+    ACTION_MODIFY = 1;
+    ACTION_ACQUIRE = 2;
+    ACTION_ACL_CHANGE = 3;
+  }
+  required string name = 1;
+  required uint64 instance = 2;
+  required uint64 generation = 3;
+  required uint64 acl_generation = 13;
+  required uint64 lock_generation = 14;
+  optional uint64 latency_class_generation = 30;
+  optional bool dir_generation_valid = 32 [default = false];
+  required int32 node_type = 4;
+  required string acl_owner = 5;
+  required string acl_write = 6;
+  required string acl_read = 7;
+  repeated .LockServiceACL lockservice_acl_owner = 33;
+  repeated .LockServiceACL lockservice_acl_write = 34;
+  repeated .LockServiceACL lockservice_acl_read = 35;
+  repeated group Action = 8 {
+    required int64 time = 9;
+    required string who = 10;
+    optional int64 session = 22;
+    optional string host = 23;
+    optional int32 pid = 24;
+    optional string binary = 25;
+    optional int64 handle = 26;
+    optional int64 call_id = 27;
+  }
+  optional .LockServerWire_StatInfo.ActionInfo latency_class_change = 31;
+  required int32 lock_mode = 11;
+  required int64 expiry_time = 12;
+  optional .ChubbyLatencyClass latency_class = 28;
+  optional fixed64 checksum = 15;
+  optional int64 size = 20;
+  optional bytes content = 21;
+  optional bytes resume_marker = 29;
+}
+
+

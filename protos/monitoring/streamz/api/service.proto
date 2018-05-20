@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+import "monitoring/streamz/api/data_model.proto";
+package streamz;
+
+option cc_enable_arenas = true;
+
+message DefineMetricsRequest {
+  repeated .streamz.MetricDescriptor metric_descriptor = 1;
+}
+
+message DefineMetricsResponse {
+}
+
+message WriteRequest {
+  required .streamz.Entity entity = 1;
+  repeated .streamz.PointSet point_set = 2;
+}
+
+message WriteResponse {
+}
+
+service StreamzCollection {
+  rpc DefineMetrics(.streamz.DefineMetricsRequest) returns (.streamz.DefineMetricsResponse);
+  rpc Write(.streamz.WriteRequest) returns (.streamz.WriteResponse);
+}
+
+

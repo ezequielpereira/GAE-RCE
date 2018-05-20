@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+import "monitoring/streamz/proto/bucketer.proto";
+import "monitoring/streamz/proto/visibility.proto";
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_outer_classname = "DistributionProtos";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message DistributionProto {
+  message Exemplar {
+    required double value = 1;
+    optional int64 timestamp = 2;
+    extensions 100 to 536870911;
+  }
+  required uint64 count = 1;
+  required double mean = 2;
+  required double sum_of_squared_deviation = 3;
+  optional .monitoring.streamz.BucketerProto bucketer = 16;
+  optional uint32 max_buckets = 10;
+  optional double width = 11;
+  optional double growth_factor = 12 [default = 0];
+  repeated sint64 bucket = 9 [packed = true];
+  optional int64 underflow = 14 [default = 0];
+  optional int64 overflow = 15 [default = 0];
+  repeated .monitoring.streamz.DistributionProto.Exemplar exemplar = 20;
+  repeated sint64 deprecated_bucket = 13;
+}
+
+

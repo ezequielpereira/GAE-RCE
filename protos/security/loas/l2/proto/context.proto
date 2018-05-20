@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+import "security/loas/l2/proto/securitylevel.proto";
+import "security/util/proto/permission.proto";
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+option java_outer_classname = "InternalLoas2ContextOuterClass";
+option java_multiple_files = true;
+
+message InternalLoas2Context {
+  optional .security_loas_l2.SecurityLevel security_level = 1;
+  optional string next_protocol = 2;
+  optional string mdb_user = 3;
+  optional int64 gaia_id = 4;
+  repeated uint64 revocation_id = 5;
+  optional string local_username = 6;
+  optional string authenticated_host = 7;
+  repeated string security_realm = 8;
+  optional .AcctRestrictions primary_role_restriction = 9;
+  optional string unauthenticated_borg_cell = 10;
+  optional string unauthenticated_borg_jobname = 11;
+  optional int32 unauthenticated_borg_taskid = 12;
+  optional string unauthenticated_host = 13;
+  repeated string security_tags = 14;
+}
+
+

@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+
+enum HandshakeCipher {
+  NO_CIPHER = 0;
+  TEST_CIPHER = 1;
+  CURVE25519_SHA512 = 100;
+  CURVE25519_SHA512_EPHEMERAL = 101;
+}
+
+enum HashType {
+  NO_HASH = 0;
+  TEST_HASH = 1;
+  SHA512 = 100;
+}
+
+enum CurveType {
+  NO_CURVE = 0;
+  TEST_CURVE = 1;
+  CURVE25519 = 100;
+}
+
+enum NextProtocol {
+  PROTOCOL_RESERVED = 0;
+  GOOGLE_SECUREWRAPPER_AES128_GCM = 100;
+  GOOGLE_SECUREWRAPPER_AES128_CTR_VMAC128 = 101;
+}
+
+message Identity {
+  optional bool resumed = 1;
+  extensions 100 to 536870911;
+}
+
+message AuthenticatedOptions {
+  extensions 100 to 536870911;
+}
+
+message RpcWireProtocol {
+  optional int32 minor_version = 1 [default = 0];
+  extend .security_loas_l2.AuthenticatedOptions {
+    optional .security_loas_l2.RpcWireProtocol rpc_wire_protocol = 1004;
+  }
+}
+
+

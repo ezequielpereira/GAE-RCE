@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package net.rpc4;
+
+message HTTPOverRPCRequest {
+  optional bytes text = 1 [ctype = CORD];
+}
+
+message HTTPOverRPCReply {
+  optional bytes text = 1 [ctype = CORD];
+}
+
+service HTTPOverRPC {
+  rpc HTTPRequest(.net.rpc4.HTTPOverRPCRequest) returns (.net.rpc4.HTTPOverRPCReply);
+  rpc HTTPStream(.net.rpc4.HTTPOverRPCRequest) returns (stream .net.rpc4.HTTPOverRPCReply);
+}
+
+

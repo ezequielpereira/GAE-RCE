@@ -1,0 +1,98 @@
+syntax = "proto2";
+
+option java_package = "com.google.loadbalancer.rpc.proto";
+option java_outer_classname = "LbProto";
+
+message HM_HealthStatus {
+  enum HEALTH_STATUS {
+    UNKNOWN = 1;
+    RESPONSE_200 = 2;
+    RESPONSE_200_DRAINING = 3;
+    RESPONSE_NON_200 = 4;
+    TIMEOUT = 5;
+    NUM_STATUSES = 6;
+  }
+  required int32 HealthStatus = 1;
+}
+
+message GFE_LBSummary {
+  optional string Description = 9;
+  required int32 BackendsReported = 10;
+  required int64 RequestsIssued = 11;
+  required int64 RequestsCompleted = 12;
+  required int64 RequestsErrored = 13;
+  required int64 RequestsPending = 14;
+  required int64 WeightedLatency = 15;
+  optional int64 BytesIn = 16;
+  optional int64 BytesOut = 17;
+  optional double RequestsCost = 18;
+  optional int64 RequestsWithCost = 19;
+  optional int64 PotentialRequestsIssued = 20;
+  optional int64 RequestsInProgress = 21;
+}
+
+message GFE_LoadRequest {
+  required string Hostname = 2;
+  optional fixed32 IP = 3;
+  optional bytes ip_addr = 15;
+  required int32 Port = 4;
+  optional int32 LBClientRevision = 13;
+  optional string LBClientType = 14;
+  repeated group PerService = 5 {
+    required string Name = 1;
+    optional int32 BlockedDosQueries = 6 [default = 0];
+    optional bool IsStickySession = 7 [default = true];
+    required .GFE_LBSummary LoadSummary = 8;
+    repeated .GFE_LBSummary DCLoadSummary = 9;
+    optional bool IsBMEnabled = 10 [default = true];
+    optional bool IsBMHealthChecked = 11 [default = true];
+  }
+}
+
+message GFE_LBResponse {
+  enum STATUS {
+    OK = 0;
+    NOT_OK = 1;
+  }
+  required string ServiceName = 1;
+  required int32 StatusCode = 11;
+  optional float DropRatio = 28;
+  optional bool LBv2Enabled = 29 [default = false];
+  repeated group BackendGroup = 14 {
+    optional string clusterid = 24;
+    optional float Weight = 15 [default = 0];
+    optional float ColocWeight = 27;
+    optional bool IsLocal = 16 [default = false];
+    optional bool IsFailover = 22 [default = false];
+    optional string Basename = 25;
+    optional int32 NumTotalBackends = 30;
+    repeated group Backend = 17 {
+      optional string Hostname = 18;
+      optional int32 ID = 26;
+      optional fixed32 IP = 19;
+      optional bytes ip_addr = 33;
+      required int32 Port = 20;
+      optional float Weight = 21;
+      optional .HM_HealthStatus BackendHealthStatus = 23;
+    }
+    optional double ErrorRate = 31 [deprecated = true];
+  }
+  optional int32 AlgorithmType = 32;
+}
+
+message GFE_LoadResponse {
+  repeated .GFE_LBResponse PerService = 1;
+}
+
+message HM_UnhealthyBackends {
+  required string ServiceName = 16;
+  repeated group UnhealthyBackend = 1 {
+    required string Hostname = 5;
+    optional fixed32 BackendIP = 2;
+    optional bytes BackendIPAddr = 6;
+    required int32 BackendPort = 3;
+    optional .HM_HealthStatus BackendHealthStatus = 4;
+  }
+}
+
+

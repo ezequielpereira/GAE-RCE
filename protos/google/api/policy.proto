@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "net/proto2/proto/descriptor.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "PolicyProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/policy;policy";
+option cc_enable_arenas = true;
+option objc_class_prefix = "GAPI";
+
+message FieldPolicy {
+  string selector = 1;
+  string resource_permission = 2;
+  string resource_type = 3;
+  string auditing = 4;
+  repeated .google.api.OrgPolicy org_policies = 5;
+  bool is_service_consumer = 6;
+}
+
+message OrgPolicy {
+  string constraint = 1;
+  string value_selector = 2;
+}
+
+message MethodPolicy {
+  string action = 1;
+  string auditing = 4;
+  repeated .google.api.FieldPolicy request_policies = 2;
+  repeated .google.api.FieldPolicy response_policies = 3;
+}
+
+extend .proto2.FieldOptions {
+  .google.api.FieldPolicy field_policy = 158361448;
+}
+
+extend .proto2.MethodOptions {
+  .google.api.MethodPolicy method_policy = 161893301;
+}
+

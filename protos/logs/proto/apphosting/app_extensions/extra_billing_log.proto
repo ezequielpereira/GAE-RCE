@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package appengine_proto;
+
+message ExtraBillingLog {
+  optional string app_id = 1;
+  optional int32 usage_id = 2;
+  optional int64 amount = 3;
+}
+

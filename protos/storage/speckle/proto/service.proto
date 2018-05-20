@@ -1,0 +1,443 @@
+syntax = "proto2";
+
+import "storage/speckle/proto/client.proto";
+import "storage/speckle/proto/enums.proto";
+import "storage/speckle/proto/gcs_bucket_resource.proto";
+import "storage/speckle/proto/instance.proto";
+import "storage/speckle/proto/internal.proto";
+import "storage/speckle/proto/metadata_components.proto";
+import "storage/speckle/proto/request_token.proto";
+import "util/task/status.proto";
+package speckle;
+
+message ExecRequest {
+  enum StatementType {
+    STATEMENT = 1;
+    PREPARED_STATEMENT = 2;
+    CALLABLE_STATEMENT = 3;
+  }
+  required string instance = 1;
+  optional uint64 statement_id = 2;
+  optional string statement = 3;
+  repeated .speckle.BindVariableProto bind_variable = 4;
+  required bytes connection_id = 5;
+  optional .speckle.ExecOptions options = 6;
+  optional .speckle.RequestTokenProto request_token = 8;
+  optional .speckle.ExecRequest.StatementType statement_type = 9 [default = STATEMENT];
+  optional .speckle.BatchProto batch = 10;
+  optional uint64 request_id = 11;
+  optional bytes OBSOLETE_request_token = 7 [deprecated = true];
+}
+
+message ExecResponse {
+  optional .speckle.ResultProto result = 1;
+  optional .speckle.SqlException sql_exception = 2;
+}
+
+message ExecOpRequest {
+  required string instance = 1;
+  required bytes connection_id = 2;
+  required .speckle.OpProto op = 3;
+  optional .speckle.RequestTokenProto request_token = 7;
+  optional uint64 request_id = 8;
+  optional bytes OBSOLETE_request_token = 4 [deprecated = true];
+}
+
+message ExecOpResponse {
+  optional string native_sql = 1;
+  optional .speckle.SavePoint savepoint = 2;
+  optional .speckle.SqlException sql_exception = 3;
+  optional .speckle.ResultProto result = 4;
+  optional .speckle.RpcErrorProto cached_rpc_error = 5;
+  optional bytes cached_payload = 6 [ctype = CORD];
+}
+
+message MetadataRequest {
+  required string instance = 1;
+  required .speckle.MetadataType metadata = 3;
+  repeated .speckle.BindVariableProto bind_variable = 4;
+  required bytes connection_id = 5;
+  optional .speckle.RequestTokenProto request_token = 7;
+  optional uint64 request_id = 8;
+  optional bytes OBSOLETE_request_token = 6 [deprecated = true];
+}
+
+message MetadataResponse {
+  optional .speckle.ResultProto result = 1;
+  optional .speckle.JdbcDatabaseMetaDataProto jdbc_database_metadata = 2;
+  optional .speckle.SqlException sql_exception = 3;
+}
+
+message OpenConnectionRequest {
+  required string instance = 1;
+  repeated .speckle.Property property = 2;
+  optional .speckle.RequestTokenProto request_token = 4;
+  optional uint64 protocol_version = 5 [default = 1];
+  optional .speckle.ClientType client_type = 6;
+  optional bytes OBSOLETE_request_token = 3 [deprecated = true];
+  optional bytes connection_id = 7;
+  optional string client_id = 8;
+  optional string user = 9;
+}
+
+message OpenConnectionResponse {
+  optional bytes connection_id = 1;
+  optional .speckle.SqlException sql_exception = 2;
+  optional string redirect = 5;
+  repeated .speckle.SqlException warnings = 6;
+  optional int32 native_connection_socket_fd = 7;
+  optional int32 OBSOLETE_task_redirect = 3 [deprecated = true];
+  optional int32 OBSOLETE_task_count = 4 [deprecated = true];
+}
+
+message CloseConnectionRequest {
+  required string instance = 1;
+  required bytes connection_id = 2;
+  optional .speckle.RequestTokenProto request_token = 4;
+  optional bytes OBSOLETE_request_token = 3 [deprecated = true];
+}
+
+message CloseConnectionResponse {
+  optional .speckle.SqlException sql_exception = 1;
+}
+
+message DatabaseCredentials {
+  required string user = 1;
+  optional string password = 2;
+}
+
+message SaveDataConfig {
+  optional string select_query = 1;
+}
+
+message MysqlDumpConfig {
+  optional bool schema_only = 1;
+}
+
+message ExportOp {
+  optional string path = 1;
+  repeated string database = 2;
+  required string operation_token = 3;
+  optional string mount_path = 4;
+  optional string io_token = 5;
+  repeated string table = 6;
+  optional bool use_admin_credentials = 7;
+  optional .speckle.DatabaseCredentials database_credentials = 8;
+  optional bool destination_device_supports_directories = 9;
+  optional .speckle.SaveDataConfig save_data_config = 10;
+  optional .speckle.MysqlDumpConfig mysql_dump_config = 11;
+}
+
+message ExportReply {
+  optional string export_path = 1;
+}
+
+message LoadDataConfig {
+  optional string table = 1;
+  repeated string column = 2;
+}
+
+message ImportOp {
+  repeated string path = 1;
+  optional string database = 2;
+  required string operation_token = 3;
+  optional string mount_path = 4;
+  optional string io_token = 5;
+  optional bool use_admin_credentials = 6;
+  optional .speckle.DatabaseCredentials database_credentials = 7;
+  optional bool source_device_supports_directories = 8;
+  optional .speckle.LoadDataConfig load_data_config = 9;
+}
+
+message InjectUserOp {
+  required string username = 1;
+  optional string password = 2;
+  optional string password_hash = 3;
+  optional string host = 4 [default = "%"];
+  optional bool v2_replication_user = 5;
+}
+
+message UpdateUserOp {
+  optional string username = 1;
+  optional string new_password = 2;
+  optional string host = 3 [default = "%"];
+}
+
+message CheckNonInnodbOp {
+}
+
+message CreateUserOp {
+  optional .speckle.User user = 1;
+  optional string password = 2;
+}
+
+message User {
+  optional string name = 1;
+  optional string host = 2;
+}
+
+message UsersResponse {
+  repeated .speckle.User users = 1;
+}
+
+message DeleteUserOp {
+  optional .speckle.User user = 1;
+}
+
+message ListUsersOp {
+}
+
+message GetUserOp {
+  optional .speckle.User user = 1;
+}
+
+message Database {
+  optional string name = 1;
+  optional string charset = 2;
+  optional string collation = 3;
+}
+
+message DatabasesResponse {
+  repeated .speckle.Database database = 1;
+}
+
+message ListDatabasesOp {
+}
+
+message GetDatabaseOp {
+  optional string name = 1;
+}
+
+message DeleteDatabaseOp {
+  optional string name = 1;
+}
+
+message CreateDatabaseOp {
+  optional .speckle.Database database = 1;
+}
+
+message UpdateDatabaseOp {
+  optional .speckle.Database database = 1;
+}
+
+message BackupVolumeReply {
+  required string backup_path_prefix = 1;
+}
+
+message BackupVolumeInstanceOp {
+  required string operation_token = 1;
+  optional .speckle.GcsBucketResourceProto gcs_bucket_resource = 2;
+}
+
+message RestoreVolumeOp {
+  required int64 storage_version = 1;
+  required string backup_path_prefix = 2;
+  required string operation_token = 3;
+  required .speckle.InstanceProto metadata = 4;
+  required .speckle.InstanceServingStateProto serving_state = 5;
+  optional string restore_blacklist = 6;
+  optional int64 old_storage_version = 7;
+}
+
+message CreateInstanceOp {
+  required .speckle.InstanceProto metadata = 1;
+  required string operation_token = 2;
+  optional .speckle.InstanceServingStateProto serving_state = 3;
+  optional string creation_marker_path = 4;
+}
+
+message UpdateInstanceOp {
+  required .speckle.InstanceProto updated_metadata = 1;
+  optional .speckle.InstanceServingStateProto updated_serving_state = 2;
+}
+
+message BlackhatOp {
+  required string call = 1;
+  optional string arg = 2;
+}
+
+message StatusOp {
+  required .speckle.InstanceProto metadata = 1;
+  required string operation_token = 2;
+  optional .speckle.OperationProto.OpType op_type = 3;
+}
+
+message StatusReply {
+  enum State {
+    RUNNING = 1;
+    FINISHED = 2;
+    UNKNOWN = 3;
+  }
+  required string operation_token = 1;
+  required .speckle.StatusReply.State state = 2;
+  optional .util.StatusProto status = 3;
+  optional .speckle.SlaveStatusProto slave_status = 4;
+}
+
+message DrainInstanceOp {
+  required .speckle.InstanceProto metadata = 1;
+  optional int64 timeout_ms = 2;
+}
+
+message GetStatsOp {
+}
+
+message GetStatsReply {
+  message Statistic {
+    required string key = 1;
+    required int64 value = 2;
+    optional bool is_monotonic = 3 [default = true];
+    optional string string_value = 4;
+  }
+  repeated .speckle.GetStatsReply.Statistic statistic = 1;
+  optional int64 current_statistics_collection_time_usec = 2;
+  optional int64 duration_since_previous_statistics_collection_usec = 3;
+}
+
+message DeleteVolumeOp {
+  required .speckle.InstanceProto metadata = 1;
+  required string operation_token = 2;
+}
+
+message PingOp {
+}
+
+message PurgeBinlogOp {
+  optional string file_name = 1;
+  optional int64 timestamp_seconds = 2;
+}
+
+message StartReplicationOp {
+  optional .speckle.InstanceProto master_metadata = 1;
+  optional .speckle.DatabaseCredentials master_credentials = 2;
+  optional .speckle.BinLogCoordinates start_binlog_position = 3;
+  optional .speckle.ReplicaConfiguration replica_configuration = 4;
+}
+
+message VerifyBinlogOp {
+  optional .speckle.BinLogCoordinates coordinates = 1;
+}
+
+message ReadBinlogOp {
+}
+
+message SlaveOp {
+  enum OperationType {
+    INVALID = 0;
+    START_SLAVE = 1;
+    STOP_SLAVE = 2;
+    PROMOTE_SLAVE = 3;
+    UPGRADE_SLAVE = 4;
+    RECREATE_SLAVE = 5;
+  }
+  optional .speckle.SlaveOp.OperationType operation_type = 1 [default = INVALID];
+  optional .speckle.MySqlDatabaseUpgradeType upgrade_type = 2;
+}
+
+message InstanceOpRequest {
+  required string instance = 1;
+  optional string instance_uid = 40;
+  optional .speckle.RequestTokenProto request_token = 2;
+  optional .speckle.UpdateInstanceOp update_instance_op = 10;
+  optional .speckle.BlackhatOp blackhat_op = 12;
+  optional .speckle.StatusOp status_op = 13;
+  optional .speckle.CreateInstanceOp create_instance_op = 14;
+  optional .speckle.ImportOp import_op = 15;
+  optional .speckle.ExportOp export_op = 16;
+  optional .speckle.DrainInstanceOp drain_instance_op = 17;
+  optional .speckle.GetStatsOp get_stats_op = 18;
+  optional .speckle.DeleteVolumeOp delete_volume_op = 19;
+  optional .speckle.PingOp ping_op = 20;
+  optional .speckle.BackupVolumeInstanceOp backup_volume_instance_op = 21;
+  optional .speckle.RestoreVolumeOp restore_volume_op = 22;
+  optional .speckle.PurgeBinlogOp purge_binlog_op = 23;
+  optional .speckle.StartReplicationOp start_replication_op = 24;
+  optional .speckle.VerifyBinlogOp verify_binlog_op = 25;
+  optional .speckle.InjectUserOp inject_user_op = 26;
+  optional .speckle.ReadBinlogOp read_binlog_op = 27;
+  optional .speckle.SlaveOp slave_op = 28;
+  optional .speckle.DeleteUserOp delete_user_op = 29;
+  optional .speckle.GetUserOp get_user_op = 30;
+  optional .speckle.ListUsersOp list_users_op = 31;
+  optional .speckle.ListDatabasesOp list_databases_op = 32;
+  optional .speckle.GetDatabaseOp get_database_op = 33;
+  optional .speckle.DeleteDatabaseOp delete_database_op = 34;
+  optional .speckle.CreateDatabaseOp create_database_op = 35;
+  optional .speckle.UpdateDatabaseOp update_database_op = 36;
+  optional .speckle.CreateUserOp create_user_op = 37;
+  optional .speckle.UpdateUserOp update_user_op = 38;
+  optional .speckle.CheckNonInnodbOp check_non_innodb_op = 39;
+}
+
+message InstanceOpResponse {
+  optional int32 OBSOLETE_task_redirect = 1 [deprecated = true];
+  optional string redirect = 2;
+  optional .speckle.StatusReply status_reply = 3;
+  optional .speckle.GetStatsReply get_stats_reply = 4;
+  optional .speckle.BackupVolumeReply backup_volume_reply = 5;
+  optional .speckle.ExportReply export_reply = 6;
+  optional .util.StatusProto status = 7;
+  optional .speckle.BinLogCoordinates coordinates = 8;
+  optional .speckle.UsersResponse users_response = 9;
+  optional .speckle.DatabasesResponse databases_response = 10;
+  optional bool non_innodb_user_tables = 11;
+}
+
+message ReadVolumeOp {
+  repeated string instance = 1;
+}
+
+message ReadVolumeReply {
+  message Volume {
+    required string instance = 1;
+    optional .util.StatusProto status = 2;
+    optional .speckle.VolumeProto volume = 3;
+  }
+  repeated .speckle.ReadVolumeReply.Volume volume = 1;
+}
+
+message GlobalOpRequest {
+  optional .speckle.ReadVolumeOp read_volume_op = 1;
+}
+
+message GlobalOpResponse {
+  optional .speckle.ReadVolumeReply read_volume_reply = 1;
+}
+
+message LoadInstanceRequest {
+  optional .speckle.InstanceProto metadata = 1;
+  optional .speckle.InstanceServingStateProto serving_state = 2;
+  optional .speckle.RequestTokenProto request_token = 3;
+  optional string loas_user = 4;
+}
+
+message LoadInstanceResponse {
+  required .util.StatusProto status = 1;
+  optional string redirect = 2;
+}
+
+message ListRunningInstancesRequest {
+}
+
+message ResourceStatus {
+  optional int64 free_ram_bytes = 1;
+}
+
+message ListRunningInstancesResponse {
+  repeated .speckle.RunningInstanceStateProto instance_state = 1;
+  optional .speckle.ResourceStatus resource_status = 2;
+}
+
+service SpeckleService {
+  rpc Exec(.speckle.ExecRequest) returns (.speckle.ExecResponse);
+  rpc ExecOp(.speckle.ExecOpRequest) returns (.speckle.ExecOpResponse);
+  rpc GetMetadata(.speckle.MetadataRequest) returns (.speckle.MetadataResponse);
+  rpc OpenConnection(.speckle.OpenConnectionRequest) returns (.speckle.OpenConnectionResponse);
+  rpc CloseConnection(.speckle.CloseConnectionRequest) returns (.speckle.CloseConnectionResponse);
+  rpc InstanceOp(.speckle.InstanceOpRequest) returns (.speckle.InstanceOpResponse);
+  rpc GlobalOp(.speckle.GlobalOpRequest) returns (.speckle.GlobalOpResponse);
+  rpc LoadInstance(.speckle.LoadInstanceRequest) returns (.speckle.LoadInstanceResponse);
+  rpc ListRunningInstances(.speckle.ListRunningInstancesRequest) returns (.speckle.ListRunningInstancesResponse);
+}
+
+

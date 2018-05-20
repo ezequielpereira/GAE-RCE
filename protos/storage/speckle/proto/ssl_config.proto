@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+package speckle;
+
+message SslCert {
+  optional string cert = 1;
+  optional string name = 2;
+  optional int64 validity_not_before_ms = 3;
+  optional int64 validity_not_after_ms = 4;
+  optional string sha1_fingerprint = 5;
+  optional int64 create_time_ms = 6;
+  optional string serial_number = 7;
+  optional string encryption_algorithm = 8;
+}
+
+message SslCaClientCertProto {
+  optional .speckle.SslCert ca_cert_info = 1;
+  optional string name = 2;
+  optional string client_sha1_fingerprint = 3;
+  optional .speckle.SslCert client_cert_info = 4;
+}
+
+message SslParamsProto {
+  optional .speckle.SslCert ca_server = 1;
+  optional .speckle.SslCert server_cert = 2;
+  optional bytes server_pkey = 3;
+  repeated .speckle.SslCaClientCertProto ca_client = 4;
+  optional bool force_require_x509 = 5 [default = false];
+  optional string ssl_cipher_list = 6;
+  optional .speckle.SslCert signing_ca = 7;
+  optional bytes signing_ca_pkey = 8;
+  optional .speckle.SslCert sfe_client_cert = 9;
+  optional bytes sfe_client_pkey = 10;
+  optional .speckle.SslCert replica_ca = 11;
+  optional .speckle.SslCert replica_cert = 12;
+  optional bytes replica_pkey = 13;
+  optional .speckle.SslCert master_server_ca_slave_copy = 14;
+  optional .speckle.SslCert replica_cert_slave_copy = 15;
+  optional bytes replica_pkey_slave_copy = 16;
+}
+
+

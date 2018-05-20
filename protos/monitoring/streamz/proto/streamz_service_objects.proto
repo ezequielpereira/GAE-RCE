@@ -1,0 +1,55 @@
+syntax = "proto2";
+
+import "monitoring/streamz/proto/streamz.proto";
+package monitoring.streamz;
+
+option java_package = "com.google.monitoring.streamz.proto";
+option java_outer_classname = "StreamzObjectProtos";
+option java_multiple_files = true;
+
+message MonitorRequest {
+  optional bool timestamps = 2 [default = false];
+  optional bool include_declaration_metadata = 3 [default = false];
+  optional int32 poll_period_ms = 4 [default = 60000];
+  optional int32 num_events = 7 [default = 1];
+  optional string root = 6;
+  repeated .monitoring.streamz.StreamQuery query = 5;
+  optional int32 soft_response_size_limit = 8 [default = 1048576];
+  optional bool terminate_if_no_matching_metrics = 9;
+}
+
+message MonitorEvent {
+  repeated .monitoring.streamz.StreamValue value = 1;
+  required int64 timestamp_micros = 2;
+  optional int64 birth_timestamp_micros = 3;
+  optional fixed64 root_id = 5;
+  repeated .monitoring.streamz.MetricDefinition additional_metric_definition = 4;
+}
+
+message MonitorResponse {
+}
+
+message GetRootListRequest {
+}
+
+message GetRootListResponse {
+  repeated .monitoring.streamz.RootDescriptor root = 1;
+}
+
+message WatchRootRequest {
+  required string root_name = 1;
+}
+
+message RootInfo {
+  optional fixed64 root_id = 1;
+  optional .monitoring.streamz.RootDescriptor root_descriptor = 2;
+  repeated string metric_name = 3;
+  repeated .monitoring.streamz.MetricDefinition metric_definition = 5;
+  optional bool using_collection_api = 7 [default = false];
+  optional int32 version = 16 [default = 0];
+}
+
+message WatchRootResponse {
+}
+
+

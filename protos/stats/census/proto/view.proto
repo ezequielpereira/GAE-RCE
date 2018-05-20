@@ -1,0 +1,66 @@
+syntax = "proto2";
+
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option java_outer_classname = "CensusView";
+option cc_enable_arenas = true;
+
+message TagSelectorProto {
+  optional string tag_key = 1;
+  optional string whitelist_regex = 2;
+  optional string blacklist_regex = 3;
+}
+
+message StreamzTargetSchemaProto {
+  message LabelMapping {
+    optional string tag_key = 1;
+    optional string streamz_root_label = 2;
+  }
+  repeated string name = 7;
+  repeated .stats_census.StreamzTargetSchemaProto.LabelMapping label_mappings = 2;
+  optional string spatial_container = 3;
+  optional string spatial_element_tag_key = 4;
+  optional string discovery_prefix = 5;
+  optional string metric_name_prefix = 6;
+  optional string default_cloud_production_level = 8;
+  reserved 1;
+}
+
+message TopKProto {
+  message Filter {
+    optional int32 num_values = 1;
+    repeated string tag_key = 2;
+  }
+  repeated .stats_census.TopKProto.Filter filter = 1;
+  optional double window_length_seconds = 2;
+}
+
+message ViewProto {
+  message Metadata {
+    enum SloTier {
+      SLO_TIER_UNSPECIFIED = 0;
+      SLO_TIER_LOW = 1;
+      SLO_TIER_HIGH = 2;
+    }
+    optional .stats_census.ViewProto.Metadata.SloTier current_slo_tier = 1 [default = SLO_TIER_LOW];
+  }
+  optional string name = 1;
+  optional string resource = 2;
+  optional string measure = 3;
+  optional bool varz = 4;
+  optional bool streamz = 5;
+  repeated .stats_census.TagSelectorProto tag_selector = 7;
+  optional string aggregation = 8;
+  optional .stats_census.StreamzTargetSchemaProto target_schema = 9;
+  optional string owner = 11;
+  optional .stats_census.TopKProto top_k = 13;
+  optional .stats_census.ViewProto.Metadata metadata = 14;
+  reserved 6, 10, 12;
+}
+
+message ViewCollection {
+  repeated .stats_census.ViewProto view = 1;
+}
+
+

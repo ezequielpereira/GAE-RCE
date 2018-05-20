@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package appengine_proto;
+
+option java_outer_classname = "GAECluestickLogs";
+option java_multiple_files = true;
+
+message CluestickLog {
+  optional string session_id = 1;
+  optional int64 session_start_ms = 2;
+  optional string token = 3;
+  optional string pack = 4;
+  optional bool prefill = 5;
+  optional string lang = 6;
+  optional int32 result_count = 7;
+}
+

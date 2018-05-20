@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+option java_package = "com.google.io.binarylog.genfiles";
+
+message BinaryLogEntry {
+  required double Timestamp = 1;
+  optional uint64 ThreadID = 2;
+  optional fixed64 TransactionID = 9;
+  optional fixed64 ParentRPCID = 10;
+  optional group Header = 5 {
+    required string CommandLine = 6;
+    required string BuildTimestamp = 7;
+    required string BuildInfo = 8;
+    optional string Hostname = 16;
+    optional fixed32 HostIP = 17;
+    repeated group SocketInfo = 18 {
+      required fixed32 ip = 19;
+      required int32 port = 20;
+    }
+    optional int32 TraceSamplingPeriod = 22;
+  }
+  optional string EmbeddedType = 3;
+  optional bytes EmbeddedMessage = 4;
+  optional string label = 21;
+}
+
+

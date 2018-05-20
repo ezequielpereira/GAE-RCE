@@ -1,0 +1,91 @@
+syntax = "proto2";
+
+import "security/credentials/proto/principal.proto";
+import "security/loas/l2/proto/common.proto";
+import "util/task/codes.proto";
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+
+message GetSupportedProtocolsReq {
+}
+
+message GetSupportedProtocolsResp {
+  repeated string handshake_protocols = 1;
+}
+
+message GetSupportedHandshakeCiphersReq {
+}
+
+message GetSupportedHandshakeCiphersResp {
+  repeated .security_loas_l2.HandshakeCipher handshake_ciphers = 1;
+}
+
+message GetIdentitiesReq {
+}
+
+message GetIdentitiesResp {
+  repeated .security_loas_l2.Identity identities = 1;
+}
+
+message GetDefaultRoleReq {
+}
+
+message GetDefaultRoleResp {
+  optional .security.credentials.PrincipalProto default_role = 1;
+}
+
+message NextProtocolKeySpec {
+  optional string next_protocol = 1;
+  optional bytes protocol_binding_info = 2;
+  optional uint32 key_data_len = 3;
+}
+
+message StartClientHandshakeReq {
+  optional string handshake_protocol = 1;
+  repeated .security_loas_l2.NextProtocolKeySpec key_specs = 2;
+  optional .security_loas_l2.Identity peer_identity = 3;
+  optional .security.credentials.PrincipalProto desired_role = 4;
+  optional .security_loas_l2.AuthenticatedOptions authenticated_options = 5;
+  repeated bytes accepted_server_resumption_ticket_family_ids = 6;
+  optional string peer_debug_info = 7;
+  repeated .security_loas_l2.HandshakeCipher handshake_cipher = 8;
+}
+
+message StartServerHandshakeReq {
+  optional string handshake_protocol = 1;
+  repeated .security_loas_l2.NextProtocolKeySpec key_specs = 2;
+  optional bytes in_frames = 3;
+  optional .security_loas_l2.Identity peer_identity = 4;
+  optional .security.credentials.PrincipalProto desired_role = 5;
+  optional .security_loas_l2.AuthenticatedOptions authenticated_options = 6;
+  optional string peer_debug_info = 7;
+  repeated .security_loas_l2.HandshakeCipher handshake_cipher = 8;
+}
+
+message ProcessNextHandshakeMessageReq {
+  optional uint64 handshake_id = 1;
+  optional bytes in_frames = 2;
+}
+
+message HandshakerResult {
+  optional .security_loas_l2.Identity peer_identity = 1;
+  optional string next_protocol = 2;
+  optional bytes key_data = 3;
+  optional .security_loas_l2.AuthenticatedOptions authenticated_options = 4;
+}
+
+message HandshakerStatus {
+  optional .util.error.Code code = 1;
+  optional string message = 2;
+}
+
+message HandshakerResp {
+  optional uint64 handshake_id = 1;
+  optional bytes out_frames = 2;
+  optional .security_loas_l2.HandshakerResult result = 3;
+  repeated bytes accepted_server_resumption_ticket_family_ids = 4;
+  optional .security_loas_l2.HandshakerStatus status = 5;
+}
+
+

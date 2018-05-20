@@ -1,0 +1,102 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package gdata;
+
+option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+option objc_class_prefix = "GDATA";
+
+message Errors {
+  enum ErrorCode {
+    BAD_REQUEST = 400;
+    FORBIDDEN = 403;
+    NOT_FOUND = 404;
+    CONFLICT = 409;
+    GONE = 410;
+    PRECONDITION_FAILED = 412;
+    INTERNAL_ERROR = 500;
+    SERVICE_UNAVAILABLE = 503;
+  }
+  optional string request_id = 2;
+  repeated .gdata.ErrorProto error = 3;
+  optional .gdata.Errors.ErrorCode code = 1 [deprecated = true];
+  extend .proto2.bridge.MessageSet {
+    optional .gdata.Errors message_set_extension = 45975864;
+  }
+}
+
+message ErrorProto {
+  enum LocationType {
+    PATH = 1;
+    OTHER = 3;
+  }
+  optional string domain = 1;
+  optional string code = 2;
+  repeated string argument = 3;
+  optional .gdata.ErrorProto.LocationType location_type = 4 [default = PATH];
+  optional string location = 5;
+  optional string debug_info = 6;
+  optional string external_error_message = 7;
+}
+
+message Response {
+  enum ResponseCode {
+    OK = 1;
+    CREATED = 2;
+    EMPTY = 3;
+    MULTI = 4;
+    ACCEPTED = 5;
+    CONFLICT = 6;
+  }
+}
+
+message PageSelection {
+  optional uint32 max_results = 1;
+  optional uint32 start_index = 2;
+  optional string token = 3;
+}
+
+message PageInfo {
+  optional int32 total_results = 1;
+  optional int32 result_per_page = 2;
+  optional int32 start_index = 3;
+}
+
+message IndexedPagination {
+  optional bool has_next_page = 2;
+  optional bool has_previous_page = 3;
+}
+
+message TokenPagination {
+  optional string next_page_token = 2;
+  optional string previous_page_token = 3;
+}
+
+message Condition {
+  enum ConditionType {
+    IF_MATCH = 0;
+    UNLESS_MATCH = 1;
+  }
+  optional .gdata.Condition.ConditionType type = 1 [default = IF_MATCH];
+  repeated bytes fingerprint = 2;
+}
+
+message FieldMask {
+  optional int32 id = 1;
+  repeated .gdata.FieldMask field = 2;
+}
+
+message DescribeRequest {
+}
+
+message DescribeResponse {
+  optional bytes resource_collection = 1;
+}
+
+service IntrospectableService {
+  rpc Describe(.gdata.DescribeRequest) returns (.gdata.DescribeResponse);
+}
+
+

@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "net/proto2/proto/descriptor.proto";
+import "google/api/annotations.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "MigrationProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Migration {
+  map<string, .google.api.ErrorDomain> errors = 2;
+  repeated .google.api.MigrationRule rules = 1;
+  bool prefer_distrib_discovery = 3;
+  map<string, string> proto_to_apiary_method_names = 4;
+}
+
+message MigrationRule {
+  string selector = 1;
+  bool lower_camel_enums = 2;
+  bool use_v1_error_format = 3;
+  bool use_web_safe_base64_for_byte_fields = 4;
+  bool ignore_unknown_fields = 5;
+  bool suppress_empty_repeated_fields = 6;
+  bool skip_activation_check = 7;
+  bool allow_unregistered_requests = 8;
+  bool return_204_for_empty_response = 9;
+  bool allow_int_to_string_conversion = 10;
+  string apiary_method_name = 11;
+  bool return_403_for_quota_errors = 12;
+  bool allow_http_multipart_form_data = 13;
+  bool use_resource_project_override = 14;
+  bool always_output_empty_repeated_fields = 15;
+}
+
+message ErrorDomain {
+  map<string, .google.api.ErrorDefinitions> error_definitions = 1;
+}
+
+message ErrorDefinitions {
+  repeated .google.api.ErrorDefinition definitions = 1;
+}
+
+message ErrorDefinition {
+  string external_name = 1;
+  string error_message = 2;
+  string extended_help = 3;
+  string domain = 4;
+  string reason = 5;
+  string location = 6;
+  .google.api.ErrorPredicate predicate = 7;
+  map<string, string> http_error_headers = 8;
+}
+
+message ErrorPredicate {
+  string location = 1;
+  string method = 2;
+}
+
+extend .proto2.MethodOptions {
+  .google.api.MigrationRule method_migration = 124888596;
+}
+
+

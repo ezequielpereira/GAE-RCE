@@ -1,0 +1,88 @@
+syntax = "proto2";
+
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ServiceFrameworkAdvancedProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+enum CacheStrategy {
+  LOCAL_ONLY = 0;
+  MEMCACHE_ONLY = 1;
+  LOCAL_AND_MEMCACHE = 2;
+}
+
+enum JspbVariant {
+  UNKNOWN = 0;
+  LITE = 1;
+  FAVA = 2;
+  GWT = 3;
+}
+
+message AdvancedServiceConfig {
+  repeated .google.api.RenameMethodRule rename_rules = 1;
+  repeated .google.api.UsageManagerRule usage_manager_rules = 2;
+  optional .google.api.CacheConfig oauth_cache = 3;
+  optional .google.api.CacheConfig usage_manager_cache = 4;
+  optional .google.api.CacheConfig quota_cache = 5;
+  optional .google.api.CacheConfig chemist_cache = 12;
+  repeated .google.api.ExtendedQuotaRule quota_rules = 6;
+  repeated .google.api.WebChannelConfig webchannel_config = 7;
+  repeated .google.api.TranslatorConfig translator_config = 8;
+  repeated .google.api.MessageLimitsRule message_limits_rules = 9;
+  optional .google.api.ChemistConfig chemist_config = 10;
+  reserved 11;
+}
+
+message RenameMethodRule {
+  optional string selector = 1;
+  optional string rename_to = 2;
+}
+
+message UsageManagerRule {
+  optional string selector = 1;
+  optional string address = 2;
+  optional bool enable_cache = 3;
+}
+
+message ExtendedQuotaRule {
+  optional string selector = 1;
+  optional bool enable_cache = 2;
+  optional int32 quota_cache_lifetime_seconds = 3;
+}
+
+message CacheConfig {
+  optional bool disabled = 6;
+  optional .google.api.CacheStrategy strategy = 1;
+  optional int32 lifetime_seconds = 2;
+  optional int32 local_cache_size_bytes = 3;
+  optional int32 memcacheg_rpc_timeout_ms = 4;
+  optional int32 refresh_threshold_seconds = 5;
+}
+
+message WebChannelConfig {
+  optional string selector = 1;
+  repeated string url_paths = 2;
+}
+
+message TranslatorConfig {
+  optional string selector = 1;
+  optional bool output_all_primitive_fields_to_json = 2;
+  optional .google.api.JspbVariant jspb_variant = 3;
+  optional bool use_web_safe_base64_for_byte_fields = 4;
+  optional bool struct_integers_as_strings = 5;
+  optional bool add_trailing_zeros_for_timestamp_and_duration = 6;
+}
+
+message MessageLimitsRule {
+  optional string selector = 1;
+  optional int32 request_limit = 2;
+  optional int32 response_limit = 3;
+}
+
+message ChemistConfig {
+  optional string address = 1;
+}
+
+

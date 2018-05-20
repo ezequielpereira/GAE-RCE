@@ -1,0 +1,200 @@
+syntax = "proto2";
+
+package garage;
+
+option java_package = "com.google.is.hrto.garage.apis.auditlogs";
+option java_outer_classname = "Events";
+
+message GarageLog {
+  repeated .garage.GarageEvent event = 1;
+  repeated .garage.GarageImpression impression = 2;
+  optional .garage.GarageTiming timing = 3;
+  optional .garage.GarageUserContext user_context = 4;
+  optional .garage.GarageServerContext server_context = 5;
+  repeated int32 experiment_id = 6;
+}
+
+message GarageUserContext {
+  enum RequestOrigin {
+    HTML_SITE = 0;
+    MOBILE_APP = 1;
+    NON_MOBILE_STUBBY = 2;
+    MAPREDUCE = 3;
+    CRON = 4;
+  }
+  enum DeviceType {
+    WEB = 0;
+    ANDROID = 1;
+    IOS = 2;
+    OTHER = 3;
+  }
+  optional bool gplus_flag = 2;
+  optional int64 user_time = 3;
+  optional .garage.GarageUserContext.RequestOrigin request_origin = 4;
+  optional string obfuscated_user_id = 5;
+  optional bool is_logged_in = 6;
+  optional string session_id = 7;
+  optional bool is_google_internal = 8;
+  optional bool is_test_account = 9;
+  optional bool is_google_account = 10;
+  optional .garage.GarageUserContext.DeviceType device_type = 11;
+  optional string app_version = 12;
+  optional string user_agent = 13;
+}
+
+message GarageServerContext {
+  optional string garage_version = 1;
+  optional int64 server_time = 2;
+}
+
+message GarageEvent {
+  enum EventGroup {
+    PAGEVIEW = 0;
+    USER_ACTION = 1;
+    SYSTEM_ACTION = 2;
+  }
+  optional string event_id = 1;
+  optional .garage.GarageUserContext user_context = 2 [deprecated = true];
+  optional .garage.GarageServerContext server_context = 3 [deprecated = true];
+  optional string impression_id = 4;
+  optional string referring_event_id = 5;
+  optional int64 job_id = 6;
+  required .garage.GarageEvent.EventGroup event_group = 7;
+  optional string event_type_descriptor = 8;
+  optional string parent_event_id = 9;
+  optional int64 user_time = 10;
+  optional .garage.GarageQuery query_from_client = 11;
+  optional .garage.GarageQuery processed_query = 12;
+  optional string st_query = 13;
+  optional int32 result_count = 14;
+}
+
+message GarageImpression {
+  enum RankType {
+    RELEVANCE = 0;
+    MOST_RECENT = 1;
+  }
+  enum ImpressionType {
+    SEARCH_RESULT = 0;
+    EMAIL_ALERT = 1;
+    RECOMMENDATION_CARD = 2;
+    TITLE_SUGGESTION = 3;
+    RECENT_SEARCH = 4;
+  }
+  optional string impression_id = 1;
+  optional string query_id = 2;
+  optional .garage.GarageUserContext user_context = 3 [deprecated = true];
+  optional .garage.GarageServerContext server_context = 4 [deprecated = true];
+  optional int64 job_id = 5;
+  optional .garage.GarageImpression.RankType rank_type = 6;
+  optional .garage.GarageImpression.ImpressionType impression_type = 7;
+  optional int32 rank = 8;
+  optional int32 pagination_segment = 9 [default = 0];
+  optional float relevance_score = 10;
+  optional string original_query = 14 [deprecated = true];
+  optional string snippet = 15;
+  optional string impression_subtype = 17;
+  optional string cluster_id = 18;
+  repeated .garage.SearchBoost boost = 19;
+  optional string display_event_id = 20;
+  optional string job_req_id = 21;
+  optional string algorithm_id = 22;
+  optional int32 global_rank = 23 [default = 0];
+}
+
+message GarageTiming {
+  optional string gwt_service_name = 1;
+  optional string gwt_method = 2;
+  repeated .garage.MethodTiming method_timing = 3;
+}
+
+message MethodTiming {
+  required string method_name = 1;
+  required int64 time_usecs = 2;
+  optional int32 call_count = 3 [default = 1];
+}
+
+message GarageQuery {
+  enum BroadeningState {
+    NO_BROADENING = 0;
+    DO_BROADENING = 1;
+    BROADENED = 2;
+  }
+  optional string query_string = 1;
+  repeated .garage.SearchFilter filter = 2;
+  repeated .garage.LocationFilter location_filter = 3;
+  repeated .garage.DetocSVPPair inferred_svp_detoc_pair = 4;
+  repeated string detected_title = 5;
+  repeated string detected_location = 6;
+  optional int32 start = 7;
+  optional int32 limit = 8;
+  optional string rewritten_user_query = 9;
+  optional .garage.GarageQuery.BroadeningState broadening_state = 10 [default = NO_BROADENING];
+  optional string broadening_type = 11;
+  optional string un_spellchecked_query_string = 12;
+}
+
+message SearchFilter {
+  enum SearchType {
+    JOB = 1;
+    JOB_ID = 2;
+    JOB_COMPANY_ID = 3;
+    JOB_REQ_ID = 11;
+    JOB_TITLE = 12;
+    JOB_TITLE_NORMALIZE_EXACT = 13;
+    JOB_EMPLOYMENT_TYPE = 14;
+    JOB_EXPERIENCE_LEVEL = 15;
+    JOB_EDUCATION_LEVEL = 16;
+    JOB_INDUSTRY = 17;
+    JOB_DERIVED_CATEGORY = 18;
+    JOB_DERIVED_CATEGORY_CONFIDENCE = 19;
+    JOB_CATEGORY = 20;
+    JOB_DETOC = 21;
+    JOB_SVP = 22;
+    JOB_COMPANY_SIZE = 23;
+    JOB_COUNTRY = 25;
+    JOB_CITY = 26;
+    JOB_LOCATION_DISTANCE = 27;
+    JOB_TAG_ID = 28;
+    JOB_STATUS = 29;
+    JOB_LOCALE = 30;
+    JOB_DATE_CREATED = 31;
+    JOB_DATE_UPDATED = 32;
+    JOB_DATE_PUBLISHED = 33;
+    JOB_GOOGLE_SUBSIDIARY = 34;
+    JOB_CONNECTION_ID = 35;
+    JOB_CLUSTER_ID = 37;
+    JOB_ABUSE = 38;
+    JOB_ON_HOLD = 39;
+    JOB_CONNECTION_COMPANY_ID = 40;
+    JOB_DATA_SET_ID = 41;
+  }
+  enum SearchOperator {
+    ANY_OP = 0;
+    ALL_OP = 1;
+    NOT_OP = 2;
+  }
+  optional .garage.SearchFilter.SearchType search_type = 1;
+  optional .garage.SearchFilter.SearchOperator search_operator = 2;
+  repeated string value = 3;
+  repeated .garage.SearchFilter sub_filter = 4;
+}
+
+message DetocSVPPair {
+  optional string detoc = 1;
+  optional int32 svp = 2;
+}
+
+message SearchBoost {
+  required string key = 1;
+  optional double score = 2;
+}
+
+message LocationFilter {
+  optional double latitude = 1;
+  optional double longitude = 2;
+  optional double radius = 3;
+  optional string display_name = 4;
+  optional string location_type = 5;
+}
+

@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+import "apphosting/base/alias.proto";
+import "apphosting/base/common.proto";
+import "apphosting/base/server.proto";
+import "storage/blobstore/rpc/blobservice.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "ApplocationPb";
+
+message AppLocation {
+  enum ServingStatus {
+    OK = 1;
+    DISABLED = 2;
+    TRUSTED_IPS_ONLY = 3;
+    USER_DISABLED = 4;
+    USER_DELETED = 5;
+    ADMINS_DELETED = 6;
+    ADMINS_PURGED = 7;
+  }
+  enum RecordType {
+    FULL_RECORD = 0;
+    EDGE_RECORD = 1;
+  }
+  required string app_id = 1;
+  repeated string DEPRECATED_hostname = 2;
+  required string live_version_id = 3;
+  repeated group LiveServer = 29 {
+    required string name = 30;
+    optional .apphosting.ServerConfig.State state = 32;
+    optional string live_version_id = 31;
+  }
+  optional .apphosting.AppLocation.ServingStatus serving_status = 10 [default = OK];
+  optional int32 diversion_method = 36 [default = 2];
+  repeated group VersionInfo = 4 {
+    required string version_id = 5;
+    repeated group ModValueRange = 35 {
+      required uint32 begin = 37;
+      required uint32 end = 38;
+    }
+    optional int32 num_desired_instances = 27;
+    repeated string hosts = 8;
+    repeated .apphosting.ServerReplicas servers = 21;
+    optional int32 load_balancing_policy = 9 [default = 6];
+    optional int32 secondary_load_balancing_policy = 11 [default = 6];
+    optional string pool_id = 14 [default = ""];
+  }
+  optional int32 cookie_expiration_seconds = 12;
+  repeated int32 permission = 13;
+  optional int32 logging_mode = 26 [default = 3];
+  optional int64 max_http_request_size_bytes = 28;
+  optional .apphosting.AppLocation.RecordType record_type = 15 [default = FULL_RECORD];
+  optional int32 quota_policy = 17 [default = 0];
+  optional int32 auth_cookie_type = 18 [default = 0];
+  optional int32 auth_type = 19 [default = 1];
+  repeated .apphosting.AliasConfig alias = 20;
+  repeated .apphosting.VersionAliasConfig major_version_alias = 24;
+  optional .blobstore.BlobRef default_error_blob = 23;
+  optional int32 app_cookie_check_session_period_s = 25;
+  repeated int64 owner_gaia_id = 33;
+  optional int32 over_quota_response_delay_ms = 34;
+  optional int32 appmaster_type = 40 [default = 0];
+  reserved 39;
+  reserved "enable_pagespeed";
+}
+
+

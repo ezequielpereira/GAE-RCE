@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+package net_discovery;
+
+option java_package = "com.google.net.discovery.proto";
+option java_outer_classname = "DiscoveryDns";
+option java_multiple_files = true;
+
+message DiscoveryServerAddresses {
+  repeated fixed32 ipv4 = 1 [packed = true];
+  repeated int32 port = 2 [packed = true];
+  optional float ttl = 3;
+  optional string message = 4;
+}
+
+message PartitionTableProto {
+  optional bytes table = 1 [ctype = CORD];
+  optional int32 ttl = 2;
+  optional string message = 3;
+}
+
+message NetworkConfig {
+  optional int32 num_channels = 1;
+  optional int32 ttl = 2;
+  optional string network_address = 3;
+  optional .net_discovery.DiscoveryServerAddresses resolution = 4;
+  optional string message = 5;
+  optional bool blackholed = 6 [default = false];
+  optional string locality = 7;
+}
+
+message OverlayConfig {
+  required .net_discovery.PartitionTableProto table = 1;
+  repeated string partition_name = 2;
+  repeated .net_discovery.NetworkConfig partition_config = 3;
+}
+
+

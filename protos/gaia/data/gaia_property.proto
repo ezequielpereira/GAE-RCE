@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+option java_package = "com.google.gaia.client.proto";
+option cc_enable_arenas = true;
+
+message GaiaKey {
+  required int32 ServiceID = 1;
+  optional int64 UserID = 2;
+  required string Key = 3;
+}
+
+message GaiaServiceKeyConfig {
+  repeated group GaiaServiceKey = 1 {
+    required .GaiaKey Key = 2;
+    required string ProtocolBuffer = 3;
+  }
+}
+
+

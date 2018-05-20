@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+
+message RPCTracedRequest {
+  optional fixed64 parent_span_id = 1 [default = 0];
+  optional double inverse_sampling_probability = 2;
+}
+
+

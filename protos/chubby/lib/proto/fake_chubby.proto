@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "net/proto2/proto/empty.proto";
+package chubby.testing;
+
+message AliveResponse {
+  optional uint64 stream_id = 1;
+}
+
+service SessionService {
+}
+
+

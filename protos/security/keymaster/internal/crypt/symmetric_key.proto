@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package security;
+
+message SymmetricKeyProto {
+  optional bytes raw_key = 1;
+  optional bytes key_hash = 2;
+}
+
+

@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+import "net/proto/protocoltype.proto";
+import "net/rpc/empty-message.proto";
+import "net/rpc/descriptor.proto";
+import "net/rpc/serverstatus.proto";
+import "stats/io/proto/expvar.proto";
+import "stats/request/statsrequest.proto";
+package net.rpc4;
+
+service ServerStatus {
+  rpc GetExportedVariables(.EmptyMessage) returns (.EV_KeyValueList);
+  rpc GetNamedVariables(.rpc.VarzRequest) returns (.EV_KeyValueList);
+  rpc GetFlags(.rpc.FlagsRequest) returns (.EV_KeyValueList);
+  rpc SetFlag(.rpc.FlagRequest) returns (.rpc.FlagResponse);
+  rpc GetServices(.EmptyMessage) returns (.rpc.ServiceList);
+  rpc GetFileByName(.rpc.FileNameRequest) returns (.rpc.FileDescriptorProtoResponse);
+  rpc GetFileContainingSymbol(.rpc.SymbolRequest) returns (.rpc.FileDescriptorProtoResponse);
+  rpc GetFileContainingExtension(.rpc.ExtensionRequest) returns (.rpc.FileDescriptorProtoResponse);
+  rpc GetAllExtensionNumbers(.rpc.TypeRequest) returns (.rpc.ExtensionNumbersResponse);
+  rpc GetFileDescriptorSetForFileName(.rpc.FileNameRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetFileDescriptorSetForSymbol(.rpc.SymbolRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetFileDescriptorSetForAllExtensions(.rpc.TypeRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetFileDescriptorSetForExtensions(.rpc.ExtensionBatchRequest) returns (.rpc.FileDescriptorSetResponse);
+  rpc GetType(.rpc.TypeRequest) returns (.ProtocolDescriptor);
+  rpc GetTypeById(.rpc.TypeIdRequest) returns (.ProtocolDescriptor);
+  rpc GetTypesByFileName(.rpc.FileNameRequest) returns (.rpc.ProtocolDescriptorList);
+  rpc GetPerf(.rpc.PerfRequest) returns (.rpc.PerfResponse);
+  rpc GetLatencyHistograms(.rpc.LatencyHistogramsRequest) returns (.rpc.LatencyHistogramsResponse);
+  rpc GetRequestz(.statsrequest.GetRequestzRequest) returns (.statsrequest.GetRequestzResponse);
+}
+
+

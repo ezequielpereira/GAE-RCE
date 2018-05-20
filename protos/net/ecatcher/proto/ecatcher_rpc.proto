@@ -1,0 +1,136 @@
+syntax = "proto2";
+
+import "net/ecatcher/proto/ecatcher.proto";
+import "net/ecatcher/proto/query.proto";
+import "net/proto2/bridge/proto/message_set.proto";
+package ecatcher;
+
+option java_package = "com.google.net.ecatcher.proto";
+
+message TimeRange {
+  enum TimeFormat {
+    TIME_FORMAT_ABSOLUTE = 0;
+    TIME_FORMAT_RELATIVE = 1;
+  }
+  optional .ecatcher.TimeRange.TimeFormat format = 1 [default = TIME_FORMAT_ABSOLUTE];
+  optional int64 start = 2 [default = 0];
+  optional int64 duration = 3 [default = 0];
+}
+
+message ECatcherRequest {
+  required string Query = 1;
+  optional int32 MaxResults = 2 [default = 100];
+  optional int32 TargetResultsPerFacet = 10 [default = 20];
+  optional string Facet = 3;
+  optional int32 FacetMatchesLessEquals = 4;
+  optional int64 FacetMatchesLessEqualsExtrapolated = 12;
+  optional int32 SampleSize = 5 [default = 5];
+  optional .ecatcher.TimeRange time_range = 7;
+  optional bool SampleOrderByTime = 8 [default = false];
+  optional string bns_restrict = 9;
+  optional float CompletionRatio = 11 [default = 1];
+  extend .proto2.bridge.MessageSet {
+    optional .ecatcher.ECatcherRequest message_set_extension = 26206772;
+  }
+}
+
+message ECatcherCount {
+  required string Report = 1;
+  required int32 Count = 2;
+  optional int64 CountExtrapolated = 5;
+  required int32 deprecated_hits = 3;
+  repeated int64 SampleReports = 4;
+  repeated .ecatcher.SampleReport Sample = 6;
+}
+
+message SampleReport {
+  required int64 id = 1;
+  optional int64 gpid = 2;
+}
+
+message ECatcherServerStats {
+  required int32 UptimeSeconds = 1;
+  required int32 ReportCount = 2;
+  required int32 ServerMegabytes = 3;
+  required int32 OldestReportAge = 4;
+  required int32 SubreportMask = 5;
+  optional string ServerName = 6;
+  optional int32 MatchCount = 7;
+  optional int64 MatchCountExtrapolated = 13;
+  optional int32 BaseMatchCount = 8;
+  optional int64 BaseMatchCountExtrapolated = 14;
+  optional int32 MatchingReportLines = 9;
+  repeated group Timing = 10 {
+    required string Name = 11;
+    required int32 TimeInMs = 12;
+  }
+}
+
+message ECatcherReply {
+  required int32 MatchCount = 1;
+  optional int64 MatchCountExtrapolated = 15;
+  optional int32 BaseMatchCount = 11;
+  optional int64 BaseMatchCountExtrapolated = 16;
+  optional int32 MatchingReportLines = 12;
+  repeated .ecatcher.ECatcherCount ReportLines = 3;
+  repeated .ecatcher.ECatcherServerStats Stat = 4;
+  repeated group Subreports = 5 {
+    repeated .ecatcher.ECatcherCount ReportLines = 6;
+  }
+  optional string squery = 7;
+  repeated group Timing = 8 {
+    required string Name = 9;
+    required int32 TimeInMs = 10;
+  }
+  optional bool MixerBackend = 13;
+  optional int32 ServerCount = 14 [default = 1];
+  extend .proto2.bridge.MessageSet {
+    optional .ecatcher.ECatcherReply message_set_extension = 26206895;
+  }
+}
+
+message ECatcherFullReportsRequest {
+  repeated int64 report_id = 1;
+  repeated .ecatcher.SampleReport sample_id = 3;
+  optional float CompletionRatio = 2 [default = 1];
+}
+
+message ECatcherFullReportsReply {
+  repeated .ecatcher.ExceptionReport report = 1;
+  optional int32 ServerCount = 2 [default = 1];
+}
+
+message ECatcherLoadRequest {
+  repeated .ecatcher.ExceptionReport Load = 1;
+}
+
+message ECatcherLoadReply {
+  optional .ecatcher.ECatcherServerStats Stats = 1;
+}
+
+message ECatcherResetRequest {
+}
+
+message ECatcherResetReply {
+  optional .ecatcher.ECatcherServerStats Stats = 1;
+}
+
+message ECatcherHoldRequest {
+  optional int32 hold_for_ms = 1;
+  optional .ecatcher.TimeRange hold_range = 2;
+}
+
+message ECatcherHoldReply {
+  optional .ecatcher.ECatcherHoldRequest previous = 1;
+}
+
+service ECatcherService {
+  rpc Query(.ecatcher.ECatcherRequest) returns (.ecatcher.ECatcherReply);
+  rpc GetFullReports(.ecatcher.ECatcherFullReportsRequest) returns (.ecatcher.ECatcherFullReportsReply);
+  rpc Load(.ecatcher.ECatcherLoadRequest) returns (.ecatcher.ECatcherLoadReply);
+  rpc Reset(.ecatcher.ECatcherResetRequest) returns (.ecatcher.ECatcherResetReply);
+  rpc Hold(.ecatcher.ECatcherHoldRequest) returns (.ecatcher.ECatcherHoldReply);
+  rpc SqlQuery(.ecatcher.api.sql.Request) returns (.ecatcher.api.sql.Reply);
+}
+
+

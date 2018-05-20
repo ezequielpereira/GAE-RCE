@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "TraceConfigPb";
+
+message TraceSamplingPolicies {
+  optional double trace_per_second = 1 [default = -1];
+}
+
+message TraceSettings {
+  optional bool enable_trace = 1;
+  optional bool enable_stack_trace = 2;
+  optional .apphosting.TraceSamplingPolicies sampling_policies = 3;
+  reserved 4;
+}
+
+

@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+import public "security/context/proto/loggable_peer.proto";
+import "security/credentials/proto/authenticator.proto";
+import "security/credentials/proto/end_user_credentials.proto";
+import "security/credentials/proto/iam_request_attributes.proto";
+import "security/credentials/proto/principal.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.context;
+
+option java_package = "com.google.security.context";
+option java_outer_classname = "ContextProtoFile";
+option java_multiple_files = true;
+
+message LoggableSecurityContextProto {
+  optional .security.credentials.UserPrincipalProto user = 3;
+  optional .security.credentials.LoggableIAMRequestAttributes iam_attributes = 6;
+  optional .security.credentials.UserPrincipalProto originator = 4;
+  repeated .security.credentials.DataAccessReason reason = 5;
+  optional .security.credentials.LoggableEndUserCredentialsProto loggable_end_user_creds = 1;
+  optional .security.context.LoggablePeerProto loggable_peer = 2;
+}
+
+

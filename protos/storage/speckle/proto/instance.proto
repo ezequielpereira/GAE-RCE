@@ -1,0 +1,913 @@
+syntax = "proto2";
+
+import "security/acl/acl.proto";
+import "security/credentials/proto/authenticator.proto";
+import "storage/googlesql/public/proto/type_annotation.proto";
+import "storage/speckle/proto/agent_type.proto";
+import "storage/speckle/proto/enums.proto";
+import "storage/speckle/proto/flag.proto";
+import "storage/speckle/proto/gcs_bucket_resource.proto";
+import "storage/speckle/proto/gce_config.proto";
+import "storage/speckle/proto/metadata_components.proto";
+import "storage/speckle/proto/mob.proto";
+import "storage/speckle/proto/network.proto";
+import "storage/speckle/proto/remote_gce_op.proto";
+import "storage/speckle/proto/request_token.proto";
+import "storage/speckle/proto/ssl_config.proto";
+import "storage/speckle/proto/tier_config.proto";
+import "util/task/status.proto";
+package speckle;
+
+message ServiceScope {
+  optional string loas_user = 1;
+  optional string mdb_group = 2;
+  optional .speckle.SecondaryIdScope secondary_id = 3;
+}
+
+message ServiceAclEntry {
+  required .speckle.ServiceScope scope = 1;
+  required int32 role = 2;
+  optional int64 expiration_time_ms = 3;
+  optional string name = 4;
+}
+
+message AuditLogProto {
+  enum AuditLoggingStrategy {
+    NO_AUDIT_LOGGING = 0;
+    CEAL_AUDIT_LOGGING = 1;
+    BIGQUERY_AUDIT_LOGGING = 2;
+  }
+  optional .speckle.AuditLogProto.AuditLoggingStrategy audit_log_strategy = 1;
+}
+
+message InstanceProto {
+  message Flag {
+    required string name = 1;
+    required string value = 2;
+  }
+  enum State {
+    RUNNING = 1;
+    SUSPENDED = 2;
+    PENDING_DELETE = 3;
+    PENDING_CREATE = 4;
+    MAINTENANCE = 5;
+    FAILED = 6;
+    ONLINE_MAINTENANCE = 7;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE8 = 8;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE9 = 9;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE10 = 10;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE11 = 11;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE12 = 12;
+  }
+  enum ActivationPolicy {
+    UNKNOWN_ACTIVATION_POLICY = 0;
+    ALWAYS = 1;
+    NEVER = 2;
+    ON_DEMAND = 3;
+    VALUE_ENUM_UNKNOWN_ACTIVATION_POLICY_VALUE4 = 4;
+    VALUE_ENUM_UNKNOWN_ACTIVATION_POLICY_VALUE5 = 5;
+    VALUE_ENUM_UNKNOWN_ACTIVATION_POLICY_VALUE6 = 6;
+    VALUE_ENUM_UNKNOWN_ACTIVATION_POLICY_VALUE7 = 7;
+    VALUE_ENUM_UNKNOWN_ACTIVATION_POLICY_VALUE8 = 8;
+  }
+  enum ReplicationMode {
+    UNKNOWN_REPLICATION_MODE = 0;
+    SYNC = 1;
+    ASYNC = 2;
+  }
+  enum SuspensionReason {
+    BILLING_ISSUE = 1;
+    LEGAL_ISSUE = 2;
+    OPERATIONAL_ISSUE = 3;
+    OBSOLETE_PITR_FAILURE = 4;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE5 = 5;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE6 = 6;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE7 = 7;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE8 = 8;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE9 = 9;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE10 = 10;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE11 = 11;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE12 = 12;
+    VALUE_ENUM_UNKNOWN_SUSPENSIONREASON_VALUE13 = 13;
+  }
+  enum ConnectionMode {
+    UNKNOWN_CONNECTION_MODE = 0;
+    ALLOW_ALL = 1;
+    PROXY_ONLY = 2;
+  }
+  enum SuppressionReason {
+    UNKNOWN_SUPPRESS_REASON = 0;
+    OUT_OF_DISK = 1;
+    DATA_CORRUPTION = 2;
+  }
+  enum MigrationSource {
+    UNKNOWN_MIGRATION_SOURCE = 0;
+    MIGRATION_SOURCE_V1 = 1;
+  }
+  required string name = 1;
+  required int64 version = 2;
+  required .speckle.DatabaseType database_type = 3;
+  required .speckle.InstanceProto.State state = 4;
+  repeated .speckle.ServiceAclEntry service_acl = 5;
+  optional .Acl.ACLProto end_user_acl = 6 [deprecated = true];
+  optional int64 obsolete_max_volume_size_bytes = 7 [deprecated = true];
+  optional .speckle.DeviceType device_type = 8;
+  repeated string labels = 9;
+  optional int64 storage_version = 10;
+  optional int64 highest_storage_version = 11 [default = 0];
+  optional bool enable_database_level_access_control = 12 [default = false];
+  repeated .speckle.InstanceProto.Flag flags = 13;
+  optional int32 obsolete_idle_timeout_secs = 14 [deprecated = true];
+  optional string obsolete_speckled_pool_bns = 15 [deprecated = true];
+  optional .speckle.TierEnum tier = 16;
+  optional float obsolete_vfs_cache_ratio = 17 [deprecated = true];
+  optional .speckle.InstanceProto.ReplicationMode replication_mode = 18 [default = SYNC];
+  repeated .speckle.InstanceProto.SuspensionReason suspension_reason = 19;
+  optional .speckle.TierResourcesProto override_resources = 20;
+  optional int64 creation_timestamp_millis = 21;
+  repeated .speckle.BackupConfiguration backup_configuration = 22;
+  optional string pool = 23;
+  optional .speckle.MobConfigProto mob_config = 24;
+  optional bool skip_set_character_set_results_to_null = 25;
+  optional .speckle.PricingPlan pricing_plan = 26;
+  repeated .speckle.MaintenanceConfig maintenance_config = 27 [deprecated = true];
+  optional .speckle.Region region = 28;
+  optional .speckle.InstanceProto.ActivationPolicy activation_policy = 29 [default = ON_DEMAND];
+  repeated .speckle.IpMapping ip_mapping = 30;
+  optional .speckle.ReplicationSettingsProto replication_settings = 31;
+  optional .speckle.PlacementSettingsProto placement_settings = 32;
+  optional .speckle.SslParamsProto ssl_params = 33;
+  repeated .speckle.StartupFlag database_flags = 35;
+  optional .speckle.BackendType backend_type = 36;
+  optional .speckle.GceConfigProto gce_config = 37;
+  optional .speckle.OnPremisesSettingsProto on_premises_config = 39;
+  optional bool use_authenticated_user = 40 [default = false];
+  optional bool enable_audit_log = 41 [default = false, deprecated = true];
+  optional .speckle.Time restart_time = 42;
+  repeated string replication_instances = 43;
+  optional string ipv6_address = 44;
+  optional string obsolete_local_ip_address = 45 [deprecated = true];
+  repeated .speckle.StartupFlag internal_database_flag = 46;
+  optional .speckle.FailoverReplicaProto failover_replica = 47;
+  optional .speckle.AuditLogProto audit_log = 48;
+  optional string uid = 49;
+  optional int64 project_number = 50;
+  optional int64 creator_gaia_id = 51;
+  optional int64 suspension_timestamp_millis = 52;
+  optional .speckle.MetadataRegion metadata_region = 53;
+  optional bool storage_auto_resize = 54;
+  repeated .speckle.ConnectionName connection = 55;
+  optional bool allow_only_innodb_user_tables = 58;
+  optional .speckle.InstanceProto.ConnectionMode connection_mode = 59 [default = ALLOW_ALL];
+  optional int64 last_migration_sync_millis = 60;
+  optional bool support_extended_ssl_params = 61;
+  optional int64 storage_auto_resize_limit = 62;
+  optional bool ignore_for_service_agent_rollout = 63;
+  optional int64 suppress_end_timestamp_millis = 64;
+  optional .speckle.InstanceProto.SuppressionReason suppression_reason = 65;
+  map<string, string> user_labels = 66;
+  optional .speckle.InstanceProto.MigrationSource migrated_from = 67;
+  optional .speckle.InjectedTestingParameters injected_testing_parameters = 68;
+  reserved 56, 57;
+}
+
+message InjectedTestingParameters {
+  repeated string disabled_service = 1;
+}
+
+message ConnectionName {
+  optional string id = 1;
+}
+
+message FailoverReplicaProto {
+  optional string target_replica = 1;
+}
+
+message PlacementSettingsProto {
+  enum AvailabilityType {
+    UNKNOWN_AVAILABILITY_TYPE = 0;
+    ZONAL = 1;
+    REGIONAL = 2;
+  }
+  optional string gae_app_id = 1;
+  optional string gce_zone = 2;
+  optional string speckled_pool_bns = 3;
+  repeated string gce_replica_zones = 4;
+  optional .speckle.PlacementSettingsProto.AvailabilityType availability_type = 5;
+}
+
+message ReplicationSettingsProto {
+  enum ReplicationState {
+    UKNOWN_REPLICATION_STATE = 0;
+    START = 1;
+    STOP = 2;
+  }
+  enum ReplicaType {
+    UNKNOWN_REPLICA_TYPE = 0;
+    FAILOVER_REPLICA = 1;
+    READ_REPLICA = 2;
+  }
+  optional string master_instance_name = 1;
+  optional .speckle.BinLogCoordinates start_position = 2 [deprecated = true];
+  optional .speckle.BinLogCoordinates end_position = 3;
+  optional .speckle.ReplicationSettingsProto.ReplicationState replication_state = 4;
+  optional bool on_premises_master = 5 [default = false];
+  optional bool perform_crash_safe_replication = 6 [default = true];
+  optional .speckle.ReplicationSettingsProto.ReplicaType replica_type = 7;
+}
+
+message BackupConfiguration {
+  optional bool enabled = 1 [default = true];
+  optional string schedule_groc = 2;
+  optional int32 window_length_minutes = 3 [default = 240];
+  optional string location = 4;
+  repeated string databases = 5;
+  repeated string tables = 6;
+  optional int64 last_attempted_ms = 7;
+  optional int32 num_retained_backups = 8 [default = 7];
+  optional string id = 9;
+  optional int64 last_enabled_ms = 10;
+}
+
+message ScheduledBackup {
+  optional bool reserved = 1 [default = true];
+  optional int64 next_scheduled_start = 2;
+}
+
+message MaintenanceConfig {
+  message BackupConfig {
+    optional int32 num_retained_backups = 1 [default = 7];
+  }
+  enum Type {
+    BACKUP = 0;
+    UPDATE_BINARIES = 1;
+    FIXUP = 2;
+    VALUE_ENUM_UNKNOWN_TYPE_VALUE3 = 3;
+    VALUE_ENUM_UNKNOWN_TYPE_VALUE4 = 4;
+    VALUE_ENUM_UNKNOWN_TYPE_VALUE5 = 5;
+    VALUE_ENUM_UNKNOWN_TYPE_VALUE6 = 6;
+    VALUE_ENUM_UNKNOWN_TYPE_VALUE7 = 7;
+  }
+  optional bool enabled = 1 [default = true];
+  optional string schedule_groc = 2;
+  optional int32 window_length_minutes = 3 [default = 240];
+  optional int64 last_attempted_ms = 4;
+  optional string id = 5;
+  required .speckle.MaintenanceConfig.Type type = 6;
+  optional .speckle.MaintenanceConfig.BackupConfig backup_config = 7;
+}
+
+message ScheduledMaintenance {
+  optional bool reserved = 1 [default = true];
+}
+
+message InstanceResourcesProto {
+  required int64 ram = 1;
+  required float cpu = 2;
+  required int32 iops = 3;
+  required int64 disk = 4;
+  required int64 vfs_cache_size = 5;
+  required int64 innodb_buffer_pool_size = 6;
+  optional int32 max_app_ids = 7;
+  optional int64 innodb_log_file_size = 8;
+  optional int32 cpu_shares = 9;
+}
+
+message InstanceServingStateProto {
+  optional string name = 1;
+  optional .speckle.InstanceResourcesProto resources = 6;
+  optional .speckle.InstanceSettingsProto settings = 7;
+}
+
+message RunningInstanceStateProto {
+  required .speckle.InstanceProto instance = 1;
+  optional int64 creation_time_micros = 2;
+  optional int64 last_access_time_micros = 3;
+  optional .speckle.InstanceResourcesProto resources = 4;
+  optional bool operation_in_progress = 5;
+}
+
+message InstanceStats {
+  repeated .speckle.CatalogEntry catalog = 1;
+}
+
+message CatalogEntry {
+  required string name = 1;
+  repeated .speckle.TableEntry table = 2;
+}
+
+message TableEntry {
+  required string name = 1;
+  optional int64 row = 2;
+  optional int64 checksum = 3;
+}
+
+message SlaveStatusProto {
+  optional string slave_io_state = 1;
+  optional string master_log_file = 2;
+  optional int64 read_master_log_pos = 3;
+  optional string relay_log_file = 4;
+  optional int64 relay_log_pos = 5;
+  optional string relay_master_log_file = 6;
+  optional string slave_io_running = 7;
+  optional string slave_sql_running = 8;
+  optional int32 last_errno = 9;
+  optional string last_error = 10;
+  optional int64 exec_master_log_pos = 11;
+  optional int64 relay_log_space = 12;
+  optional string until_condition = 13;
+  optional string until_log_file = 14;
+  optional int64 until_log_pos = 15;
+  optional string seconds_behind_master = 16;
+  optional int32 last_io_errno = 17;
+  optional string last_io_error = 18;
+  optional int32 last_sql_errno = 19;
+  optional string last_sql_error = 20;
+  optional string master_server_id = 21;
+}
+
+message UserProto {
+  optional string name = 1;
+  optional string host = 2;
+  optional string ssl_cert_fingerprint = 3;
+  optional bytes encrypted_name = 4;
+  optional bytes encrypted_host = 5;
+}
+
+message DatabaseProto {
+  optional string name = 1;
+  optional string charset = 2;
+  optional string collation = 3;
+}
+
+message OperationProto {
+  message InjectUserOp {
+    optional bytes encrypted_user = 1;
+    optional bytes encrypted_password = 2;
+  }
+  message DeleteUserOp {
+    optional .speckle.UserProto user = 1;
+  }
+  message CreateUserOp {
+    optional .speckle.UserProto user = 1;
+    optional bytes encrypted_password = 2;
+  }
+  message UpdateUserOp {
+    optional .speckle.UserProto user = 1;
+  }
+  message CreateDatabaseOp {
+    optional .speckle.DatabaseProto database = 1;
+  }
+  message DeleteDatabaseOp {
+    optional .speckle.DatabaseProto database = 1;
+  }
+  message UpdateDatabaseOp {
+    optional .speckle.DatabaseProto database = 1;
+  }
+  message VerifyConsistencyOp {
+  }
+  message ExportOp {
+    optional string path = 1;
+    repeated string databases = 2;
+    repeated string tables = 3;
+    optional bool schema_only = 5;
+    reserved 4;
+  }
+  message SaveDataOp {
+    optional string path = 1;
+    optional string select_query = 2;
+    optional string database = 3;
+  }
+  message ImportOp {
+    repeated string path = 1;
+    optional string database = 2;
+    optional string import_user = 4;
+    reserved 3;
+  }
+  message LoadDataOp {
+    optional string path = 1;
+    optional string database = 2;
+    optional string table = 3;
+    repeated string column = 4;
+    optional string import_user = 5;
+  }
+  message BackupVolumeOp {
+    optional string backup_configuration_id = 1;
+    optional string path_prefix = 3;
+    optional .speckle.BinLogCoordinates binlog_position = 4;
+    optional int64 due_time_ms = 5;
+    optional .speckle.GcsBucketResourceProto gcs_bucket_resource = 6;
+    optional bool visible = 7 [default = true];
+  }
+  message RestoreVolumeOp {
+    optional int64 storage_version = 1;
+    optional string path_prefix = 3;
+    optional .speckle.InstanceProto.State previous_instance_state = 4;
+    optional string restore_blacklist = 5;
+    optional int64 old_storage_version = 6;
+    optional bool use_improved_stockout_handling = 7 [default = false];
+    reserved 2;
+  }
+  message RecordBinLogPositionOp {
+    optional .speckle.InstanceProto backup_instance = 1;
+    optional string backup_operation_token = 2;
+  }
+  message CreateOp {
+    required .speckle.InstanceProto instance = 1;
+    optional string source_data_disk_snapshot = 2;
+    optional bytes encrypted_password = 3;
+  }
+  message UpdateOp {
+    required .speckle.InstanceProto instance = 1;
+    optional string maintenance_config_id = 2 [deprecated = true];
+    optional .speckle.InstanceProto old_instance = 3;
+    optional bool add_migrate_replica_vm_ip = 4;
+    optional bool use_improved_stockout_handling = 5 [default = false];
+  }
+  message UpdateAclOp {
+    repeated .speckle.ServiceAclEntry new_service_acls = 1;
+    repeated .speckle.ServiceAclEntry old_service_acls = 2;
+  }
+  message UpdateDataDiskSizeOp {
+    optional int64 size_gb = 1;
+    optional bool skip_resize2fs = 2;
+  }
+  message UpdateVmMetadataOp {
+    optional .speckle.InstanceProto new_instance = 1;
+    optional .speckle.InstanceProto old_instance = 2;
+  }
+  message UpdateSslOp {
+    optional .speckle.SslParamsProto new_ssl_params = 1;
+    optional .speckle.SslParamsProto old_ssl_params = 2;
+  }
+  message DeleteOp {
+    optional .speckle.InstanceProto instance = 1;
+    repeated string volume_deletion_token = 2;
+  }
+  message DeleteVolumeOp {
+    required .speckle.InstanceProto instance = 1;
+  }
+  message CopyInstanceOp {
+    enum State {
+      UNKNOWN_STATE = 0;
+      CREATING_TARGET_INSTANCE = 1;
+      RESTORING_VOLUME = 2;
+      CATCHING_UP = 3;
+      UPDATING_TARGET_INSTANCE_TO_RUNNING = 4;
+      UPDATING_TARGET_INSTANCE_TO_FAILED = 5;
+      CREATING_TARGET_INSTANCE_WITH_ON_PREMISES_MASTER = 6;
+      IMPORTING_TO_TARGET_INSTANCE = 7;
+      UPGRADING_REPLICA = 8;
+      DRAINING_REPLICA = 9;
+      DRAINING_ON_PREMISES_MASTER_REPLICA = 10;
+    }
+    optional string obsolete_source_instance_name = 1 [deprecated = true];
+    optional .speckle.InstanceProto target_metadata = 2;
+    optional int64 sync_timestamp_ms = 3;
+    optional string source_backup_file_path = 4;
+    optional .speckle.OperationProto.CopyInstanceOp.State state = 5;
+    optional string operation_token = 6;
+    optional .speckle.BinLogCoordinates start_binlog_position = 7;
+    optional .speckle.InstanceProto source_metadata = 8;
+    optional .speckle.ReplicaConfiguration replica_configuration = 9;
+    optional .speckle.CloneSetting clone_setting = 11;
+  }
+  message DrainOp {
+    enum Type {
+      UNKNOWN_DRAIN_TYPE = 0;
+      SOFT_DRAIN = 1;
+      HARD_DRAIN = 2;
+    }
+    required .speckle.InstanceProto instance = 1;
+    optional int64 timeout_ms = 2;
+    optional .speckle.OperationProto.DrainOp.Type type = 3 [default = SOFT_DRAIN];
+  }
+  message TruncateLogOp {
+    enum LogType {
+      UNKNOWN_LOG_TYPE = 0;
+      MYSQL_SLOW_TABLE = 1;
+      MYSQL_GENERAL_TABLE = 2;
+    }
+    required .speckle.InstanceProto instance = 1;
+    optional .speckle.OperationProto.TruncateLogOp.LogType log_type = 2;
+  }
+  message PurgeBinlogOp {
+    optional int64 timestamp_seconds = 1;
+  }
+  message StartReplicationOp {
+    optional .speckle.InstanceProto master_metadata = 1;
+    optional .speckle.BinLogCoordinates start_binlog_position = 2;
+    optional .speckle.ReplicaConfiguration replica_configuration = 3;
+  }
+  message UpgradeReplicaOp {
+    optional .speckle.MySqlDatabaseUpgradeType upgrade_type = 1;
+  }
+  message DeleteBackupOp {
+    optional string configuration_id = 1;
+    optional int64 due_time_ms = 2;
+  }
+  message UpdateV1SslOp {
+    enum State {
+      UNKNOWN = 0;
+      DRAIN = 1;
+      PING = 2;
+      INJECT_USER = 3;
+      FINISHED = 4;
+    }
+    optional .speckle.OperationProto.UpdateV1SslOp.State state = 1;
+    optional int64 ping_start_time_ms = 2;
+  }
+  message MigrateMetadataOp {
+    optional .speckle.MetadataRegion source = 1;
+    optional .speckle.MetadataRegion target = 2;
+  }
+  message MigrateGenerationOp {
+  }
+  message MigrateGenerationV1Op {
+  }
+  message MigrateGenerationV2Op {
+  }
+  message MigrateGenerationV2PostSwapOp {
+  }
+  message MigrateGenerationV1PreSwapOp {
+    optional .speckle.InstanceProto old_instance = 1;
+    optional .speckle.InstanceProto new_instance = 2;
+  }
+  message AgentOperation {
+    optional string agent_operation_id = 1;
+    optional .util.StatusProto status = 2;
+    optional string agent_response = 3;
+    optional string agent_internal_stderr = 7;
+    optional string agent_result = 10;
+    optional .speckle.AgentType agent_type = 4;
+    optional string image = 5;
+    optional bool response_processed = 6;
+    optional int64 insert_time_millis = 8;
+    optional int64 responded_time_millis = 9;
+    optional int64 timeout_millis = 11;
+  }
+  message RegionalOperationToken {
+    optional .speckle.MetadataRegion region = 1;
+    optional string operation_token = 2;
+  }
+  message GceOperationStateChange {
+    optional int32 state = 1;
+    optional string state_name = 2;
+    optional int64 state_start_time_millis = 3;
+    optional int64 state_end_time_millis = 4;
+  }
+  enum State {
+    ENQUEUED = 1;
+    RUNNING = 2;
+    FINISHED = 3;
+    UNKNOWN = 4;
+    RESPONDED = 5;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE6 = 6;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE7 = 7;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE8 = 8;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE9 = 9;
+    VALUE_ENUM_UNKNOWN_STATE_VALUE10 = 10;
+  }
+  enum OpType {
+    UNKNOWN_OPTYPE = 0;
+    IMPORT = 1;
+    EXPORT = 2;
+    CREATE = 3;
+    UPDATE = 4;
+    DELETE = 5;
+    OBSOLETE_UPGRADE = 6;
+    DRAIN = 7;
+    OBSOLETE_BACKUP = 8;
+    OBSOLETE_SNAPSHOT = 9;
+    BACKUP_VOLUME = 10;
+    OBSOLETE_FIXUP = 11;
+    INJECT_USER = 12;
+    OBSOLETE_URGENT_FAILOVER = 13;
+    COPY = 14;
+    PURGE_BINLOG = 15;
+    START_REPLICATION = 16;
+    RECORD_BINLOG_POSITION = 17;
+    STOP_REPLICA = 18;
+    START_REPLICA = 19;
+    PROMOTE_REPLICA = 20;
+    PING = 21;
+    CREATE_USER = 22;
+    DELETE_USER = 23;
+    UPDATE_USER = 24;
+    CREATE_DATABASE = 25;
+    DELETE_DATABASE = 26;
+    UPDATE_DATABASE = 27;
+    LOAD_DATA = 28;
+    SAVE_DATA = 29;
+    UPGRADE_REPLICA = 30;
+    INITIAL_DELETE = 31;
+    FAILOVER = 32;
+    DELETE_BACKUP = 33;
+    RECREATE_REPLICA = 34;
+    OBSOLETE_INSTALL_LOAD_BALANCER = 35;
+    OBSOLETE_UNINSTALL_LOAD_BALANCER = 36;
+    RECREATE = 37;
+    INTERNAL_UPDATE = 38;
+    UPDATE_V1_SSL = 39;
+    MIGRATE_METADATA = 40;
+    MIGRATE_GENERATION = 41;
+    TRUNCATE_LOG = 42;
+    VERIFY_CONSISTENCY = 43;
+    MIGRATE_GENERATION_V2 = 44;
+    MIGRATE_GENERATION_V1 = 45;
+    UPDATE_VM_METADATA = 46;
+    MIGRATE_GENERATION_V2_POST_SWAP = 47;
+    MIGRATE_GENERATION_V1_PRE_SWAP = 48;
+    VALUE_ENUM_UNKNOWN_OP_TYPE_VALUE49 = 49;
+    VALUE_ENUM_UNKNOWN_OP_TYPE_VALUE50 = 50;
+    VALUE_ENUM_UNKNOWN_OP_TYPE_VALUE51 = 51;
+    VALUE_ENUM_UNKNOWN_OP_TYPE_VALUE52 = 52;
+    VALUE_ENUM_UNKNOWN_OP_TYPE_VALUE53 = 53;
+    VOLUME_OP_START = 100;
+    DELETE_VOLUME = 101;
+    RESTORE_VOLUME = 102;
+    UPDATE_ACL = 103;
+    UPDATE_DATA_DISK_SIZE = 104;
+    UPDATE_SSL = 105;
+    VALUE_ENUM_UNKNOWN_VOLUME_OP_TYPE_VALUE106 = 106;
+    VALUE_ENUM_UNKNOWN_VOLUME_OP_TYPE_VALUE107 = 107;
+    VALUE_ENUM_UNKNOWN_VOLUME_OP_TYPE_VALUE108 = 108;
+    VALUE_ENUM_UNKNOWN_VOLUME_OP_TYPE_VALUE109 = 109;
+    VALUE_ENUM_UNKNOWN_VOLUME_OP_TYPE_VALUE110 = 110;
+  }
+  enum Visibility {
+    UNKNOWN_VISIBILITY = 0;
+    PUBLIC = 1;
+    INTERNAL = 2;
+  }
+  required string operation_token = 1;
+  required string instance_name = 2;
+  optional string user = 3;
+  optional .speckle.RequestTokenProto request_token = 4;
+  required int64 start_time = 5;
+  required .speckle.OperationProto.State state = 6;
+  optional .util.StatusProto status = 7;
+  required .speckle.OperationProto.OpType type = 8;
+  optional .speckle.OperationProto.ImportOp import_op = 9;
+  optional .speckle.OperationProto.ExportOp export_op = 10;
+  optional .speckle.OperationProto.CreateOp create_op = 11;
+  optional .speckle.OperationProto.UpdateOp update_op = 12;
+  optional .speckle.OperationProto.DeleteOp delete_op = 13;
+  optional .speckle.OperationProto.DrainOp drain_op = 15;
+  optional .speckle.OperationProto.DeleteVolumeOp delete_volume_op = 18;
+  optional .speckle.OperationProto.BackupVolumeOp backup_volume_op = 19;
+  optional .speckle.OperationProto.RestoreVolumeOp restore_volume_op = 20;
+  optional .speckle.OperationProto.InjectUserOp inject_user_op = 22;
+  optional .speckle.OperationProto.CopyInstanceOp copy_instance_op = 24;
+  optional .speckle.OperationProto.PurgeBinlogOp purge_binlog_op = 25;
+  optional .speckle.OperationProto.StartReplicationOp start_replication_op = 26;
+  optional .speckle.OperationProto.RecordBinLogPositionOp record_binlog_position_op = 27;
+  optional .speckle.OperationProto.CreateUserOp create_user_op = 28;
+  optional .speckle.OperationProto.DeleteUserOp delete_user_op = 29;
+  optional .speckle.OperationProto.UpdateUserOp update_user_op = 30;
+  optional .speckle.OperationProto.CreateDatabaseOp create_database_op = 31;
+  optional .speckle.OperationProto.DeleteDatabaseOp delete_database_op = 32;
+  optional .speckle.OperationProto.UpdateDatabaseOp update_database_op = 33;
+  optional .speckle.OperationProto.LoadDataOp load_data_op = 34;
+  optional .speckle.OperationProto.SaveDataOp save_data_op = 35;
+  optional .speckle.OperationProto.UpgradeReplicaOp upgrade_replica_op = 36;
+  optional .speckle.OperationProto.DeleteBackupOp delete_backup_op = 37;
+  optional .speckle.OperationProto.UpdateAclOp update_acl_op = 38;
+  optional .speckle.OperationProto.UpdateDataDiskSizeOp update_data_disk_size_op = 39;
+  optional .speckle.OperationProto.UpdateSslOp update_ssl_op = 40;
+  optional .speckle.OperationProto.UpdateV1SslOp update_v1_ssl_op = 41;
+  optional .speckle.OperationProto.MigrateMetadataOp migrate_metadata_op = 42;
+  optional .speckle.OperationProto.MigrateGenerationOp migrate_generation_op = 43;
+  optional .speckle.OperationProto.TruncateLogOp truncate_log_op = 44;
+  optional .speckle.OperationProto.VerifyConsistencyOp verify_consistency_op = 45;
+  optional .speckle.OperationProto.MigrateGenerationV2Op migrate_generation_v2_op = 46;
+  optional .speckle.OperationProto.MigrateGenerationV1Op migrate_generation_v1_op = 47;
+  optional .speckle.OperationProto.UpdateVmMetadataOp update_vm_metadata_op = 48;
+  optional .speckle.OperationProto.MigrateGenerationV2PostSwapOp migrate_generation_v2_post_swap_op = 49;
+  optional .speckle.OperationProto.MigrateGenerationV1PreSwapOp migrate_generation_v1_pre_swap_op = 50;
+  optional int32 retry_count = 100 [default = 0];
+  optional int64 running_time = 101;
+  optional int64 end_time = 102;
+  optional .speckle.OperationProto.Visibility visibility = 103 [default = PUBLIC];
+  optional int64 effective_time = 104;
+  repeated .security.credentials.DataAccessReason reason = 105;
+  optional int64 project_gaia_id = 106;
+  repeated .speckle.OperationProto.AgentOperation agent_operation = 107;
+  repeated .speckle.BossOperationState depending_boss_op = 108;
+  optional .speckle.BackendType instance_backend_type = 109;
+  optional .speckle.OperationProto.RegionalOperationToken regional_operation_token = 110;
+  optional string instance_uid = 111;
+  repeated .speckle.OperationProto.GceOperationStateChange state_change = 112;
+  repeated .speckle.RemoteGceOp remote_gce_op = 113;
+  reserved 14, 16, 17, 21, 23;
+}
+
+message BossOperationKey {
+  optional string operation_token = 1;
+  optional string instance_name = 2;
+}
+
+message BossOperationState {
+  optional .speckle.BossOperationKey operation_key = 1;
+  optional .speckle.OperationProto.State state = 2;
+  optional .util.StatusProto status = 3;
+}
+
+message OperationLeaseProto {
+  required string operation_token = 1;
+  required string instance_name = 2;
+  required string session_id = 3;
+  required int64 session_start_millis = 4;
+  required int64 expiration_millis = 5;
+}
+
+message ScheduledBackupRunProto {
+  enum Status {
+    OPERATION_ENQUEUED = 1;
+    OVERDUE = 2;
+    SKIPPED = 3;
+    MISSED = 4;
+    VALUE_ENUM_UNKNOWN_STATUS_VALUE5 = 5;
+    VALUE_ENUM_UNKNOWN_STATUS_VALUE6 = 6;
+    VALUE_ENUM_UNKNOWN_STATUS_VALUE7 = 7;
+    VALUE_ENUM_UNKNOWN_STATUS_VALUE8 = 8;
+    VALUE_ENUM_UNKNOWN_STATUS_VALUE9 = 9;
+  }
+  enum SkippedReason {
+    UNKNOWN_SKIPPED_REASON = 0;
+    IDLE = 1;
+    NON_RUNNING = 2;
+    DISABLED = 3;
+  }
+  enum MissedReason {
+    UNKNOWN_MISSED_REASON = 0;
+    PENDING_OPERATION = 1;
+    BACKUP_ENQUEUE_FAILED = 2;
+  }
+  enum DeletionStatus {
+    UNKNOWN = 0;
+    PENDING = 1;
+    FAILED = 2;
+  }
+  enum Type {
+    UNKNOWN_TYPE = 0;
+    AUTOMATED = 1;
+    ON_DEMAND = 2;
+  }
+  enum StorageBytesStatus {
+    UNKNOWN_STORAGE_BYTES_STATUS = 0;
+    UP_TO_DATE = 1;
+    UPDATING = 2;
+  }
+  required string configuration_id = 1;
+  required string instance_name = 2;
+  required .speckle.ScheduledBackupRunProto.Status status = 3;
+  required int64 due_time_ms = 4;
+  required int64 actual_time_ms = 5;
+  optional string export_operation_token = 6;
+  optional bool is_purged = 7 [default = false];
+  repeated .speckle.ScheduledBackupRunHistoryProto history = 8;
+  optional .speckle.ScheduledBackupRunProto.SkippedReason skipped_reason = 9;
+  optional .speckle.ScheduledBackupRunProto.MissedReason missed_reason = 10;
+  optional .speckle.ScheduledBackupRunProto.DeletionStatus deletion_status = 11;
+  optional .speckle.ScheduledBackupRunProto.Type type = 12 [default = AUTOMATED];
+  optional string description = 13;
+  optional string instance_uid = 14;
+  optional string id = 15;
+  optional int64 size_gb = 16;
+  optional int64 storage_bytes = 17;
+  optional .speckle.ScheduledBackupRunProto.StorageBytesStatus storage_bytes_status = 18;
+  optional bool instance_on = 19 [default = true];
+  optional bool backup_enabled = 20 [default = true];
+  optional bool visible = 21 [default = true];
+}
+
+message ScheduledBackupRunHistoryProto {
+  required .speckle.ScheduledBackupRunProto.Status status = 1;
+  required int64 actual_time_ms = 2;
+  optional string export_operation_token = 3;
+}
+
+message UsageProto {
+  required string instance_name = 1;
+  required int64 instance_creation_timestamp_ms = 2;
+  optional int64 project_id = 3;
+  required int64 collection_timestamp_ms = 4;
+  optional .speckle.TierEnum tier = 5;
+  optional int64 storage_usage_bytes = 6;
+  optional int64 apiary_egress_bytes = 7;
+  optional int64 read_count = 8;
+  optional int64 write_count = 9;
+  optional string sender_address = 10;
+  optional int64 num_current_connections_backup = 11;
+  optional int64 connections_count = 12;
+  optional string instance_uid = 13;
+}
+
+message UsageData {
+  optional string instance_guid = 1;
+  optional int64 project_number = 2;
+  repeated .speckle.OperationProto operations = 3;
+  repeated .speckle.UsageProto usages = 4;
+}
+
+message ProjectProto {
+  required int64 project_gaia_id = 1;
+  optional bool stubby_enabled = 2 [default = false];
+  optional bool mob_enabled = 3 [default = false, deprecated = true];
+  optional int32 max_instance = 4;
+  repeated .speckle.BackendType backend_type = 6;
+  optional int64 chemist_group_gaia_id = 7;
+  optional string mysql_umbrella_project_id = 8;
+  optional bool postgres_enabled = 9 [default = false];
+  optional string postgres_umbrella_project_id = 10;
+  repeated .speckle.Region whitelisted_region = 11;
+  optional bool sqlserver_enabled = 12 [default = false];
+  optional string sqlserver_umbrella_project_id = 13;
+  optional bool external_master_v2_enabled = 14 [default = false];
+  optional bool auto_failover_enabled = 15 [default = false];
+  optional bool allow_only_innodb_tables = 16;
+  optional bool mysql_regional_instance_enabled = 17;
+  optional bool postgres_regional_instance_enabled = 18;
+  optional .speckle.NetworkProto network = 19;
+  optional bool allow_private_ip = 20;
+  reserved 5;
+}
+
+message IpMapping {
+  optional string alias_name = 1;
+  optional string ip_address = 2;
+  optional int64 time_to_retire_ms = 3;
+}
+
+message Ipv6Record {
+  optional string instance_name = 1;
+  optional string ipv6_address = 2;
+  optional int64 creation_timestamp_ms = 3;
+  optional int64 deletion_timestamp_ms = 4;
+  optional string hashed_instance_name = 5;
+  optional string instance_guid = 6;
+}
+
+message CloneSetting {
+  optional string source_instance_name = 1;
+  optional .speckle.BinLogCoordinates end_position = 2;
+  optional string data_disk_snapshot = 3;
+}
+
+message BackupProto {
+  enum State {
+    UNKNOWN_BACKUP_STATE = 0;
+    PENDING = 1;
+    DONE = 2;
+    FAILED = 3;
+  }
+  enum Type {
+    UNKNOWN_TYPE = 0;
+    AUTOMATED = 1;
+    ON_DEMAND = 2;
+  }
+  enum StorageBytesStatus {
+    UNKNOWN_STORAGE_BYTES_STATUS = 0;
+    UP_TO_DATE = 1;
+    UPDATING = 2;
+  }
+  optional string id = 1;
+  optional string full_instance_name = 2;
+  optional string instance_uid = 3;
+  optional string operation_id = 4;
+  optional int64 time_ms = 5;
+  optional .speckle.BackupProto.State state = 6;
+  optional .speckle.BackupProto.Type type = 7;
+  optional int64 size_gb = 8;
+  optional .speckle.BinLogCoordinates bin_log_position = 9;
+  optional string description = 10;
+  optional string cns_path = 11;
+  optional int64 due_time_ms = 12;
+  optional string backup_configuration_id = 13;
+  optional int64 storage_bytes = 14;
+  optional .speckle.BackupProto.StorageBytesStatus storage_bytes_status = 15;
+  optional string gce_snapshot_name = 16;
+  optional bool gtid_enabled = 17;
+  optional bool instance_on = 18 [default = true];
+  optional bool backup_enabled = 19 [default = true];
+  optional bool visible = 20 [default = true];
+}
+
+message InstanceHealthStateProto {
+  optional string instance_name = 1;
+  optional string instance_uid = 2;
+  optional int64 heartbeat_time = 3;
+  optional int64 last_failover_time = 4;
+  optional .speckle.HeartbeatMonitorStatus heartbeat_monitor_status = 5;
+  optional .speckle.MySqlSemiSyncState mysql_semi_sync_state = 6;
+  optional .speckle.FailoverSlaveState failover_slave_state = 7;
+}
+
+message AllInstanceMetadataProto {
+  optional .speckle.InstanceProto metadata = 1;
+  optional int32 pending_operation_count = 2;
+  optional .speckle.InstanceProto snapshot_before_billing_suspension = 3;
+}
+
+

@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package datapol;
+
+option java_package = "com.google.protos.datapol";
+option java_outer_classname = "RetentionAnnotations";
+option cc_enable_arenas = true;
+
+enum RetentionTag {
+  RT_DEFAULT = 0;
+  RT_OBSOLETE = 1;
+  RT_WEEK = 10;
+  RT_MONTH = 20;
+  RT_5_WEEKS = 21;
+  RT_QUARTER = 30;
+  RT_HALF_A_YEAR = 40;
+  RT_YEAR = 50;
+  RT_16_MONTHS = 58;
+  RT_YEAR_AND_A_HALF = 60;
+  RT_2_YEARS = 70;
+  RT_3_YEARS = 80;
+  RT_ARCHIVAL = 1000;
+}
+
+message RetentionSpec {
+  optional .datapol.RetentionTag desired_retention = 1 [default = RT_DEFAULT];
+  optional string context = 2 [default = "*"];
+}
+
+

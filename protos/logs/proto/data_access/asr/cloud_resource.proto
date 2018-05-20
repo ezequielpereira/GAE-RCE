@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package security.data_access.asr;
+
+option java_package = "com.google.security.data_access.asr.proto";
+option java_outer_classname = "CloudResourceProtoFile";
+option java_multiple_files = true;
+
+message CloudResource {
+  optional int64 project_number = 3;
+  optional string project_id = 7;
+  optional string app_engine_app_id = 9;
+  optional string gce_resource_id = 4;
+  optional .security.data_access.asr.GCSResource gcs_resource_id = 5;
+  optional .security.data_access.asr.BillingResource billing_resource = 6;
+  optional .security.data_access.asr.OrganizationResource organization_resource = 8;
+  optional .security.data_access.asr.FolderResource folder_resource = 10;
+  optional .security.data_access.asr.SpeckleResource speckle_resource_id = 11;
+  optional string resource_name = 12;
+}
+
+message GCSResource {
+  optional string bucket = 1;
+  optional string object = 2;
+  optional uint64 generation = 3;
+}
+
+message BillingResource {
+  oneof billing_reference {
+    string billing_account_id = 1;
+    string organization_id = 2;
+  }
+}
+
+message OrganizationResource {
+  optional string organization_id = 1;
+}
+
+message FolderResource {
+  optional string folder_id = 1;
+}
+
+message SpeckleResource {
+  optional string instance_name = 1;
+  optional string effective_database_user = 2;
+}
+

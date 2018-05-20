@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+import "apphosting/sandbox/udrpc/udrpc.proto";
+package udrpc;
+
+option java_package = "com.google.apphosting.runtime.udrpc";
+
+message SharedBufferReference {
+  enum State {
+    FREE = 0;
+    OWNER_LOCKED = 1;
+    REMOTE_LOCKED = 2;
+    DELETED = 3;
+  }
+  required uint64 id = 1;
+  optional int32 fd = 2 [default = -1];
+  optional int64 max_size = 4;
+}
+
+message SharedBufferRequest {
+  required int64 min_buffer_size = 1;
+}
+
+message SharedBufferResponse {
+  enum Error {
+    OK = 0;
+    BAD_REQUEST = 1;
+    RETRY = 2;
+    FAILED = 3;
+    NOT_SUPPORTED = 4;
+  }
+  required .udrpc.SharedBufferResponse.Error error = 1;
+  repeated .udrpc.SharedBufferReference deleted_buffers = 2;
+  optional .udrpc.SharedBufferReference shared_buffer = 3;
+}
+
+service SharedBufferService {
+  rpc CreateRemoteBuffer(.udrpc.SharedBufferRequest) returns (.udrpc.SharedBufferResponse);
+}
+
+

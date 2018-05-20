@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package speckle;
+
+option java_outer_classname = "Annotations";
+
+message FieldOption {
+  optional bool exclude_from_audit_log = 1;
+}
+
+extend .proto2.FieldOptions {
+  optional .speckle.FieldOption field_option = 117204070;
+}
+
+

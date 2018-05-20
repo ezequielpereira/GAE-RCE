@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/api.proto";
+import "google/protobuf/type.proto";
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+import "google/api/auditing.proto";
+import "google/api/auth.proto";
+import "google/api/backend.proto";
+import "google/api/billing.proto";
+import "google/api/consumer.proto";
+import "google/api/context.proto";
+import "google/api/control.proto";
+import "google/api/discovery.proto";
+import "google/api/documentation.proto";
+import "google/api/endpoint.proto";
+import "google/api/error.proto";
+import "google/api/analytics.proto";
+import "google/api/experimental/experimental.proto";
+import "google/api/http.proto";
+import "google/api/label.proto";
+import "google/api/legacy.proto";
+import "google/api/log.proto";
+import "google/api/logging.proto";
+import "google/api/metric.proto";
+import "google/api/migration.proto";
+import "google/api/monitored_resource.proto";
+import "google/api/monitoring.proto";
+import "google/api/quota.proto";
+import "google/api/resource.proto";
+import "google/api/system_parameter.proto";
+import "google/api/source_info.proto";
+import "google/api/usage.proto";
+import "google/api/visibility.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ServiceProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Service {
+  .google.protobuf.UInt32Value config_version = 20;
+  string name = 1;
+  string id = 33;
+  string title = 2;
+  string producer_project_id = 22;
+  repeated .google.protobuf.Api apis = 3;
+  repeated .google.protobuf.Type types = 4;
+  repeated .google.protobuf.Enum enums = 5;
+  .google.api.Documentation documentation = 6;
+  .google.api.Visibility visibility = 7;
+  .google.api.Backend backend = 8;
+  .google.api.Http http = 9;
+  .google.api.Quota quota = 10;
+  .google.api.Authentication authentication = 11;
+  .google.api.Context context = 12;
+  .google.api.Legacy legacy = 13;
+  .google.api.Usage usage = 15;
+  .google.api.CustomError custom_error = 16;
+  .google.api.ProjectProperties project_properties = 17;
+  repeated .google.api.Endpoint endpoints = 18;
+  .google.api.Discovery discovery = 19;
+  .google.api.Control control = 21;
+  repeated .google.api.LogDescriptor logs = 23;
+  repeated .google.api.MetricDescriptor metrics = 24;
+  repeated .google.api.MonitoredResourceDescriptor monitored_resources = 25;
+  .google.api.Billing billing = 26;
+  .google.api.Logging logging = 27;
+  .google.api.Monitoring monitoring = 28;
+  .google.api.Analytics analytics = 35;
+  .google.api.SystemParameters system_parameters = 29;
+  .google.api.Auditing auditing = 30;
+  .google.api.ResourceContainer resource_container = 36;
+  repeated .google.api.LabelDescriptor labels = 32;
+  .google.api.Migration migration = 34;
+  .google.api.SourceInfo source_info = 37;
+  .google.protobuf.Any derived_data = 100;
+  .google.api.Experimental experimental = 101;
+  repeated .google.protobuf.Type system_types = 102;
+  repeated string features = 103;
+  reserved 14, 31;
+}
+
+

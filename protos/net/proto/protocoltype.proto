@@ -1,0 +1,119 @@
+syntax = "proto2";
+
+option java_package = "com.google.io.protocol.proto";
+option java_outer_classname = "ProtocolTypeProtos";
+option java_multiple_files = true;
+
+message ProtocolDescriptor {
+  enum WireType {
+    WIRETYPE_NUMERIC = 0;
+    WIRETYPE_DOUBLE = 1;
+    WIRETYPE_STRING = 2;
+    WIRETYPE_STARTGROUP = 3;
+    WIRETYPE_ENDGROUP = 4;
+    WIRETYPE_FLOAT = 5;
+  }
+  enum Label {
+    LABEL_OPTIONAL = 1;
+    LABEL_REQUIRED = 2;
+    LABEL_REPEATED = 3;
+  }
+  enum DeclaredType {
+    TYPE_DOUBLE = 1;
+    TYPE_FLOAT = 2;
+    TYPE_INT64 = 3;
+    TYPE_UINT64 = 4;
+    TYPE_INT32 = 5;
+    TYPE_FIXED64 = 6;
+    TYPE_FIXED32 = 7;
+    TYPE_BOOL = 8;
+    TYPE_STRING = 9;
+    TYPE_GROUP = 10;
+    TYPE_FOREIGN = 11;
+  }
+  required string filename = 11;
+  required string name = 1;
+  optional string proto_name = 27;
+  repeated group Tag = 2 {
+    required string name = 3;
+    required int32 number = 4;
+    required int32 wire_type = 5;
+    required int32 declared_type = 6;
+    required int32 label = 7;
+    optional string default_value = 8;
+    optional string foreign = 9;
+    optional string foreign_proto_name = 28;
+    optional int32 flags = 10;
+    optional int32 parent = 12 [default = -1];
+    optional int32 enum_id = 13 [default = -1];
+    optional bool deprecated = 26 [default = false];
+    repeated group Option = 20 {
+      required string name = 21;
+      required string value = 22;
+    }
+  }
+  repeated group EnumType = 14 {
+    required string name = 15;
+    optional int32 parent = 16;
+    repeated group Tag = 17 {
+      required string name = 18;
+      required int32 value = 19;
+    }
+    optional string proto2_name = 31;
+    optional bool allow_alias = 33;
+  }
+  optional bytes proto2_file_descriptor = 23;
+  optional string proto2_file_master = 24;
+  optional string proto2_name = 25;
+  optional bytes proto2_extension_info = 29;
+  optional bytes proto2_file_scope_info = 30;
+}
+
+message ProtocolFileDescriptor {
+  required string filename = 1;
+  repeated string type = 2;
+  repeated string service = 3;
+}
+
+message RPC_ServiceDescriptor {
+  required string filename = 1;
+  required string name = 2;
+  optional string full_name = 18;
+  optional double failure_detection_delay = 16;
+  optional bool multicast_stub = 20;
+  repeated group Method = 3 {
+    required string name = 4;
+    required string argument_type = 5;
+    required string result_type = 6;
+    optional string stream_type = 14;
+    optional string protocol = 7;
+    optional double deadline = 8;
+    optional bool duplicate_suppression = 9;
+    optional bool fail_fast = 10;
+    optional bool end_user_creds_requested = 34;
+    optional int32 client_logging = 11;
+    optional int32 server_logging = 12;
+    optional string security_level = 13;
+    optional string security_label = 19;
+    optional string response_format = 15;
+    optional string request_format = 17;
+    optional string log_level = 36;
+  }
+  repeated group Stream = 21 {
+    required string name = 22;
+    required string client_message_type = 23;
+    required string server_message_type = 24;
+    optional int64 client_initial_tokens = 25;
+    optional int64 server_initial_tokens = 26;
+    optional string token_unit = 27;
+    optional string security_level = 28;
+    optional string security_label = 29;
+    optional int32 client_logging = 30;
+    optional int32 server_logging = 31;
+    optional double deadline = 32;
+    optional bool fail_fast = 33;
+    optional bool end_user_creds_requested = 35;
+    optional string log_level = 37;
+  }
+}
+

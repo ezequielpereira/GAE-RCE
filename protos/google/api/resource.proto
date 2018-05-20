@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "net/proto2/proto/descriptor.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "ResourceProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GAPI";
+
+message ResourceContainer {
+  repeated .google.api.ResourceContainerRule rules = 1;
+}
+
+message ResourceContainerRule {
+  string selector = 1;
+  string type = 2;
+}
+
+extend .proto2.FieldOptions {
+  .google.api.ResourceContainerRule resource_container = 135496935;
+}
+
+

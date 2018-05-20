@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package apphosting.datastore;
+
+option java_package = "com.google.apphosting.datastore";
+
+extend .proto2.FieldOptions {
+  optional string doc = 1000;
+}
+

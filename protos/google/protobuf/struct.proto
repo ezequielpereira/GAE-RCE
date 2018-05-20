@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package google.protobuf;
+
+option java_package = "com.google.protobuf";
+option java_outer_classname = "StructProto";
+option java_multiple_files = true;
+option go_package = "github.com/golang/protobuf/ptypes/struct;structpb";
+option cc_enable_arenas = true;
+option objc_class_prefix = "GPB";
+option csharp_namespace = "Google.Protobuf.WellKnownTypes";
+
+enum NullValue {
+  NULL_VALUE = 0;
+}
+
+message Struct {
+  map<string, .google.protobuf.Value> fields = 1;
+}
+
+message Value {
+  oneof kind {
+    .google.protobuf.NullValue null_value = 1;
+    double number_value = 2;
+    string string_value = 3;
+    bool bool_value = 4;
+    .google.protobuf.Struct struct_value = 5;
+    .google.protobuf.ListValue list_value = 6;
+  }
+}
+
+message ListValue {
+  repeated .google.protobuf.Value values = 1;
+}
+
+

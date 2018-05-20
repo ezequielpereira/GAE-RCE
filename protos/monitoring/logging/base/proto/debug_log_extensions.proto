@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+import "perftools/tracing/proto/process_info.proto";
+package remote_debug_logging;
+
+extend .perftools.tracing.ProcessInfo {
+  optional int32 local_pid_logging = 299;
+}
+
+extend .perftools.tracing.ProcessInfo {
+  optional fixed64 jobuid_logging = 300;
+}
+
+

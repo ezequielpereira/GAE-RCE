@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+package stats;
+
+option java_package = "com.google.common.stats";
+option java_outer_classname = "HistogramProto";
+option java_multiple_files = true;
+option cc_enable_arenas = true;
+
+message HistogramOptionsState {
+  enum BucketStyle {
+    DECIMAL = 0;
+    DISCRETE = 1;
+    NOT_ROUNDED = 2;
+    EXPLICIT = 3;
+    LEGACY_DECIMAL = 4;
+    LEGACY_DISCRETE = 5;
+  }
+  optional int32 bucket_style = 1 [default = 0];
+  optional bool discrete = 3 [default = false];
+  optional double resolution = 2 [default = 0.05];
+  optional double initial_delta = 4 [default = 1];
+  optional double min_value = 11 [default = 0];
+  optional double max_bucket_start = 5 [default = 1000000000];
+  optional int32 max_buckets = 6 [default = -1];
+  optional bool negative_buckets = 7 [default = false];
+  optional int32 num_buckets = 8;
+  repeated uint32 explicit_bounds = 9 [packed = true];
+  repeated double real_valued_explicit_bounds = 10 [packed = true];
+}
+
+message HistogramState {
+  optional .stats.HistogramOptionsState options = 1;
+  repeated sint32 buckets = 2 [packed = true];
+  repeated double fractional_buckets = 3 [packed = true];
+  optional double min = 4;
+  optional double max = 5;
+  optional double sum = 7;
+  optional double sum_of_squares = 8;
+}
+
+

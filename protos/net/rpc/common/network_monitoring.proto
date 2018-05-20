@@ -1,0 +1,57 @@
+syntax = "proto2";
+
+package net.rpc.monitoring;
+
+option java_package = "com.google.net.rpc.monitoring";
+option java_outer_classname = "RpcMonitoring";
+
+message OneError {
+  enum ProtocolFamily {
+    UNKNOWN = 0;
+    TCP = 1;
+    UDP = 2;
+    BAMM = 3;
+    SHM = 4;
+  }
+  enum ErrorType {
+    INVALID = 0;
+    CONNECT_TIMEOUT = 1;
+    IO_ERROR = 2;
+    SERVER_UNREACHABLE = 3;
+    CLIENT_UNREACHABLE = 4;
+  }
+  optional string client_ip = 1;
+  optional string server_ip = 2;
+  optional fixed32 client_port = 3;
+  optional fixed32 server_port = 4;
+  optional string client_name = 5;
+  optional string server_name = 6;
+  optional .net.rpc.monitoring.OneError.ProtocolFamily protocol = 8;
+  optional string qos = 9;
+  optional string service = 10;
+  optional .net.rpc.monitoring.OneError.ErrorType err_type = 11;
+  optional string err_detail = 12;
+  optional double timestamp = 13;
+  optional fixed32 message_size = 14;
+  optional bool is_client = 15;
+  optional string client_host = 16;
+  optional string server_host = 17;
+}
+
+message RpcNDReport {
+  repeated .net.rpc.monitoring.OneError errors = 1;
+  optional int32 DEPRECATED_client_open_good_intracell_conns = 2 [deprecated = true];
+  optional int32 DEPRECATED_client_terminated_good_intracell_conns = 3 [deprecated = true];
+  optional int32 dropped_errors = 4;
+  optional string reporter_name = 5;
+  optional int32 DEPRECATED_client_open_good_conns = 6 [deprecated = true];
+  optional int32 DEPRECATED_client_terminated_good_conns = 7 [deprecated = true];
+  optional int32 client_open_good_intracell_conns = 8;
+  optional int32 client_terminated_good_intracell_conns = 9;
+  optional int32 client_open_good_conns = 10;
+  optional int32 client_terminated_good_conns = 11;
+  optional int32 client_version = 12;
+  optional int32 dropped_io_errors = 13;
+}
+
+

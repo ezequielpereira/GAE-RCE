@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+import "google/iam/v1/policy.proto";
+package security.context;
+
+option java_package = "com.google.security.context";
+option java_outer_classname = "AuthenticationPolicyProtoFile";
+option java_multiple_files = true;
+
+enum AuthorizationMode {
+  AUTHORIZATION_MODE_UNKNOWN = 0;
+  AUTOMATIC_IAM = 1;
+  MANUAL_IAM = 2;
+  MANUAL_LEGACY = 3;
+  MANUAL = 4;
+}
+
+message AuthenticationPolicy {
+  optional .google.iam.v1.Policy creds_policy = 1;
+  optional .google.iam.v1.Policy impersonation_policy = 2;
+  reserved 3;
+}
+
+

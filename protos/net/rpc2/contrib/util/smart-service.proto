@@ -1,0 +1,108 @@
+syntax = "proto2";
+
+import "net/base/qos.proto";
+import "production/rpc/stubs/proto/canonical_stub.proto";
+package rpc2.contrib;
+
+option java_package = "com.google.rpc2.contrib";
+option java_outer_classname = "SmartServiceProtoHolder";
+option cc_enable_arenas = true;
+
+message SmartService {
+  message StubOptions {
+    optional string service_name = 1;
+    optional .production.rpc.stubs.proto.CanonicalStub extensible_stub = 2;
+  }
+  message RpcSecurityOptions {
+    required string protocol = 1;
+    optional string requested_role = 2;
+    optional int32 min_security_level = 3;
+    optional string server_username = 4;
+    optional bool server_full_authentication = 5;
+  }
+  message SocketOptions {
+    enum LatencyMode {
+      AUTOMATIC = 0;
+      LATENCY = 1;
+      THROUGHPUT = 2;
+    }
+    optional .net_base.qos.TrafficClass traffic_class = 1;
+    optional uint32 min_rto_time_ms = 2;
+    optional int32 send_window_size = 3;
+    optional int32 recv_window_size = 4;
+    optional .rpc2.contrib.SmartService.SocketOptions.LatencyMode latency_mode = 5 [default = AUTOMATIC];
+    optional int32 max_pacing_rate = 6;
+    optional int32 tcp_minrtt_interval = 7;
+  }
+  message ClientChannelOptions {
+    enum ChannelType {
+      GNS_CHANNEL = 0;
+      BNS_CHANNEL = 1;
+      AUTO_CHANNEL = 2;
+    }
+    optional .rpc2.contrib.SmartService.RpcSecurityOptions security_options = 1;
+    optional double failure_detection_delay = 2;
+    optional double max_idle_failure_detection_delay = 3;
+    optional double idle_shutdown_delay = 4;
+    optional double connection_timeout_delay = 20;
+    optional double health_check_response_wait_time = 21;
+    optional bool start_reachable = 5;
+    optional bool can_use_udp = 6;
+    optional int32 max_outstanding_rpcs = 7;
+    optional string load_balancing_policy = 9;
+    optional string target_selection_policy = 10;
+    optional bool backend_subset = 11;
+    optional int32 subset_size = 12;
+    optional .net_base.qos.TrafficClass traffic_class = 13 [deprecated = true];
+    optional uint32 min_rto_time_ms = 14 [deprecated = true];
+    optional .rpc2.contrib.SmartService.SocketOptions socket_options = 15;
+    optional string load_balancing_policy_metric_export_name = 16;
+    optional .rpc2.contrib.SmartService.ClientChannelOptions.ChannelType channel_type = 18 [default = AUTO_CHANNEL];
+    optional bool is_compression_passthrough = 19;
+    extensions 1000 to 536870911;
+  }
+  message GslbChannelOptions {
+    enum ClusterSelectionMode {
+      DEFAULT_CLUSTER_SELECTION = 0;
+      AFFINITY_CLUSTER_SELECTION = 1;
+    }
+    enum ThermostatFailureMode {
+      PICK_RANDOM = 0;
+      PICK_RANDOM_UNDRAINED = 1;
+      DROP = 2;
+    }
+    optional .rpc2.contrib.SmartService.ClientChannelOptions fallback_channel_options = 1;
+    optional int64 client_id = 2;
+    optional string client_namespace = 3;
+    optional .rpc2.contrib.SmartService.GslbChannelOptions.ClusterSelectionMode cluster_selection_mode = 5 [default = DEFAULT_CLUSTER_SELECTION];
+    optional bool use_session_balancing = 6;
+    optional string balancer_requested_role = 7;
+    optional .rpc2.contrib.SmartService.GslbChannelOptions.ThermostatFailureMode thermostat_failure_mode = 8 [default = PICK_RANDOM];
+    optional bool use_gslb_fallback_channel = 9 [default = true];
+    optional bool use_target_selection_policy = 10;
+  }
+  message LoadBalancingPolicyOptions {
+    optional float error_ratio_threshold = 1;
+    optional uint32 max_channels_to_consider = 2;
+    optional float weight_update_interval_sec = 4;
+    optional float error_utilization_penalty = 5;
+    optional float sliding_window_size_sec = 6;
+    optional string bns_job_name = 8;
+    optional string slicer_target_suffix = 9;
+    optional string slicer_fallback_policy = 10;
+    reserved 3, 7;
+  }
+  enum CheckChannelMode {
+    CHECK_CHANNEL_DISABLED = 0;
+    CHECK_CHANNEL_NON_EMPTY = 1;
+  }
+  repeated string target = 1;
+  optional .rpc2.contrib.SmartService.StubOptions stub_options = 2;
+  optional .rpc2.contrib.SmartService.ClientChannelOptions client_channel_options = 3;
+  optional .rpc2.contrib.SmartService.GslbChannelOptions gslb_channel_options = 4;
+  optional double wait_sec = 5;
+  optional .rpc2.contrib.SmartService.CheckChannelMode check_channel = 7 [default = CHECK_CHANNEL_DISABLED];
+  optional .rpc2.contrib.SmartService.LoadBalancingPolicyOptions load_balancing_policy_options = 6;
+}
+
+

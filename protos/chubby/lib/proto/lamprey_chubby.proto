@@ -1,0 +1,553 @@
+syntax = "proto2";
+
+import "chubby/lib/proto/statinfo.proto";
+import "net/proto2/proto/empty.proto";
+package local_chubby;
+
+option java_package = "com.google.chubby";
+option java_outer_classname = "ChubbyLamprey";
+
+enum Version {
+  ORIGINAL = 0;
+  MAR_2014 = 1;
+  OCT_2015 = 2;
+}
+
+enum WatcherType {
+  option allow_alias = true;
+  ABSTRACTLS = 0;
+  Svelte = 0;
+  LOCKSERV = 1;
+  Lockservice = 1;
+}
+
+enum LockType {
+  option allow_alias = true;
+  kExclusive = 1;
+  kShared = 2;
+  kMaxSupported = 2;
+  kTryExclusive = 3;
+  kTryShared = 4;
+  kTryReacquireExclusive = 5;
+  kTryReacquireShared = 6;
+  kReleaseExclusive = 7;
+  kReleaseShared = 8;
+}
+
+enum OpenMode {
+  kModeNoPermission = 0;
+  kModeOwner = 1;
+  kModeWrite = 2;
+  kModeRead = 4;
+  kModeCreate = 8;
+  kModeMustNotExist = 16;
+  kModeExpectNotExist = 32;
+  kModeWeakConsistency = 64;
+}
+
+enum NodeType {
+  kIsFile = 0;
+  kIsDir = 1;
+}
+
+enum CheckSeq {
+  kMakeSure = 1;
+  kSharedOK = 2;
+  kTrySure = 16;
+  kPinSequencer = 4;
+  kUnpinSequencer = 8;
+}
+
+enum EventCode {
+  kConflicting = 0;
+  kContents = 1;
+  kHandleExpired = 2;
+  kChildAdd = 3;
+  kChildDelete = 4;
+  kLockAcquisition = 5;
+  kACLChange = 6;
+  kDelete = 7;
+  kFailover = 8;
+  kInvalidate = 9;
+  kJeopardy = 10;
+  kChildContents = 11;
+  kChildLockAcquisition = 12;
+  kChildACLChange = 13;
+  kSafe = 14;
+  kInvalidateAll = 15;
+  kLockRelease = 16;
+  kChildLockRelease = 17;
+  kLatencyClassChanged = 18;
+  kChildLatencyClassChanged = 19;
+  kInternalExpired = 1000;
+  kInternalQueueFlushed = 1001;
+}
+
+enum RecursiveWatcherEventType {
+  UPDATE_EVENT = 1;
+  DELETE_EVENT = 2;
+}
+
+enum LatencyClass {
+  kStandardLatency = 0;
+  kLowLatency = 1;
+  kUnspecifiedLatency = 2;
+}
+
+enum Types {
+  STARTUP_REQ = 1;
+  STARTUP_RESP = 2;
+  CANON_CELL_NAME_REQ = 3;
+  CANON_CELL_NAME_RESP = 4;
+  OPEN_REQ = 5;
+  OPEN_RESP = 6;
+  STAT_REQ = 7;
+  STAT_RESP = 8;
+  VERSION_REQ = 9;
+  VERSION_RESP = 10;
+  READDIR_REQ = 11;
+  READDIR_RESP = 12;
+  GET_CONTENTS_STAT_REQ = 13;
+  GET_CONTENTS_STAT_RESP = 14;
+  SET_CONTENTS_REQ = 15;
+  SET_CONTENTS_RESP = 16;
+  DELETE_REQ = 17;
+  DELETE_RESP = 18;
+  SET_ACL_REQ = 19;
+  SET_ACL_RESP = 20;
+  LOCK_REQ = 21;
+  LOCK_RESP = 22;
+  GET_SEQUENCER_REQ = 25;
+  GET_SEQUENCER_RESP = 26;
+  SET_SEQUENCER_REQ = 27;
+  SET_SEQUENCER_RESP = 28;
+  CHECK_SEQUENCE_REQ = 29;
+  CHECK_SEQUENCE_RESP = 30;
+  INVALIDATE_SEQUENCER_REQ = 31;
+  INVALIDATE_SEQUENCER_RESP = 32;
+  INIT_CACHE_REQ = 33;
+  INIT_CACHE_RESP = 34;
+  POISON_REQ = 35;
+  POISON_RESP = 36;
+  CLOSE_REQ = 37;
+  CLOSE_RESP = 38;
+  VALID_REQ = 39;
+  VALID_RESP = 40;
+  W_ORPHAN_REQ = 41;
+  W_ORPHAN_REQP = 42;
+  W_DELETE_REQ = 43;
+  W_DELETE_RESP = 44;
+  W_SETUP_REQ = 45;
+  W_SETUP_RESP = 46;
+  W_GET_REQ = 47;
+  W_GET_RESP = 48;
+  W_RECURSIVE_REQ = 49;
+  W_RECURSIVE_RESP = 50;
+  W_REC_WAIT_REQ = 51;
+  W_REC_WAIT_RESP = 52;
+  M_CREATE = 53;
+  M_START = 54;
+  M_STOP = 55;
+  M_WAIT = 56;
+  M_ISMASTER = 57;
+  M_ISPLAYING = 58;
+  M_FORCE = 59;
+  M_SEQUENCE = 60;
+  M_RENEW = 61;
+  M_CLOSE = 62;
+  M_ID = 63;
+  DELETE_TREE_REQ = 64;
+  DELETE_TREE_RESP = 65;
+  MAKE_PATH_REQ = 66;
+  MAKE_PATH_RESP = 67;
+  SET_LATENCY_CLASS_REQ = 68;
+  SET_LATENCY_CLASS_RESP = 69;
+}
+
+enum NodeDurability {
+  NORMAL = 0;
+  READER_WRITER_EPHEMERAL = 1;
+  WRITER_EPHEMERAL = 2;
+}
+
+message Stat {
+  optional string name = 1;
+  optional int64 instance = 2;
+  optional int64 generation = 3;
+  optional int64 acl_generation = 4;
+  optional int64 lock_generation = 5;
+  optional int64 latency_class_generation = 16;
+  optional int64 size = 6;
+  optional int64 node_type = 7;
+  optional .local_chubby.ACLList acls = 8;
+  optional .local_chubby.ActionInfo create = 9;
+  optional .local_chubby.ActionInfo modify = 10;
+  optional .local_chubby.ActionInfo acquire = 11;
+  optional .local_chubby.ActionInfo acl_change = 12;
+  optional .local_chubby.ActionInfo latency_class_change = 17;
+  optional int64 lock_mode = 13;
+  optional int64 expires = 14;
+  optional uint64 checksum = 15;
+  optional .local_chubby.LatencyClass latency_class = 18 [default = kUnspecifiedLatency];
+}
+
+message ACLList {
+  optional string owner = 1;
+  optional string write = 2;
+  optional string read = 3;
+  repeated .LockServiceACL lockservice_acl_owner = 4;
+  repeated .LockServiceACL lockservice_acl_write = 5;
+  repeated .LockServiceACL lockservice_acl_read = 6;
+}
+
+message ActionInfo {
+  optional int64 time = 1;
+  optional string who = 2;
+  optional int64 session = 3;
+  optional string host = 4;
+  optional int64 pid = 5;
+  optional string binary = 6;
+  optional int64 handle = 7;
+  optional int64 call_id = 9;
+}
+
+message OpenOptions {
+  optional int32 open_mode = 1;
+  optional int32 node_type = 2;
+  optional int64 events = 3;
+  optional string sequencer = 4;
+  optional int64 lock_delay_ms = 5;
+  optional string owner = 6;
+  optional string write = 7;
+  optional string read = 8;
+  repeated .LockServiceACL lockservice_acl_owner = 10;
+  repeated .LockServiceACL lockservice_acl_write = 11;
+  repeated .LockServiceACL lockservice_acl_read = 12;
+  optional bytes contents = 9;
+}
+
+message WatcherData {
+  optional bool exists = 2;
+  optional bool last_seen_exists = 3;
+  optional bytes contents = 4;
+  optional int64 generation = 5;
+  optional int64 errorcode = 6;
+  optional int64 last_seen_errorcode = 7;
+  optional .local_chubby.Stat info = 8;
+  repeated .local_chubby.Stat stats = 9;
+  optional bool updated = 10 [deprecated = true];
+  optional string path = 11 [deprecated = true];
+}
+
+message Status {
+  optional int32 code = 1;
+  optional int32 errorcode = 2;
+  optional string msg = 3;
+}
+
+message Request {
+  optional .local_chubby.Types which = 1;
+  optional int64 seqno = 2;
+  optional int64 handle = 3;
+  optional string name = 4;
+  optional .local_chubby.OpenOptions options = 5;
+  optional int64 count = 6;
+  optional bytes buf = 7;
+  optional int64 generation = 8;
+  optional .local_chubby.ACLList acls = 9;
+  optional int64 locktype = 10;
+  optional string sequencer = 11;
+  optional .local_chubby.LatencyClass latency_class = 12;
+}
+
+message Reply {
+  optional .local_chubby.Types which = 1;
+  optional .local_chubby.Status status = 2;
+  optional int64 seqno = 3;
+  optional int64 handle = 4;
+  repeated .local_chubby.Stat stat = 5;
+  optional bytes buf = 6;
+  optional string sequencer = 7;
+  optional .local_chubby.Version version = 8;
+}
+
+message EventReq {
+  optional int64 handle = 1;
+  optional int64 seqno = 2;
+}
+
+message EventResp {
+  optional int64 handle = 1;
+  optional int64 seqno = 2;
+  optional .local_chubby.EventCode code = 3;
+  optional .local_chubby.Stat stat = 4;
+  optional .local_chubby.Status status = 5;
+}
+
+message WatcherReq {
+  optional .local_chubby.Types which = 1;
+  optional int64 handle = 2;
+  optional int64 seqno = 3;
+  optional string name = 4;
+  optional string pattern = 5;
+  optional bool user_data = 6;
+  optional .local_chubby.WatcherType w_type = 7;
+}
+
+message WatcherResp {
+  optional .local_chubby.Types which = 1;
+  optional int64 handle = 2;
+  optional .local_chubby.WatcherData wdata = 3;
+}
+
+message Master {
+  optional .local_chubby.Types which = 1;
+  optional int64 handle = 2;
+  repeated string locks = 3;
+  optional string sequencer = 4;
+  optional int64 timeout_ms = 5;
+  optional bool result = 6;
+  optional int64 delay_ms = 7 [default = 0];
+  optional bool reacquire = 8 [default = true];
+  optional string contents = 9;
+  optional string err = 10;
+}
+
+message VersionResponse {
+  optional .local_chubby.Version version = 1;
+}
+
+message WatchRequest {
+  optional string filename = 1;
+  optional bool recursive = 2 [default = false];
+  optional string filter_regexp = 3;
+  optional bool need_user_data = 4 [default = true];
+  optional .local_chubby.WatcherType type = 5 [default = Svelte];
+}
+
+message RecursiveWatcherData {
+  optional .local_chubby.RecursiveWatcherEventType type = 1;
+  optional string relative_name = 2;
+  optional .local_chubby.Stat stat = 3;
+}
+
+message WatcherEvent {
+  optional .local_chubby.WatcherData data = 1;
+  optional .local_chubby.RecursiveWatcherData recursive_data = 2;
+}
+
+message FileHandle {
+  optional fixed64 opaque_handle_contents = 1;
+}
+
+message Sequence {
+  optional bytes opaque_sequence_contents = 1;
+}
+
+message OpenOptions2 {
+  optional int32 open_mode = 1;
+  optional int32 node_type = 2;
+  optional .local_chubby.NodeDurability node_durability = 10 [default = NORMAL];
+  optional int64 events = 3;
+  optional string sequencer = 4;
+  optional int64 lock_delay_ms = 5;
+  optional string owner = 6;
+  optional string write = 7;
+  optional string read = 8;
+  repeated .LockServiceACL lockservice_acl_owner = 11;
+  repeated .LockServiceACL lockservice_acl_write = 12;
+  repeated .LockServiceACL lockservice_acl_read = 13;
+  optional bytes contents = 9;
+}
+
+message OpenRequest {
+  optional .local_chubby.FileHandle parent = 1;
+  optional string name = 2;
+  optional .local_chubby.OpenOptions2 options = 3;
+}
+
+message Event {
+  optional .local_chubby.FileHandle handle = 1;
+  optional .local_chubby.Status status = 4;
+  optional .local_chubby.Stat stat = 2;
+  optional .local_chubby.EventCode event = 3;
+  optional int64 generation = 5 [default = 0];
+}
+
+message SetContentsRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+  optional int64 old_generation = 3;
+  optional bytes new_contents = 4;
+}
+
+message SetContentsResponse {
+  optional .local_chubby.Status status = 1;
+  optional .local_chubby.Stat stat = 2;
+}
+
+message GetContentsRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+}
+
+message GetContentsResponse {
+  optional .local_chubby.Status status = 1;
+  optional bytes contents = 2;
+  optional .local_chubby.Stat stat = 3;
+}
+
+message SetACLsRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+  optional .local_chubby.ACLList acls = 3;
+  optional int64 old_generation = 4;
+}
+
+message SetACLsResponse {
+  optional .local_chubby.Status status = 1;
+}
+
+message SetLatencyClassRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+  optional .local_chubby.LatencyClass latency_class = 3;
+  optional int64 old_generation = 4;
+}
+
+message SetLatencyClassResponse {
+  optional .local_chubby.Status status = 1;
+}
+
+message LockRequest {
+  optional .local_chubby.FileHandle handle = 1;
+  optional .local_chubby.LockType type = 2;
+  optional bool try = 3 [default = false];
+  optional bool reacquire = 4 [default = false];
+}
+
+message LockResponse {
+  optional .local_chubby.Status status = 1;
+}
+
+message UnlockRequest {
+  optional .local_chubby.FileHandle handle = 1;
+  optional .local_chubby.LockType type = 2;
+}
+
+message UnlockResponse {
+  optional .local_chubby.Status status = 1;
+}
+
+message StatRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+}
+
+message StatResponse {
+  optional .local_chubby.Status status = 1;
+  optional .local_chubby.Stat stat = 2;
+}
+
+message ReadDirRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+  optional string from = 3 [default = ""];
+  optional int32 max = 4;
+}
+
+message ReadDirResponse {
+  optional .local_chubby.Status status = 1;
+  repeated .local_chubby.Stat stat = 2;
+}
+
+message DeleteRequest {
+  oneof identity {
+    .local_chubby.FileHandle handle = 1;
+    string filename = 2;
+  }
+}
+
+message DeleteResponse {
+  optional .local_chubby.Status status = 1;
+}
+
+message GetSequenceRequest {
+  optional .local_chubby.FileHandle handle = 1;
+  optional .local_chubby.Sequence sequence = 2;
+}
+
+message GetSequenceResponse {
+  optional .local_chubby.Status status = 1;
+  optional .local_chubby.Sequence sequence = 2;
+}
+
+message SetSequenceRequest {
+  optional .local_chubby.FileHandle handle = 1;
+  optional .local_chubby.Sequence sequence = 2;
+}
+
+message SetSequenceResponse {
+  optional .local_chubby.Status status = 1;
+}
+
+message CheckSequenceRequest {
+  enum Sureness {
+    DEFAULT = 0;
+    TRY_SURE = 16;
+    MAKE_SURE = 1;
+  }
+  enum PinAction {
+    NONE = 0;
+    PIN_SEQUENCER = 4;
+    UNPIN_SEQUENCER = 8;
+  }
+  optional .local_chubby.Sequence sequence = 1;
+  optional .local_chubby.CheckSequenceRequest.Sureness sureness = 3 [default = DEFAULT];
+  optional bool shared_ok = 4 [default = false];
+  optional .local_chubby.CheckSequenceRequest.PinAction pin_action = 5 [default = NONE];
+}
+
+message CheckSequenceResponse {
+  optional .local_chubby.Status status = 1;
+  optional .local_chubby.Sequence new_sequence = 2;
+}
+
+service LocalChubby {
+  rpc Work(.local_chubby.Request) returns (.local_chubby.Reply);
+  rpc Event(.local_chubby.EventReq) returns (.local_chubby.EventResp);
+  rpc Watcher(.local_chubby.WatcherReq) returns (.local_chubby.WatcherResp);
+  rpc ForMaster(.local_chubby.Master) returns (.local_chubby.Master);
+}
+
+service LocalChubby2 {
+  rpc GetVersion(.proto2.Empty) returns (.local_chubby.VersionResponse);
+  rpc Watch(.local_chubby.WatchRequest) returns (stream .local_chubby.WatcherEvent);
+  rpc Open(.local_chubby.OpenRequest) returns (stream .local_chubby.Event);
+  rpc SetContents(.local_chubby.SetContentsRequest) returns (.local_chubby.SetContentsResponse);
+  rpc GetContents(.local_chubby.GetContentsRequest) returns (.local_chubby.GetContentsResponse);
+  rpc Stat(.local_chubby.StatRequest) returns (.local_chubby.StatResponse);
+  rpc ReadDir(.local_chubby.ReadDirRequest) returns (.local_chubby.ReadDirResponse);
+  rpc Delete(.local_chubby.DeleteRequest) returns (.local_chubby.DeleteResponse);
+  rpc SetACLs(.local_chubby.SetACLsRequest) returns (.local_chubby.SetACLsResponse);
+  rpc SetLatencyClass(.local_chubby.SetLatencyClassRequest) returns (.local_chubby.SetLatencyClassResponse);
+  rpc Lock(.local_chubby.LockRequest) returns (.local_chubby.LockResponse);
+  rpc Unlock(.local_chubby.UnlockRequest) returns (.local_chubby.UnlockResponse);
+  rpc GetSequence(.local_chubby.GetSequenceRequest) returns (.local_chubby.GetSequenceResponse);
+  rpc SetSequence(.local_chubby.SetSequenceRequest) returns (.local_chubby.SetSequenceResponse);
+  rpc CheckSequence(.local_chubby.CheckSequenceRequest) returns (.local_chubby.CheckSequenceResponse);
+}
+
+

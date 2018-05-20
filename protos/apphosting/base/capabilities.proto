@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.appengine.api.capabilities";
+option java_outer_classname = "CapabilitiesPb";
+
+message CapabilityConfigList {
+  repeated .apphosting.CapabilityConfig config = 1;
+  optional .apphosting.CapabilityConfig default_config = 2;
+}
+
+message CapabilityConfig {
+  enum Status {
+    DEFAULT = 0;
+    ENABLED = 1;
+    SCHEDULED = 2;
+    DISABLED = 3;
+    UNKNOWN = 4;
+  }
+  required string package = 1;
+  required string capability = 2;
+  optional .apphosting.CapabilityConfig.Status status = 3 [default = UNKNOWN];
+  optional string scheduled_time = 7;
+  optional string internal_message = 4;
+  optional string admin_message = 5;
+  optional string error_message = 6;
+}
+

@@ -1,0 +1,145 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+
+message ShardMap {
+  repeated .apphosting.Shard shard = 1;
+  optional .apphosting.GslbOverrides gslb_overrides = 2;
+  optional string admin_console_app_id = 3;
+  optional bool trivial_shardmap = 4 [default = false];
+  repeated .apphosting.ExecutorInstance executor_instances = 5;
+  repeated .apphosting.InstanceMetadata instance_metadata = 6;
+  optional .apphosting.LogsUsageState logs_usage_state = 7;
+  repeated .apphosting.GeoSettings geos = 9;
+  optional .apphosting.GeoSettings geo_settings = 8 [deprecated = true];
+  repeated .apphosting.RegionSettings region_settings = 10;
+  map<string, .apphosting.DatastoreTarget> datastore_targets = 11;
+}
+
+message Shard {
+  enum DatastoreState {
+    DATASTORE_READ_ONLY = 0;
+    DATASTORE_READ_WRITE = 1;
+  }
+  required string start = 1;
+  required string limit = 2;
+  optional string config_name = 27;
+  repeated group Instance = 3 {
+    enum State {
+      LOADING = 0;
+      READY = 1;
+      DRAINING = 2;
+      OBSOLETE_FAILOVER_TARGET = 3;
+      OBSOLETE_FAILOVER_SOURCE = 4;
+    }
+    required string name = 4;
+    optional string megastore_replica = 10;
+    optional string megastore_instance = 19 [deprecated = true];
+    required .apphosting.Shard.Instance.State state = 5;
+  }
+  optional .apphosting.ShardLockOverride shardlock_override = 6 [deprecated = true];
+  optional string megastore_instance = 7;
+  optional string datastore_target_name = 31;
+  optional string megastore_drain_gslb_target = 29;
+  optional .apphosting.Shard.DatastoreState datastore_state = 8 [default = DATASTORE_READ_WRITE];
+  optional bool respect_gslb = 9 [default = false];
+  optional string indexer_app_id = 11;
+  optional string admin_jobs_app_id = 26;
+  optional group DatastoreOptions = 12 {
+    enum DatastoreKind {
+      PAXOS = 0;
+      MASTERSLAVE = 1;
+    }
+    optional bool default_use_strong_reads = 13 [default = false, deprecated = true];
+    optional bool allow_job_failover = 15 [default = false, deprecated = true];
+    optional bool allow_query_failover = 16 [default = false, deprecated = true];
+    optional bool tx_query_failover = 17 [default = false, deprecated = true];
+    optional bool nontx_query_failover = 18 [default = false, deprecated = true];
+    optional bool allow_multiple_eg_txn = 25 [default = false, deprecated = true];
+    optional .apphosting.Shard.DatastoreOptions.DatastoreKind kind = 20 [default = PAXOS];
+  }
+  optional string oops = 21 [deprecated = true];
+  optional group MirroringOptions = 22 {
+    optional bool prepare_mirroring = 23 [default = false, deprecated = true];
+    optional bool enable_mirroring = 24 [default = false];
+  }
+  optional bool enable_regional_state = 28 [default = false];
+  optional bool shard_enabled = 32 [default = true];
+}
+
+message GslbOverrides {
+  repeated string serving_instances = 1;
+  repeated string drained_instances = 2;
+}
+
+message ShardLockOverride {
+  optional bool disable_updates = 1 [default = false];
+  optional string master_instance = 2;
+  optional int64 generation = 3;
+}
+
+message ExecutorInstance {
+  required string name = 1;
+  repeated string additional_hosted_instances = 2;
+  repeated string retry_instances = 3;
+}
+
+message InstanceMetadata {
+  required string name = 1;
+  required string bigtable_prefix = 2;
+  repeated string bigtable_retry_instances = 3;
+  repeated .apphosting.MemcachePool memcache_pool = 5;
+  optional int32 file_proxy_num_backends = 6 [default = 0, deprecated = true];
+  optional int32 file_proxy_config_generation = 7 [default = 0, deprecated = true];
+  optional int32 num_appmaster2_shards = 8 [default = 1];
+  optional string region = 9;
+  optional string cloud_region = 10;
+}
+
+message GeoSettings {
+  optional string name = 2;
+  optional string start = 3;
+  optional string limit = 4;
+  repeated string instance = 5;
+  repeated string logs_instance = 1;
+  optional string blobstore_application_id = 6;
+  optional string upload_drop_zone_label = 7;
+}
+
+message RegionSettings {
+  required string name = 1;
+  repeated string memcache_instance = 2;
+  optional int32 memcache_redundancy = 4 [default = 2];
+  optional int32 max_drained_instances = 3 [default = -1, deprecated = true];
+}
+
+message MemcachePool {
+  enum Technology {
+    MEMCACHEG = 1;
+    MINDMELD_DEPRECATED = 2;
+    MINDMELD_PROXY_DEPRECATED = 3;
+    MEMCACHEG_REGIONAL_EXCLUSIVE = 4;
+    MEMCACHEG_REGIONAL = 5;
+  }
+  required string name = 1;
+  required string bns = 2;
+  optional int32 size_override = 3 [default = 0];
+  optional .apphosting.MemcachePool.Technology technology = 4 [default = MEMCACHEG];
+}
+
+message LogsUsageState {
+  message DeltaVersion {
+    required int32 version = 1;
+    optional int32 start_time_s = 2;
+  }
+  repeated .apphosting.LogsUsageState.DeltaVersion delta_versions = 1;
+  optional int32 serving_version = 2;
+  optional bool deletion_enabled_default = 4;
+}
+
+message DatastoreTarget {
+  map<string, string> pool_gslb_targets = 1;
+}
+

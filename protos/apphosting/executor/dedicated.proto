@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+import "apphosting/executor/queue.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.executor";
+
+message DedicatedGroup {
+  optional .apphosting.QueueRange queue_range = 1;
+  optional int32 num_dedicated_scanners = 2;
+}
+
+message DedicatedScanners {
+  repeated .apphosting.DedicatedGroup push_scanners = 1;
+  repeated .apphosting.DedicatedGroup pull_scanners = 2;
+}
+

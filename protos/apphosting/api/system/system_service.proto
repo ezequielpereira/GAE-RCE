@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.appengine.api.system";
+option java_outer_classname = "SystemServicePb";
+
+message SystemServiceError {
+  enum ErrorCode {
+    OK = 0;
+    INTERNAL_ERROR = 1;
+    BACKEND_REQUIRED = 2;
+    LIMIT_REACHED = 3;
+  }
+}
+
+message SystemStat {
+  optional double current = 1;
+  optional double average1m = 3;
+  optional double average10m = 4;
+  optional double total = 2;
+  optional double rate1m = 5;
+  optional double rate10m = 6;
+}
+
+message GetSystemStatsRequest {
+}
+
+message GetSystemStatsResponse {
+  optional .apphosting.SystemStat cpu = 1;
+  optional .apphosting.SystemStat memory = 2;
+}
+
+message StartBackgroundRequestRequest {
+}
+
+message StartBackgroundRequestResponse {
+  optional string request_id = 1;
+}
+
+service SystemService {
+  rpc GetSystemStats(.apphosting.GetSystemStatsRequest) returns (.apphosting.GetSystemStatsResponse);
+  rpc StartBackgroundRequest(.apphosting.StartBackgroundRequestRequest) returns (.apphosting.StartBackgroundRequestResponse);
+}
+

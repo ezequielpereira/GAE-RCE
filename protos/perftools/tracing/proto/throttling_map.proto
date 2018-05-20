@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package perftools.tracing;
+
+option java_package = "com.google.tracing";
+option java_outer_classname = "ThrottlingMapProto";
+
+message ThrottlingMap {
+  map<string, double> multiplier_for_default = 1;
+  map<string, double> multiplier_for_non_default = 2;
+}
+
+

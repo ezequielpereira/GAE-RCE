@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+import "apphosting/magicgin/magicgin_annotations.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "FirewallPb";
+
+message Firewall {
+  optional string app_id = 3;
+  optional int64 timestamp_usec = 4;
+  optional string last_modified_by = 5;
+  map<int32, .apphosting.FirewallRule> rules = 1;
+  optional .apphosting.FirewallRule.Action default_action = 2;
+}
+
+message FirewallRule {
+  enum Action {
+    UNSPECIFIED_ACTION = 0;
+    ALLOW = 1;
+    DENY = 2;
+  }
+  optional .apphosting.FirewallRule.Action action = 2;
+  optional string source_range = 3;
+  optional string description = 4;
+}
+
+

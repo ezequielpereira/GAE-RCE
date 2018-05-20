@@ -1,0 +1,275 @@
+syntax = "proto2";
+
+package apphosting.files;
+
+option java_package = "com.google.appengine.api.files";
+option java_outer_classname = "FileServicePb";
+
+message FileServiceErrors {
+  enum ErrorCode {
+    OK = 0;
+    API_TEMPORARILY_UNAVAILABLE = 1;
+    REQUEST_TOO_LARGE = 3;
+    RESPONSE_TOO_LARGE = 4;
+    INVALID_FILE_NAME = 5;
+    OPERATION_NOT_SUPPORTED = 6;
+    IO_ERROR = 7;
+    PERMISSION_DENIED = 8;
+    WRONG_CONTENT_TYPE = 9;
+    FILE_NOT_OPENED = 10;
+    WRONG_OPEN_MODE = 11;
+    EXCLUSIVE_LOCK_REQUIRED = 12;
+    FILE_TEMPORARILY_UNAVAILABLE = 13;
+    EXISTENCE_ERROR = 100;
+    FINALIZATION_ERROR = 101;
+    UNSUPPORTED_CONTENT_TYPE = 102;
+    READ_ONLY = 103;
+    EXCLUSIVE_LOCK_FAILED = 104;
+    EXISTENCE_ERROR_METADATA_NOT_FOUND = 105;
+    EXISTENCE_ERROR_METADATA_FOUND = 106;
+    EXISTENCE_ERROR_SHARDING_MISMATCH = 107;
+    FINALIZATION_IN_PROGRESS = 108;
+    EXISTENCE_ERROR_OBJECT_NOT_FOUND = 109;
+    EXISTENCE_ERROR_BUCKET_NOT_FOUND = 110;
+    SEQUENCE_KEY_OUT_OF_ORDER = 300;
+    OUT_OF_BOUNDS = 500;
+    GLOBS_NOT_SUPPORTED = 600;
+    FILE_NAME_NOT_SPECIFIED = 701;
+    FILE_NAME_SPECIFIED = 702;
+    FILE_ALREADY_EXISTS = 703;
+    UNSUPPORTED_FILE_SYSTEM = 704;
+    INVALID_PARAMETER = 705;
+    SHUFFLER_INTERNAL_ERROR = 800;
+    SHUFFLE_REQUEST_TOO_LARGE = 801;
+    DUPLICATE_SHUFFLE_NAME = 802;
+    SHUFFLE_NOT_AVAILABLE = 803;
+    SHUFFLER_TEMPORARILY_UNAVAILABLE = 900;
+    MAX_ERROR_CODE = 9999;
+  }
+}
+
+message KeyValue {
+  required bytes key = 1 [ctype = CORD];
+  required bytes value = 2 [ctype = CORD];
+}
+
+message KeyValues {
+  required bytes key = 1 [ctype = CORD];
+  repeated bytes value = 2 [ctype = CORD];
+  optional bool partial = 3 [default = false];
+}
+
+message FileContentType {
+  enum ContentType {
+    RAW = 0;
+    DEPRECATED_1 = 2;
+    INVALID_TYPE = 127;
+  }
+}
+
+message CreateRequest {
+  message Parameter {
+    required string name = 1;
+    required string value = 2;
+  }
+  required string filesystem = 1;
+  required .apphosting.files.FileContentType.ContentType content_type = 2;
+  optional string filename = 3 [default = ""];
+  repeated .apphosting.files.CreateRequest.Parameter parameters = 4;
+  optional int64 expiration_time_seconds = 5;
+}
+
+message CreateResponse {
+  required string filename = 1;
+}
+
+message OpenRequest {
+  enum OpenMode {
+    APPEND = 1;
+    READ = 2;
+  }
+  required string filename = 1;
+  required .apphosting.files.FileContentType.ContentType content_type = 2;
+  required .apphosting.files.OpenRequest.OpenMode open_mode = 3;
+  optional bool exclusive_lock = 4 [default = false];
+  optional bool buffered_output = 5 [default = false];
+  optional int32 open_lease_time_seconds = 6 [default = 30];
+}
+
+message OpenResponse {
+}
+
+message CloseRequest {
+  required string filename = 1;
+  optional bool finalize = 2 [default = false];
+}
+
+message CloseResponse {
+}
+
+message FileStat {
+  required string filename = 1;
+  required .apphosting.files.FileContentType.ContentType content_type = 2;
+  required bool finalized = 3;
+  optional int64 length = 4;
+  optional int64 ctime = 5;
+  optional int64 mtime = 6;
+}
+
+message StatRequest {
+  optional string filename = 1;
+  optional string file_glob = 2;
+}
+
+message StatResponse {
+  repeated .apphosting.files.FileStat stat = 1;
+  required bool more_files_found = 2 [default = false];
+}
+
+message AppendRequest {
+  required string filename = 1;
+  required bytes data = 2 [ctype = CORD];
+  optional string sequence_key = 3 [ctype = CORD];
+}
+
+message AppendResponse {
+}
+
+message DeleteRequest {
+  required string filename = 1;
+}
+
+message DeleteResponse {
+}
+
+message ReadRequest {
+  required string filename = 1;
+  required int64 pos = 2;
+  required int64 max_bytes = 3;
+}
+
+message ReadResponse {
+  required bytes data = 1 [ctype = CORD];
+}
+
+message ReadKeyValueRequest {
+  required string filename = 1;
+  required bytes start_key = 2 [ctype = CORD];
+  required int64 max_bytes = 3;
+  optional int64 value_pos = 4;
+}
+
+message ReadKeyValueResponse {
+  message KeyValue {
+    required bytes key = 1 [ctype = CORD];
+    required bytes value = 2 [ctype = CORD];
+  }
+  repeated .apphosting.files.ReadKeyValueResponse.KeyValue data = 1;
+  optional bytes next_key = 2;
+  optional bool truncated_value = 3;
+}
+
+message ShuffleEnums {
+  enum InputFormat {
+    RECORDS_KEY_VALUE_PROTO_INPUT = 1;
+  }
+  enum OutputFormat {
+    RECORDS_KEY_MULTI_VALUE_PROTO_OUTPUT = 1;
+  }
+  enum Status {
+    UNKNOWN = 1;
+    RUNNING = 2;
+    SUCCESS = 3;
+    FAILURE = 4;
+    INVALID_INPUT = 5;
+    OUTPUT_ALREADY_EXISTS = 6;
+    INCORRECT_SHUFFLE_SIZE_BYTES = 7;
+  }
+}
+
+message ShuffleInputSpecification {
+  optional .apphosting.files.ShuffleEnums.InputFormat format = 1 [default = RECORDS_KEY_VALUE_PROTO_INPUT];
+  required string path = 2;
+}
+
+message ShuffleOutputSpecification {
+  optional .apphosting.files.ShuffleEnums.OutputFormat format = 1 [default = RECORDS_KEY_MULTI_VALUE_PROTO_OUTPUT];
+  repeated string path = 2;
+}
+
+message ShuffleRequest {
+  message Callback {
+    required string url = 1;
+    optional string app_version_id = 2;
+    optional string method = 3 [default = "POST"];
+    optional string queue = 4 [default = "default"];
+  }
+  required string shuffle_name = 1;
+  repeated .apphosting.files.ShuffleInputSpecification input = 2;
+  required .apphosting.files.ShuffleOutputSpecification output = 3;
+  required int64 shuffle_size_bytes = 4;
+  required .apphosting.files.ShuffleRequest.Callback callback = 5;
+}
+
+message ShuffleResponse {
+}
+
+message GetShuffleStatusRequest {
+  required string shuffle_name = 1;
+}
+
+message GetShuffleStatusResponse {
+  required .apphosting.files.ShuffleEnums.Status status = 1;
+  optional string description = 2;
+}
+
+message GetCapabilitiesRequest {
+}
+
+message GetCapabilitiesResponse {
+  repeated string filesystem = 1;
+  required bool shuffle_available = 2;
+}
+
+message FinalizeRequest {
+  required string filename = 1;
+}
+
+message FinalizeResponse {
+}
+
+message GetDefaultGsBucketNameRequest {
+}
+
+message GetDefaultGsBucketNameResponse {
+  optional string default_gs_bucket_name = 1;
+}
+
+message ListDirRequest {
+  required string path = 1;
+  optional string marker = 2;
+  optional int64 max_keys = 3;
+  optional string prefix = 4;
+}
+
+message ListDirResponse {
+  repeated string filenames = 1;
+}
+
+service FileService {
+  rpc Create(.apphosting.files.CreateRequest) returns (.apphosting.files.CreateResponse);
+  rpc Open(.apphosting.files.OpenRequest) returns (.apphosting.files.OpenResponse);
+  rpc Close(.apphosting.files.CloseRequest) returns (.apphosting.files.CloseResponse);
+  rpc Append(.apphosting.files.AppendRequest) returns (.apphosting.files.AppendResponse);
+  rpc Stat(.apphosting.files.StatRequest) returns (.apphosting.files.StatResponse);
+  rpc Delete(.apphosting.files.DeleteRequest) returns (.apphosting.files.DeleteResponse);
+  rpc Read(.apphosting.files.ReadRequest) returns (.apphosting.files.ReadResponse);
+  rpc ReadKeyValue(.apphosting.files.ReadKeyValueRequest) returns (.apphosting.files.ReadKeyValueResponse);
+  rpc Shuffle(.apphosting.files.ShuffleRequest) returns (.apphosting.files.ShuffleResponse);
+  rpc GetShuffleStatus(.apphosting.files.GetShuffleStatusRequest) returns (.apphosting.files.GetShuffleStatusResponse);
+  rpc GetCapabilities(.apphosting.files.GetCapabilitiesRequest) returns (.apphosting.files.GetCapabilitiesResponse);
+  rpc Finalize(.apphosting.files.FinalizeRequest) returns (.apphosting.files.FinalizeResponse);
+  rpc ListDir(.apphosting.files.ListDirRequest) returns (.apphosting.files.ListDirResponse);
+  rpc GetDefaultGsBucketName(.apphosting.files.GetDefaultGsBucketNameRequest) returns (.apphosting.files.GetDefaultGsBucketNameResponse);
+}
+

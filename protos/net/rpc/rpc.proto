@@ -1,0 +1,321 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "net/rpc/census-context.proto";
+import "net/rpc/stream.proto";
+import "perftools/tracing/proto/rpc_traced_request.proto";
+option java_package = "com.google.net.rpc.impl.proto";
+
+message RPC_AuthMessage {
+  required uint64 session_id = 1;
+  required string protocol = 2;
+  optional bytes token = 3;
+  optional string error_detail = 4;
+}
+
+message RPC_EnhancedHCRequest {
+  message SecurityProtocolAndVersions {
+    optional string security_protocol = 1;
+    repeated int32 version = 2;
+  }
+  required int32 nonce = 1;
+  repeated string security_protocol = 2;
+  optional .RPC_LoadBalancingFeedbackOption loadbalancing_feedback_option = 3;
+  repeated .RPC_EnhancedHCRequest.SecurityProtocolAndVersions security_protocol_and_versions = 4;
+}
+
+message RPC_ShmRequest {
+  optional uint32 client_to_server_concurrency = 2;
+  optional uint32 server_to_client_concurrency = 3;
+  optional uint32 client_to_server_segment_size = 4;
+  optional uint32 server_to_client_segment_size = 5;
+  optional uint32 control_segment_size = 6;
+  optional uint32 simple_header_format = 7 [deprecated = true];
+  optional uint32 shm_wire_version = 8;
+  optional bool allow_new_segment_allocation = 9;
+  optional string client_id = 10;
+  optional uint32 request_id = 11;
+  optional bool caller_is_server = 12 [default = false];
+}
+
+message RPC_ShmSegments {
+  repeated uint64 keys = 1;
+  optional uint64 size = 2;
+}
+
+message RPC_ShmResponse {
+  optional bool success = 1;
+  optional string error_reason = 5;
+  optional .RPC_ShmSegments client_to_server = 6;
+  optional .RPC_ShmSegments server_to_client = 7;
+  optional uint64 control_segment_key = 8;
+  optional uint64 control_segment_size = 9;
+  optional uint32 simple_header_format = 10 [deprecated = true];
+  optional string server_allocation_method = 11;
+  optional string server_segment_path = 12;
+  optional bool allow_new_segment_allocation = 13;
+  optional uint32 request_id = 14;
+  optional bool caller_is_server = 15 [default = false];
+}
+
+message RPC_EnhancedHCResponse {
+  required int32 nonce = 1;
+  optional bool insecure_allowed = 2 [default = true];
+  repeated bool secure_allowed = 3;
+  optional .RPC_ServerChannelOptions server_options = 4;
+}
+
+message RPC_SecurityHeader {
+  enum PROTECTION_TYPE {
+    INTEGRITY_ONLY = 0;
+    INTEGRITY_AND_PRIVACY = 1;
+  }
+  required uint64 session_id = 1;
+  optional int32 protection_type = 2 [default = 0];
+  optional int32 delegation = 3 [default = 0];
+}
+
+message RPC_WireProtocolVersion {
+  enum VERSION {
+    BASE = 4;
+    CHANNEL_OPTIONS_HANDSHAKE = 5;
+    JANUARY_2017 = 6;
+    SECURE_CHANNEL_OPTIONS = 7;
+  }
+}
+
+message RPC_ServerProtocolVersion {
+  enum TYPE {
+    BASE = 0;
+    ZIPPY_REQUESTS = 1;
+    SERVER_SIDE_HEALTH_CHECKS = 2;
+  }
+}
+
+message RPC_ClientProtocolVersion {
+  enum TYPE {
+    BASE = 0;
+    CLIENT_SIDE_HEALTH_CHECKS = 1;
+    HEALTH_CHECK_USE_TCP_IF_AVAILABLE = 2;
+    CLIENT_HANDLES_UNKNOWN_SERVER_OPTIONS = 3;
+  }
+}
+
+message EnvelopeForwarderHeader {
+  optional bool failfast = 1 [default = false];
+  optional string delegated_role = 2;
+}
+
+message RPC_Request {
+  enum TYPE {
+    REQUEST = 0;
+    HEALTH_CHECK = 1;
+    CANCEL_REQUEST = 2;
+    CHANNEL_OPTIONS = 3;
+    STREAM_MESSAGE = 4;
+    HEALTH_CHECK_REQUEST = 5;
+    HEALTH_CHECK_RESPONSE = 6;
+    READINESS_CHECK = 7;
+  }
+  enum SCHEDULING_HASH_TYPE {
+    SCHEDULING_HASH_DISABLED = 0;
+  }
+  optional int32 type = 1 [default = 0];
+  optional fixed64 id = 2;
+  optional string method = 3;
+  optional double deadline = 4 [default = 0];
+  optional bool suppress_dups = 5 [default = false];
+  optional int32 trace_mask = 6 [default = 0];
+  optional fixed64 global_id = 7;
+  optional .perftools.tracing.RPCTracedRequest traced_info = 18;
+  optional .rpc.CensusContext census_context = 11;
+  optional int32 desired_format = 8;
+  optional .RPC_SecurityHeader sec_header = 9;
+  optional bool streaming = 10 [default = false];
+  optional fixed32 checksum = 14;
+  optional fixed32 header_checksum = 21;
+  optional int32 payload_format = 15;
+  optional int32 protocol_version = 16;
+  optional .RPC_EnhancedHCRequest enhanced_hc = 17;
+  optional uint64 scheduling_hash = 19 [default = 0];
+  optional bool disable_response_checksum = 20 [default = false];
+  optional bool allow_early_reject = 22 [default = false];
+  optional .proto2.bridge.MessageSet request_extensions = 23;
+  optional bytes encrypted_extensions = 24;
+  optional .rpc.StreamHeader stream_header = 25;
+  optional bool payload_display_when_private = 26 [default = false];
+  optional int32 original_payload_size = 27;
+  optional int32 max_response_payload_size = 28;
+  optional int32 method_index = 29;
+  optional .EnvelopeForwarderHeader envelope_forwarder_header = 30;
+  optional string package_name = 31;
+}
+
+message RPC_Response {
+  optional int32 type = 1 [default = 0];
+  optional int32 status = 2 [default = 0];
+  optional fixed64 id = 3;
+  optional string error_detail = 4;
+  optional int32 app_code = 5 [default = 0];
+  optional double server_elapsed = 6;
+  optional fixed64 server_id = 7;
+  optional double server_start = 8;
+  optional int32 payload_format = 10;
+  optional .RPC_SecurityHeader sec_header = 11;
+  optional bool final_response = 12 [default = true];
+  optional int32 seqno = 13 [default = 0];
+  optional fixed32 checksum = 14;
+  optional int32 protocol_version = 15;
+  optional .RPC_EnhancedHCResponse enhanced_hc = 16;
+  optional int32 error_code = 17;
+  optional string error_space = 18;
+  optional .proto2.bridge.MessageSet error_payload = 19;
+  optional int32 canonical_code = 24;
+  optional fixed32 header_checksum = 21;
+  optional .proto2.bridge.MessageSet response_extensions = 22;
+  optional .rpc.StreamHeader stream_header = 23;
+  optional int32 original_payload_size = 25;
+  reserved 9;
+}
+
+message RPC_LogEntry {
+  enum Type {
+    CLIENT_REQUEST = 0;
+    CLIENT_RESPONSE = 1;
+    SERVER_REQUEST = 2;
+    SERVER_RESPONSE = 3;
+    STATUS_MESSAGE = 4;
+    STREAM_CLIENT_REQUEST = 5;
+    STREAM_CLIENT_RESPONSE = 6;
+    STREAM_SERVER_REQUEST = 7;
+    STREAM_SERVER_RESPONSE = 8;
+  }
+  required int32 type = 1;
+  required int32 bytes = 2;
+  optional .RPC_Request request = 3;
+  optional .RPC_Response response = 4;
+  optional bytes payload = 5;
+  optional int64 peer_ip = 6;
+  optional bytes peer_ip46 = 8;
+  optional int32 peer_port = 7;
+  optional int32 bytes_after_filtering = 9;
+  optional double enqueue_time = 20 [default = 0];
+  optional string dapper_message = 21;
+  optional string status = 22;
+  extend .proto2.bridge.MessageSet {
+    optional .RPC_LogEntry message_set_extension = 70673443;
+  }
+}
+
+message RPC_RoleOption {
+  optional string role = 1;
+}
+
+message RPC_NetmonRemoteLabelOption {
+  optional string label = 1;
+}
+
+message RPC_LameduckOption {
+  optional bool in_lameduck = 1;
+}
+
+message RPC_FailureDetectionDelayOption {
+  optional double fdd = 1;
+  optional int32 health_check_version = 2;
+}
+
+message RPC_MaxPayloadFormatOption {
+  optional int32 max_format = 1;
+}
+
+message RPC_LoadBalancingFeedbackOption {
+  optional bool enable_feedback = 1 [default = false];
+}
+
+message RPC_MethodMap {
+  optional string method_name = 1;
+  optional int32 method_index = 2;
+}
+
+message RPC_StreamingOption {
+  optional bool server_streaming_supported = 1 [default = true];
+}
+
+message RPC_StubInfoOption {
+  optional string target = 1;
+  optional string resolution_override = 2;
+}
+
+message RPC_PleaseGoIdleOption {
+}
+
+message RPC_PackageNameOption {
+  optional bool require_package_names = 1;
+}
+
+message RPC_ClientChannelOptions {
+  enum OptType {
+    ROLE = 1;
+    NETMON_REMOTE_LABEL = 2;
+    FAILURE_DETECTION_DELAY = 3;
+    TRANSPORT_TYPE = 4 [deprecated = true];
+    MAX_PAYLOAD_FORMAT = 5;
+  }
+  enum ErrorMode {
+    CLOSE = 0;
+    IGNORE = 1;
+  }
+  repeated group Option = 1 {
+    required int32 type = 2;
+    optional string value = 3;
+    optional double value_double = 5;
+    optional int32 error_mode = 4 [default = 0];
+    optional int32 sequence_number = 6;
+    optional double another_value_double = 7;
+  }
+  repeated int64 sensitive_options = 18;
+  optional int64 sequence_number = 8;
+  optional .RPC_RoleOption role = 9;
+  optional .RPC_NetmonRemoteLabelOption netmon_remote_label = 10;
+  optional .RPC_FailureDetectionDelayOption failure_detection_delay = 11;
+  optional .RPC_MaxPayloadFormatOption max_payload_format = 13;
+  optional .RPC_ShmRequest shm_request = 14;
+  optional .RPC_LoadBalancingFeedbackOption loadbalancing_feedback_option = 15;
+  optional bool request_method_map = 16 [default = false];
+  optional .RPC_StubInfoOption stub_info = 17;
+  reserved 12;
+}
+
+message RPC_ServerChannelOptions {
+  enum OptType {
+    LAMEDUCK_MODE_ON = 1;
+    LAMEDUCK_MODE_OFF = 2;
+    NETMON_REMOTE_LABEL = 3;
+    FAILURE_DETECTION_DELAY = 4;
+    TRANSPORT_TYPE = 5 [deprecated = true];
+    UNKNOWN = 6;
+    MAX_PAYLOAD_FORMAT = 7;
+  }
+  repeated group Option = 1 {
+    optional .RPC_ServerChannelOptions.OptType type = 2 [default = UNKNOWN];
+    optional string value = 3;
+    optional double value_double = 4;
+    optional int32 sequence_number = 5;
+    optional double another_value_double = 6;
+  }
+  repeated int64 sensitive_options = 19;
+  optional int64 sequence_number = 7;
+  optional .RPC_LameduckOption lameduck_mode = 8;
+  optional .RPC_NetmonRemoteLabelOption netmon_remote_label = 9;
+  optional .RPC_FailureDetectionDelayOption failure_detection_delay = 10;
+  optional .RPC_MaxPayloadFormatOption max_payload_format = 12;
+  optional .RPC_ShmResponse shm_response = 13;
+  optional .RPC_LoadBalancingFeedbackOption loadbalancing_feedback_option = 14;
+  repeated .RPC_MethodMap server_method_map = 15;
+  optional .RPC_StreamingOption streaming_option = 16;
+  optional .RPC_PleaseGoIdleOption idle_option = 17;
+  optional .RPC_PackageNameOption package_name_option = 18;
+  reserved 11;
+}
+
+

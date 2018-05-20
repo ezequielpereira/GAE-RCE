@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+import "security/credentials/proto/principal.proto";
+package security_loas_l2;
+
+option java_package = "com.google.net.loas.l2";
+
+message SecureWrapperOptionsProto {
+  optional .security.credentials.PrincipalProto desired_role = 1;
+  optional string peer_name = 2;
+  optional string canonical_hostname = 3;
+  optional string peer_username = 4;
+  optional string security_info = 5;
+  repeated string peer_usernames = 6;
+  optional bool check_peer_usernames = 7;
+  repeated string peer_security_realms = 8;
+  optional bool check_peer_security_realms = 9;
+}
+

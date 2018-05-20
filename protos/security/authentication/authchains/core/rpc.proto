@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+package security.authentication.authchains;
+
+option java_package = "com.google.security.authentication.authchains";
+
+message AuthChainCredentialsProto {
+  optional bytes token = 1;
+  optional int32 max_token_bytes = 2;
+  optional bool authority_asserted = 3;
+  extend .proto2.bridge.MessageSet {
+    optional .security.authentication.authchains.AuthChainCredentialsProto message_set_extension = 72435909;
+  }
+}
+
+

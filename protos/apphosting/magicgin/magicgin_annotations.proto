@@ -1,0 +1,58 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package magicgin;
+
+option java_package = "com.google.magicgin";
+option java_outer_classname = "MagicGinAnnotations";
+option cc_enable_arenas = true;
+
+message MessageSettings {
+  enum ActionType {
+    UNKNOWN_ACTION_TYPE = 0;
+    NONE = 1;
+    READ = 2;
+    WRITE = 3;
+    READ_WRITE = 4;
+  }
+  optional string gin_vetting_status = 1;
+  optional .magicgin.MessageSettings.ActionType rpc_type = 2 [default = UNKNOWN_ACTION_TYPE];
+  optional string action = 3;
+  optional string data_type = 4;
+  optional bool indicates_emergency = 5 [default = false];
+}
+
+message CloudResourceSettings {
+  optional bool cloud_project_number = 1;
+  optional bool cloud_project_id = 2;
+  optional bool app_engine_app_id = 3;
+  optional bool gce_resource_id = 4;
+  optional bool app_engine_app_version_id = 5;
+}
+
+message FieldSettings {
+  enum PrincipalType {
+    UNKNOWN = 0;
+    GAIA_USER = 1;
+    GAIA_GROUP = 2;
+    LDAP_USER = 3;
+    LDAP_GROUP = 4;
+    MDB_USER = 5;
+    MDB_GROUP = 6;
+  }
+  optional .magicgin.FieldSettings.PrincipalType principal_identifier = 1 [default = UNKNOWN];
+  optional bool query = 2 [default = false];
+  optional bool size_is_number_of_results = 3 [default = false];
+  optional .magicgin.CloudResourceSettings cloud_resources = 4;
+  optional string resource_scope = 5;
+}
+
+extend .proto2.MessageOptions {
+  optional .magicgin.MessageSettings settings = 1792000;
+}
+
+extend .proto2.FieldOptions {
+  optional .magicgin.FieldSettings field_settings = 1792001;
+}
+
+

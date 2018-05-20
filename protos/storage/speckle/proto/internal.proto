@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+package speckle;
+
+message DirEntryProto {
+  enum Type {
+    FILE = 1;
+    DIRECTORY = 2;
+    SYMLINK = 3;
+  }
+  required string name = 1;
+  required int64 id = 2;
+  required int32 mode = 3;
+  required int64 mtime = 4;
+  required int64 ctime = 5;
+  required .speckle.DirEntryProto.Type type = 6;
+  optional .speckle.FileHeaderProto file = 10;
+  optional .speckle.SymlinkHeaderProto symlink = 11;
+  optional bool linked = 12 [default = true];
+  optional string mastership_session = 13;
+  optional string hashed_name = 14;
+}
+
+message FileHeaderProto {
+  required int32 block_size = 1;
+  required int64 size = 2;
+  optional int64 expected_size = 3;
+}
+
+message SymlinkHeaderProto {
+  required string target = 1;
+}
+
+message VolumeProto {
+  required string name = 1;
+  required int32 block_size = 2;
+  repeated .speckle.DirEntryProto entries = 3;
+  optional int64 next_file_id = 4;
+  optional int64 latest_committed_sequence = 5;
+  optional int64 version = 6;
+}
+
+message BlockProto {
+  required int64 id = 1;
+  required bytes block = 2;
+}
+
+message FileChangeProto {
+  required .speckle.DirEntryProto entry = 1;
+  repeated .speckle.BlockProto write_blocks = 2;
+  optional bool is_close = 3 [default = false];
+}
+
+message RenameProto {
+  required string from_name = 1;
+  required string to_name = 2;
+  required int64 from_id = 3;
+  optional int64 to_id = 4;
+}
+
+message CommitProto {
+  repeated .speckle.FileChangeProto changes = 1;
+  repeated int64 delete_files = 2;
+  optional int64 commit_sequence = 3;
+  optional .speckle.RenameProto rename = 4;
+}
+
+message MegastoreLeaseProto {
+  required string owner_address = 1;
+  required string session_id = 2;
+  required int64 session_start_millis = 5;
+  required int64 expiration_millis = 6;
+  optional string scribe_address = 7;
+}
+
+message MegastoreVolumeMetadataProto {
+  required int64 next_file_id = 1;
+}
+
+

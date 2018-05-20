@@ -1,0 +1,57 @@
+syntax = "proto2";
+
+package apphosting.datastore.v4;
+
+option java_package = "com.google.apphosting.datastore";
+
+message PartitionId {
+  enum Constants {
+    MAX_DIMENSION_TAG = 100;
+  }
+  optional string dataset_id = 3;
+  optional string namespace = 4;
+}
+
+message Key {
+  message PathElement {
+    required string kind = 1;
+    optional int64 id = 2;
+    optional string name = 3;
+  }
+  optional .apphosting.datastore.v4.PartitionId partition_id = 1;
+  repeated .apphosting.datastore.v4.Key.PathElement path_element = 2;
+}
+
+message GeoPoint {
+  required double latitude = 1;
+  required double longitude = 2;
+}
+
+message Value {
+  optional bool boolean_value = 1;
+  optional int64 integer_value = 2;
+  optional double double_value = 3;
+  optional int64 timestamp_microseconds_value = 4;
+  optional .apphosting.datastore.v4.Key key_value = 5;
+  optional string blob_key_value = 16;
+  optional string string_value = 17;
+  optional bytes blob_value = 18;
+  optional .apphosting.datastore.v4.Entity entity_value = 6;
+  optional .apphosting.datastore.v4.GeoPoint geo_point_value = 8;
+  repeated .apphosting.datastore.v4.Value list_value = 7;
+  optional int32 meaning = 14;
+  optional bool indexed = 15 [default = true];
+}
+
+message Property {
+  required string name = 1;
+  optional bool deprecated_multi = 2 [default = false, deprecated = true];
+  repeated .apphosting.datastore.v4.Value deprecated_value = 3 [deprecated = true];
+  optional .apphosting.datastore.v4.Value value = 4;
+}
+
+message Entity {
+  optional .apphosting.datastore.v4.Key key = 1;
+  repeated .apphosting.datastore.v4.Property property = 2;
+}
+

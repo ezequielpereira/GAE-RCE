@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "stats/census/proto/census.proto";
+import "stats/census/proto/view.proto";
+package stats_census;
+
+option java_package = "com.google.monitoring.census";
+option cc_enable_arenas = true;
+
+message InitializeExportRequest {
+  optional int64 pid = 1;
+  optional .google.protobuf.Duration end_epoch_timeout = 2;
+  repeated .stats_census.ViewProto view = 3;
+}
+
+message ExemplarProto {
+  optional .stats_census.ResourceUsagePerID sample = 1;
+  optional .google.protobuf.Timestamp timestamp = 2;
+  optional fixed64 trace_id = 3;
+  optional fixed64 span_id = 4;
+}
+
+message AddExemplarsRequest {
+  optional int64 pid = 1;
+  repeated .stats_census.ExemplarProto exemplar = 2;
+}
+
+message EndEpochRequest {
+  optional int64 pid = 1;
+  optional .google.protobuf.Timestamp start_time = 2;
+  optional .google.protobuf.Timestamp end_time = 3;
+  repeated .stats_census.ResourceUsagePerID delta = 4;
+  optional string streamz_aggregation_target = 5;
+}
+
+

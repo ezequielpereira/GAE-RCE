@@ -1,0 +1,84 @@
+syntax = "proto2";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "monitoring/streamz/api/distribution.proto";
+package streamz;
+
+option cc_enable_arenas = true;
+
+message Entity {
+  message Label {
+    required string key = 1;
+    oneof value {
+      string string_value = 2;
+      int64 int64_value = 3;
+      bool bool_value = 4;
+    }
+  }
+  repeated .streamz.Entity.Label label = 1;
+}
+
+message MetricDescriptor {
+  message ColumnDescriptor {
+    enum Type {
+      STRING = 1;
+      INT64 = 2;
+      BOOL = 3;
+    }
+    required string name = 1;
+    required .streamz.MetricDescriptor.ColumnDescriptor.Type type = 2;
+  }
+  message Annotations {
+    optional string unit = 1;
+    optional bool timestamp = 2;
+    optional string deprecation = 3;
+    repeated .google.protobuf.Any annotation = 16;
+  }
+  enum StreamKind {
+    GAUGE = 1;
+    CUMULATIVE = 2;
+    DELTA = 3;
+  }
+  enum ValueType {
+    BOOL = 1;
+    STRING = 2;
+    INT64 = 3;
+    DOUBLE = 4;
+    DISTRIBUTION = 5;
+  }
+  required string name = 1;
+  repeated .streamz.MetricDescriptor.ColumnDescriptor column = 2;
+  required .streamz.MetricDescriptor.StreamKind stream_kind = 3;
+  required .streamz.MetricDescriptor.ValueType value_type = 4;
+  required string description = 5;
+  optional .streamz.MetricDescriptor.Annotations annotations = 6;
+}
+
+message Point {
+  message Column {
+    required string name = 1;
+    oneof value {
+      string string_value = 2;
+      int64 int64_value = 3;
+      bool bool_value = 4;
+    }
+  }
+  repeated .streamz.Point.Column column = 1;
+  oneof value {
+    bool bool_value = 2;
+    string string_value = 3;
+    int64 int64_value = 4;
+    double double_value = 5;
+    .streamz.Distribution distribution_value = 6;
+  }
+  required .google.protobuf.Timestamp start_timestamp = 7;
+  required .google.protobuf.Timestamp end_timestamp = 8;
+}
+
+message PointSet {
+  required string metric_name = 1;
+  repeated .streamz.Point point = 2;
+}
+
+

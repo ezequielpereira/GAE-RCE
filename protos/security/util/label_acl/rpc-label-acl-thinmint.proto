@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+import "net/proto2/bridge/proto/message_set.proto";
+import "security/thinmint/proto/thinmint.proto";
+import "security/thinmint/proto/core/thinmint_core.proto";
+package security;
+
+option java_package = "com.google.net.security.labelacl";
+
+message RpcLabelAclRestriction {
+  optional string mdb_owner_name = 1;
+  optional string rpc_service_name = 2;
+  extend .proto2.bridge.MessageSet {
+    optional .security.RpcLabelAclRestriction message_set_extension = 21047049;
+  }
+}
+
+message RpcThinMintArgs {
+  optional .thinmint.ThinMint mint = 1;
+  extend .proto2.bridge.MessageSet {
+    optional .security.RpcThinMintArgs message_set_extension = 25676648;
+  }
+}
+
+

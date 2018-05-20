@@ -1,0 +1,96 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.appengine.api.modules";
+option java_outer_classname = "ModulesServicePb";
+
+message ModulesServiceError {
+  enum ErrorCode {
+    OK = 0;
+    INVALID_MODULE = 1;
+    INVALID_VERSION = 2;
+    INVALID_INSTANCES = 3;
+    TRANSIENT_ERROR = 4;
+    UNEXPECTED_STATE = 5;
+  }
+}
+
+message GetModulesRequest {
+}
+
+message GetModulesResponse {
+  repeated string module = 1;
+}
+
+message GetVersionsRequest {
+  optional string module = 1;
+}
+
+message GetVersionsResponse {
+  repeated string version = 1;
+}
+
+message GetDefaultVersionRequest {
+  optional string module = 1;
+}
+
+message GetDefaultVersionResponse {
+  optional string version = 1;
+}
+
+message GetNumInstancesRequest {
+  optional string module = 1;
+  optional string version = 2;
+}
+
+message GetNumInstancesResponse {
+  optional int64 instances = 1;
+}
+
+message SetNumInstancesRequest {
+  optional string module = 1;
+  optional string version = 2;
+  required int64 instances = 3;
+}
+
+message SetNumInstancesResponse {
+}
+
+message StartModuleRequest {
+  required string module = 1;
+  required string version = 2;
+}
+
+message StartModuleResponse {
+}
+
+message StopModuleRequest {
+  optional string module = 1;
+  optional string version = 2;
+}
+
+message StopModuleResponse {
+}
+
+message GetHostnameRequest {
+  optional string module = 1;
+  optional string version = 2;
+  optional string instance = 3;
+}
+
+message GetHostnameResponse {
+  optional string hostname = 1;
+}
+
+service ModulesService {
+  rpc GetModules(.apphosting.GetModulesRequest) returns (.apphosting.GetModulesResponse);
+  rpc GetVersions(.apphosting.GetVersionsRequest) returns (.apphosting.GetVersionsResponse);
+  rpc GetDefaultVersion(.apphosting.GetDefaultVersionRequest) returns (.apphosting.GetDefaultVersionResponse);
+  rpc GetNumInstances(.apphosting.GetNumInstancesRequest) returns (.apphosting.GetNumInstancesResponse);
+  rpc SetNumInstances(.apphosting.SetNumInstancesRequest) returns (.apphosting.SetNumInstancesResponse);
+  rpc StartModule(.apphosting.StartModuleRequest) returns (.apphosting.StartModuleResponse);
+  rpc StopModule(.apphosting.StopModuleRequest) returns (.apphosting.StopModuleResponse);
+  rpc GetHostname(.apphosting.GetHostnameRequest) returns (.apphosting.GetHostnameResponse);
+}
+

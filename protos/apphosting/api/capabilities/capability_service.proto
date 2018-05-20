@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+import "apphosting/base/capabilities.proto";
+package apphosting;
+
+option java_package = "com.google.appengine.api.capabilities";
+option java_outer_classname = "CapabilityServicePb";
+option java_generic_services = true;
+
+message IsEnabledRequest {
+  required string package = 1;
+  repeated string capability = 2;
+  repeated string call = 3;
+}
+
+message IsEnabledResponse {
+  enum SummaryStatus {
+    DEFAULT = 0;
+    ENABLED = 1;
+    SCHEDULED_FUTURE = 2;
+    SCHEDULED_NOW = 3;
+    DISABLED = 4;
+    UNKNOWN = 5;
+  }
+  optional .apphosting.IsEnabledResponse.SummaryStatus summary_status = 1;
+  optional int64 time_until_scheduled = 2;
+  repeated .apphosting.CapabilityConfig config = 3;
+}
+
+service CapabilityService {
+  rpc IsEnabled(.apphosting.IsEnabledRequest) returns (.apphosting.IsEnabledResponse);
+}
+

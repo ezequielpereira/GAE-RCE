@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+import "gdata/rosy/proto/core.proto";
+package speckle;
+
+option java_outer_classname = "RemoteGceOpProto";
+
+message RemoteGceOp {
+  enum ResourceType {
+    UNKNOWN_TYPE = 0;
+    BOOT_DISK = 1;
+    DATA_DISK = 2;
+    OBSOLETE_TMP_DISK = 3 [deprecated = true];
+    IP = 4;
+    VM = 5;
+    SNAPSHOT = 6;
+    TARGET_INSTANCE = 7;
+    FORWARDING_RULE = 8;
+    BINLOG_DISK = 9;
+    TARGET_POOL = 10;
+    HTTP_HEALTH_CHECK = 11;
+    REGIONAL_DATA_DISK = 12;
+    INSTANCE_TEMPLATE = 13;
+    NETWORK = 14;
+    SUBNETWORK = 15;
+  }
+  enum ResourceAction {
+    UNKNOWN_ACTION = 0;
+    CREATE = 1;
+    DELETE = 2;
+    VM_ASSIGN_IP = 3;
+    VM_ATTACH_DATA_DISK = 4;
+    VM_DETACH_DATA_DISK = 5;
+    DISK_CREATE_SNAPSHOT = 6;
+    VM_UPDATE_METADATA = 7;
+    VM_DETACH_IP = 8;
+    FORWARDING_RULE_SET_TARGET = 9;
+    DATA_DISK_RESIZE = 10;
+    VM_STOP = 11;
+    VM_START = 12;
+    TARGET_POOL_ADD_INSTANCE = 13;
+    TARGET_POOL_REMOVE_INSTANCE = 14;
+    VM_RESET = 15;
+  }
+  enum OperationStatus {
+    STATUS_UNKNOWN = 0;
+    ENQUEUED = 1;
+    RUNNING = 2;
+    SUCCEEDED = 3;
+    FAILED = 4;
+    TIMEOUT = 5;
+  }
+  optional string operation_name = 1;
+  optional .speckle.RemoteGceOp.ResourceType resource_type = 2;
+  optional .speckle.RemoteGceOp.OperationStatus status = 3;
+  optional int32 retries = 4;
+  optional string zone_name = 5;
+  optional .speckle.RemoteGceOp.ResourceAction resource_action = 6;
+  optional string created_resource_name = 7;
+  optional .gdata.Errors errors = 8;
+  optional int64 insert_time_millis = 9;
+  optional int64 end_time_millis = 10;
+  optional string resource_id = 11;
+  optional int64 timeout_millis = 12;
+}
+
+

@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+import "net/proto2/proto/descriptor.proto";
+package proto2.js_proto;
+
+extend .proto2.FieldOptions {
+  optional bool skip_for_js_proto = 18178315;
+  optional bool use_number_in_js = 18426606;
+  optional bool lazy_parse = 18427003;
+  optional bool js_extension = 18427004 [default = false];
+  optional bool writable_extension = 18427006 [default = true];
+  optional bool prunable_extension = 18427007 [default = false];
+  optional bool binary_field = 70816948 [default = false];
+}
+
+extend .proto2.EnumOptions {
+  optional bool binary_enum = 70816948 [default = false];
+}
+
+extend .proto2.MessageOptions {
+  optional int32 pool_size = 18427005 [default = 1000];
+  optional bool binary_message = 70816948 [default = false];
+}
+
+extend .proto2.FileOptions {
+  optional bool binary_mode = 70816948 [default = false];
+  optional string binary_package_suffix = 85483359 [default = "binary"];
+}
+

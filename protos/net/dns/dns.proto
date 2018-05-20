@@ -1,0 +1,266 @@
+syntax = "proto2";
+
+package net_dns;
+
+option java_package = "com.google.net.dns";
+option java_outer_classname = "Protocol";
+option cc_enable_arenas = true;
+
+message RRSet {
+  required string name = 1;
+  required uint32 type = 2;
+  required uint32 rrclass = 3;
+  required uint32 ttl = 4;
+  repeated .net_dns.AEntry a = 8;
+  repeated .net_dns.NSEntry ns = 9;
+  repeated .net_dns.CNAMEEntry cname = 10;
+  repeated .net_dns.SOAEntry soa = 11;
+  repeated .net_dns.PTREntry ptr = 12;
+  repeated .net_dns.MXEntry mx = 13;
+  repeated .net_dns.TXTEntry txt = 14;
+  repeated .net_dns.AAAAEntry aaaa = 15;
+  repeated .net_dns.OpaqueEntry opaque = 16;
+  repeated .net_dns.OpaqueEntry null = 17;
+  repeated .net_dns.HINFOEntry hinfo = 18;
+  repeated .net_dns.MINFOEntry minfo = 19;
+  repeated .net_dns.RPEntry rp = 20;
+  repeated .net_dns.SRVEntry srv = 21;
+  repeated .net_dns.NAPTREntry naptr = 22;
+  repeated .net_dns.DSEntry ds = 23;
+  repeated .net_dns.RRSIGEntry rrsig = 24;
+  repeated .net_dns.DNSKEYEntry dnskey = 25;
+  repeated .net_dns.NSEC3Entry nsec3 = 26;
+  repeated .net_dns.NSECEntry nsec = 27;
+  repeated .net_dns.DNAMEEntry dname = 28;
+  repeated .net_dns.CAAEntry caa = 29;
+  repeated .net_dns.NSEC3PARAMEntry nsec3param = 30;
+  repeated .net_dns.SPFEntry spf = 31;
+  repeated .net_dns.CDSEntry cds = 32;
+  repeated .net_dns.IPSECKEYEntry ipseckey = 33;
+  repeated .net_dns.SSHFPEntry sshfp = 34;
+  repeated .net_dns.TLSAEntry tlsa = 35;
+}
+
+message OpaqueEntry {
+  required bytes data = 1;
+}
+
+message AEntry {
+  required bytes ip = 1;
+}
+
+message NSEntry {
+  required string host = 1;
+}
+
+message CNAMEEntry {
+  required string host = 1;
+}
+
+message SOAEntry {
+  required string host = 1;
+  required string responsibleMailbox = 2;
+  required uint32 soaSerial = 3;
+  required uint32 soaRefresh = 4;
+  required uint32 soaRetry = 5;
+  required uint32 soaExpire = 6;
+  required uint32 soaTTL = 7;
+}
+
+message PTREntry {
+  required string ptr = 1;
+}
+
+message HINFOEntry {
+  required string cpu = 1;
+  required string os = 2;
+}
+
+message MINFOEntry {
+  required string mailbox = 1;
+  required string responsibleMailbox = 2;
+}
+
+message MXEntry {
+  required uint32 preference = 1;
+  required string host = 2;
+}
+
+message TXTEntry {
+  repeated string text = 1;
+}
+
+message RPEntry {
+  required string responsibleMailbox = 1;
+  required string txtDomain = 2;
+}
+
+message AAAAEntry {
+  required bytes ip = 6;
+}
+
+message SRVEntry {
+  required uint32 priority = 1;
+  required uint32 weight = 2;
+  required uint32 port = 3;
+  required string target = 4;
+}
+
+message NAPTREntry {
+  required uint32 order = 1;
+  required uint32 preference = 2;
+  required string flags = 3;
+  required string service = 4;
+  required string regexp = 5;
+  required string replacement = 6;
+}
+
+message DSEntry {
+  required uint32 keytag = 1;
+  required uint32 algorithm = 2;
+  required uint32 digesttype = 3;
+  required bytes digest = 4;
+}
+
+message CDSEntry {
+  required uint32 keytag = 1;
+  required uint32 algorithm = 2;
+  required uint32 digesttype = 3;
+  required bytes digest = 4;
+}
+
+message RRSIGEntry {
+  required uint32 typecovered = 1;
+  required uint32 algorithm = 2;
+  required uint32 labels = 3;
+  required uint32 originalttl = 4;
+  required uint32 expiration = 5;
+  required uint32 inception = 6;
+  required uint32 keytag = 7;
+  required string signersname = 8;
+  required bytes signature = 9;
+}
+
+message NSECEntry {
+  required string next = 1;
+  repeated uint32 types = 2;
+}
+
+message CAAEntry {
+  required int32 flags = 1;
+  required string property = 2;
+  required string value = 3;
+}
+
+message DNSKEYEntry {
+  required uint32 flags = 1;
+  required uint32 protocol = 2;
+  required uint32 algorithm = 3;
+  optional bytes exponent = 4;
+  optional bytes modulus = 5;
+  optional bytes otherkey = 6;
+}
+
+message NSEC3Entry {
+  required uint32 algorithm = 1;
+  required uint32 flags = 2;
+  required uint32 iterations = 3;
+  required bytes salt = 4;
+  required bytes next = 5;
+  repeated uint32 types = 6;
+}
+
+message NSEC3PARAMEntry {
+  required uint32 algorithm = 1;
+  required uint32 flags = 2;
+  required uint32 iterations = 3;
+  required bytes salt = 4;
+}
+
+message SPFEntry {
+  repeated string value = 1;
+}
+
+message DNAMEEntry {
+  required string target = 1;
+}
+
+message IPSECKEYEntry {
+  optional uint32 precedence = 1;
+  optional uint32 gateway_type = 2;
+  optional uint32 algorithm = 3;
+  optional bytes gateway = 4;
+  optional bytes public_key = 5;
+}
+
+message SSHFPEntry {
+  optional uint32 algorithm = 1;
+  optional uint32 fingerprint_type = 2;
+  optional bytes fingerprint = 3;
+}
+
+message TLSAEntry {
+  optional uint32 certificate_usage = 1;
+  optional uint32 selector = 2;
+  optional uint32 matching_type = 3;
+  optional bytes certificate_association_data = 4;
+}
+
+message TSIGEntry {
+  required string algorithm = 1;
+  required uint64 time_signed = 2;
+  required uint32 time_fudge = 3;
+  required bytes mac = 4;
+  required uint32 orig_msgid = 5;
+  required uint32 tsig_error = 6;
+  required bytes other_data = 7;
+}
+
+message OPTEntry {
+  required uint32 edns_max_payload = 1;
+  required uint32 edns_rcode = 2;
+  required uint32 edns_version = 3;
+  required uint32 edns_flags = 4;
+  repeated .net_dns.EDNSOptionEntry edns_option = 5;
+}
+
+message EDNSOptionEntry {
+  required uint32 code = 1;
+  required bytes payload = 2;
+  optional .net_dns.EDNSClientSubnetEntry client_subnet = 3;
+}
+
+message EDNSClientSubnetEntry {
+  required uint32 source_netmask = 1;
+  required uint32 scope_netmask = 2;
+  required bytes address = 3;
+}
+
+message Question {
+  required string name = 1;
+  required uint32 type = 2;
+  required uint32 qclass = 3;
+}
+
+message DNSQuery {
+  required .net_dns.Question question = 1;
+  optional .net_dns.OPTEntry edns_option = 2;
+  optional bool cd = 3;
+  optional bool rd = 4;
+}
+
+message DNSResponse {
+  optional .net_dns.Question question = 1;
+  required bool aa = 2;
+  required uint32 response_code = 3;
+  repeated .net_dns.RRSet answer = 4;
+  repeated .net_dns.RRSet authority = 5;
+  repeated .net_dns.RRSet additional = 6;
+  optional .net_dns.OPTEntry edns_option = 7;
+  optional bool tc = 8;
+  optional bool rd = 9;
+  optional bool ra = 10;
+  optional bool ad = 11;
+}
+
+

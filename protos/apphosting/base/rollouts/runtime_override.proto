@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+import "apphosting/base/rollouts/app_filter.proto";
+package apphosting;
+
+message RuntimeOverrideProto {
+  optional string source = 1;
+  optional string target = 2;
+  repeated .apphosting.AppFilterProto item = 3;
+}
+
+message RuntimeOverrideUnionProto {
+  repeated .apphosting.RuntimeOverrideProto override = 1;
+  optional double rollout_duration_s = 2 [default = 3600];
+}
+
+

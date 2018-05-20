@@ -1,0 +1,123 @@
+syntax = "proto2";
+
+import "logs/proto/apphosting/app_extensions/app_extensions.proto";
+import "logs/proto/apphosting/appserver_perf.proto";
+import "logs/proto/gfe/cloud_gatekeeper.proto";
+import "logs/proto/logs_annotations/logs_annotations.proto";
+import "net/proto2/go/annotation/go_annotation.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+import "google/protobuf/duration.proto";
+message ApphostingQuotaUsage {
+  required int32 usage_id = 1;
+  optional int64 amount = 2;
+  optional float amount_float = 3;
+}
+
+message ApphostingQuotaDenial {
+  required int32 usage_id = 1;
+  optional int32 denial_type = 6;
+  reserved 2, 3, 4, 5;
+}
+
+message ApphostingDynamicHandler {
+  message AppServer {
+    optional string cell = 1;
+    optional string pool = 2;
+    optional int32 task = 3;
+    optional string hostname = 4;
+    optional int32 response_code = 5;
+    optional int64 response_time_usec = 6;
+  }
+  repeated int32 app_server_response = 1;
+  repeated int64 app_server_response_time_usec = 42;
+  repeated .ApphostingDynamicHandler.AppServer pushback = 59;
+  optional .ApphostingDynamicHandler.AppServer appserver = 61;
+  optional string cloud_logging_request_id = 64;
+  required int32 runtime_id = 2;
+  optional int32 original_runtime_id = 60;
+  optional string runtime_specialization = 66;
+  required string handler_sha1_hash = 3;
+  required int64 log_bytes = 7;
+  repeated group APIUsage = 8 {
+    required int32 call = 9;
+    optional int64 num_calls = 38 [default = 1];
+    required int64 bytes_sent = 10;
+    required int64 bytes_received = 11;
+    optional int64 duration_ms = 12 [deprecated = true];
+    optional int64 duration_usec = 41;
+    required int32 call_result = 25;
+    repeated .ApphostingQuotaUsage api_quota_usage = 26;
+    repeated .ApphostingQuotaDenial api_quota_denial = 28;
+    optional group Contents = 13 [deprecated = true] {
+      required int32 sample_period = 14 [deprecated = true];
+      required string request = 15 [deprecated = true];
+      required string response = 16;
+    }
+  }
+  optional group Security = 17 {
+    repeated group SecurityViolation = 18 {
+      required string description = 19;
+      required bool honeypot = 20;
+    }
+    required string kernel_version = 21;
+    required string app_info = 22;
+    required string http_input = 23;
+    required string http_output = 24;
+  }
+  repeated .ApphostingQuotaUsage request_quota_usage = 27;
+  repeated .ApphostingQuotaDenial request_quota_denial = 29;
+  optional int64 estimated_cost_nanodollars = 30;
+  optional int32 pending_time_ms = 31;
+  optional int32 predicted_pending_time_ms = 44 [default = -1];
+  optional int32 cpu_throttled_time_ms = 32;
+  optional bool was_loading_request = 33;
+  optional bool was_wallclock_throttled = 34;
+  optional bool was_active_requests_throttled = 35;
+  optional int32 clone_exit_reason = 36 [default = 0];
+  optional int64 appserver_start_timestamp_usec = 46;
+  optional int64 appserver_end_timestamp_usec = 37;
+  optional int64 pfe_l1_arrival_time = 48;
+  optional int64 pfe_l1_departure_time = 49;
+  optional int64 pfe_l2_arrival_time = 50;
+  optional int64 pfe_l2_initial_departure_time = 51;
+  optional int64 pfe_l2_departure_time = 52;
+  optional int64 pfe_l2_response_time = 53;
+  optional int64 pfe_l2_reply_time = 54;
+  optional int64 pfe_l1_response_time = 55;
+  optional int64 pfe_l1_reply_time = 56;
+  optional int64 clone_time_usec = 43;
+  optional .appengine_proto.AppExtensions app_extensions = 39;
+  optional string appserver_build_label = 40;
+  optional bytes encrypted_clone_key = 45;
+  optional int64 request_counter = 57;
+  optional int64 response_counter = 58;
+  optional string instance_definition_id = 62;
+  optional string base_images_definition_id = 67;
+  repeated string image_id = 65;
+  reserved 4, 5, 6, 63;
+}
+
+message ApphostingExtensionsProto {
+  message RoutingDecisionServer {
+    optional string cell = 1;
+    optional string pool = 2;
+    optional int32 task = 3;
+  }
+  required int32 frontend_response = 1;
+  required string app_id = 2;
+  required string version_id = 3;
+  optional uint64 project_number = 10;
+  optional string queue_name = 9;
+  optional int32 replica_index = 8 [default = -1];
+  optional group StaticHandler = 4 {
+    required bytes blobref = 5;
+  }
+  optional .ApphostingDynamicHandler dynamic_handler = 6;
+  optional int32 app_id_namespace = 7;
+  optional .apphosting.AppServerRequestPerformance appserver_request_perf = 11;
+  optional .ApphostingExtensionsProto.RoutingDecisionServer rds = 12;
+  optional .logs.gfe.cloud_gatekeeper.Status cloud_gatekeeper_status = 13;
+  optional int32 serving_path = 14;
+  optional .google.protobuf.Duration duration = 15;
+}
+

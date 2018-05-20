@@ -1,0 +1,125 @@
+syntax = "proto2";
+
+import "logs/proto/apphosting/app_extensions/app_extensions_annotations.proto";
+import "storage/datapol/annotations/proto/semantic_annotations.proto";
+package appengine_proto;
+
+option java_outer_classname = "LesSearchLogProto";
+
+message LesSearchLog {
+  enum LogSource {
+    CLIENT_LOG = 1;
+    SERVER_LOG = 2;
+  }
+  enum ActionType {
+    SEARCH_ACTION = 1;
+    REDIRECT_CLICK_ACTION = 2;
+    NEXT_PAGE_ACTION = 3;
+    PREVIOUS_PAGE_ACTION = 4;
+    SNIPPET_EXPAND_ACTION = 5;
+    DOCUMENT_EXPAND_ACTION = 6;
+    PREVIEW_ACTION = 7;
+  }
+  optional .appengine_proto.LesSearchEvent event = 1;
+  optional .appengine_proto.ActionResult action_result = 2;
+  optional .appengine_proto.LesUserContext user_context = 3;
+  optional .appengine_proto.LesServerContext server_context = 4;
+  optional .appengine_proto.LesComponentTiming timing = 5;
+  optional .appengine_proto.LesSearchLog.LogSource log_source = 6;
+  optional .appengine_proto.LesSearchLog.ActionType action_type = 7;
+}
+
+message ActionResult {
+  repeated .appengine_proto.LesSearchResult results_full = 1;
+  repeated string results_impression_id = 2;
+  optional int32 global_rank_offset = 3;
+}
+
+message LesSearchEvent {
+  optional string event_id = 1;
+  optional string parent_event_id = 2;
+  optional string acted_upon_impression_id = 3;
+  optional .appengine_proto.LesSearchQuery les_search_query = 4;
+}
+
+message LesSearchResult {
+  message SearchReturnedInfo {
+    optional string snippet = 1;
+    optional string title = 2;
+    optional string resource = 3;
+    optional string source_table = 4;
+    optional string resource_id = 5;
+    optional string moonshine_id = 6;
+    optional string redirect_url = 7;
+    optional float relevance_score = 8;
+  }
+  message ExpandedInfo {
+    message KeyValue {
+      optional string key = 1;
+      repeated string value = 2;
+    }
+    repeated .appengine_proto.LesSearchResult.ExpandedInfo.KeyValue key_value = 1;
+  }
+  enum ResultType {
+    SEARCH_RESULT = 0;
+    PARENT_SEARCH_RESULT = 1;
+    CHILD_MATCHED_RESULT = 2;
+    CHILD_NO_MATCH_RESULT = 3;
+  }
+  optional string impression_id = 1;
+  optional string result_id = 2;
+  optional string parent_impression_id = 3;
+  optional .appengine_proto.LesSearchResult.ResultType result_type = 4;
+  optional int32 global_rank = 5;
+  optional int32 child_rank = 6;
+  optional .appengine_proto.LesSearchResult.SearchReturnedInfo search_returned_info = 7;
+  optional .appengine_proto.LesSearchResult.ExpandedInfo expanded_info = 8;
+}
+
+message LesSearchQuery {
+  message SearchQuery {
+    message SearchFilter {
+      optional string name = 1;
+      repeated string value = 2;
+    }
+    enum QueryType {
+      USER_QUERY = 1;
+      REWRITTEN_QUERY = 2;
+    }
+    optional .appengine_proto.LesSearchQuery.SearchQuery.QueryType query_type = 1;
+    optional string query_string = 2;
+    repeated .appengine_proto.LesSearchQuery.SearchQuery.SearchFilter search_filter = 4;
+  }
+  repeated .appengine_proto.LesSearchQuery.SearchQuery queries = 1;
+  optional int32 start = 7;
+  optional int32 limit = 8;
+}
+
+message LesUserContext {
+  enum RequestOrigin {
+    HTML_SITE = 0;
+    MOBILE_APP = 1;
+    PROBER = 2;
+  }
+  optional .appengine_proto.LesUserContext.RequestOrigin request_origin = 1;
+  optional string request_client = 2;
+  required int64 obfuscated_gaia_id = 3;
+  optional bool is_test_account = 5;
+  optional string ldap_name = 6;
+}
+
+message LesServerContext {
+  optional string les_version = 1;
+  optional int64 server_log_time_millis = 2;
+  optional string env = 3;
+}
+
+message LesComponentTiming {
+  message ComponentTiming {
+    optional string component_name = 1;
+    optional int64 timestamp_millis = 2;
+    optional int64 latency_millis = 3;
+  }
+  repeated .appengine_proto.LesComponentTiming.ComponentTiming component_time = 1;
+}
+

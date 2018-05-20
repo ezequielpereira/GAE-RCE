@@ -1,0 +1,263 @@
+syntax = "proto2";
+
+import "apphosting/base/clone.proto";
+import "apphosting/base/engine.proto";
+import "apphosting/base/server.proto";
+import "apphosting/base/blob_metadata.proto";
+import "apphosting/base/container.proto";
+import "apphosting/magicgin/magicgin_annotations.proto";
+import "storage/blobstore/rpc/blobservice.proto";
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "AppinfoPb";
+
+message Handler {
+  enum HANDLERTYPE {
+    STATIC = 0;
+    CGI_BIN = 1;
+    SHUTDOWN = 3;
+  }
+  enum AuthFailAction {
+    REDIRECT_TO_LOGIN_PAGE = 0;
+    RETURN_UNAUTHORIZED = 1;
+  }
+  enum HandlerSecurity {
+    HTTP_ONLY = 0;
+    HTTPS_ONLY = 1;
+    HTTP_OR_HTTPS = 2;
+  }
+  optional int32 type = 1 [default = 1];
+  required string path = 2;
+  optional bool requires_login = 3 [default = false];
+  optional bool admin_only = 4 [default = false];
+  optional .apphosting.Handler.AuthFailAction auth_fail_action = 10 [default = REDIRECT_TO_LOGIN_PAGE];
+  optional .apphosting.Handler.HandlerSecurity handler_security = 9 [default = HTTP_ONLY];
+  repeated group Param = 5 {
+    required string name = 6;
+    required string value = 7;
+  }
+  optional int32 expiration = 8;
+  optional bool api_endpoint = 11 [default = false];
+  repeated group HttpHeader = 13 {
+    required string name = 14;
+    required string value = 15;
+  }
+  optional uint32 redirect_http_response_code = 16;
+}
+
+message AppInfo {
+  message SourceReference {
+    optional string repository = 1;
+    optional string revision_id = 2;
+  }
+  message EnvironmentVariable {
+    required string name = 1;
+    required string value = 2;
+  }
+  message VmConfigItem {
+    required string key = 1;
+    required string value = 2;
+  }
+  message VmHealthCheck {
+    optional bool health_check_enabled = 1;
+    optional uint32 check_interval_sec = 2;
+    optional uint32 timeout_sec = 3;
+    optional uint32 unhealthy_threshold = 4;
+    optional uint32 healthy_threshold = 5;
+    optional uint32 restart_threshold = 6;
+    optional string request_path = 7;
+    optional string host = 8;
+    optional uint32 port = 9;
+  }
+  message VmLivenessCheck {
+    optional uint32 check_interval_sec = 1;
+    optional uint32 timeout_sec = 2;
+    optional uint32 unhealthy_threshold = 3;
+    optional uint32 healthy_threshold = 4;
+    optional uint32 initial_delay_sec = 5;
+    optional string path = 6;
+    optional string host = 7;
+  }
+  message VmReadinessCheck {
+    optional uint32 check_interval_sec = 1;
+    optional uint32 timeout_sec = 2;
+    optional uint32 unhealthy_threshold = 3;
+    optional uint32 healthy_threshold = 4;
+    optional string path = 5;
+    optional string host = 6;
+    optional uint32 app_start_timeout_sec = 7;
+  }
+  message Volume {
+    optional string name = 1;
+    optional string volume_type = 2;
+    optional double size_gb = 3;
+    reserved 4;
+  }
+  message Resources {
+    optional float cpu = 1;
+    optional float memory_gb = 2;
+    optional uint32 disk_size_gb = 3;
+    repeated .apphosting.AppInfo.Volume volumes = 4;
+  }
+  message Network {
+    repeated string forwarded_port = 1;
+    optional string instance_tag = 2;
+    optional string name = 3;
+    optional string subnetwork_name = 4;
+    optional bool session_affinity = 5 [default = false];
+  }
+  message ContainerInfo {
+    optional string image = 1;
+    optional string sha256 = 2;
+    optional string description = 3;
+    repeated string command_line = 4;
+    optional string service_account = 5;
+    repeated string service_account_scopes = 6;
+  }
+  message BuildInfo {
+    optional string cloud_build_id = 1;
+  }
+  message ZipInfo {
+    optional string name = 1;
+    optional string md5 = 2;
+  }
+  enum MetadataType {
+    KATAMARI = 0;
+  }
+  enum ServiceType {
+    XMPP_MESSAGE = 1;
+    XMPP_SUBSCRIBE = 4;
+    XMPP_PRESENCE = 5;
+    XMPP_ERROR = 9;
+    EMAIL = 2;
+    EMAIL_BOUNCE = 10;
+    SMS = 3;
+    REST = 6;
+    WARMUP = 7;
+    CHANNEL_PRESENCE = 8;
+    NO_MATCHING_SERVICE = 0;
+  }
+  enum AutoIdPolicy {
+    DEFAULT = 0;
+    SEQUENTIAL = 1;
+  }
+  required string app_id = 1;
+  optional string version_id = 2 [default = "1"];
+  optional string runtime_id = 4 [default = "python"];
+  optional string runtime_specialization = 78;
+  optional bool is_appinfo_lite = 50 [default = false];
+  repeated string DEPRECATED_admin_id = 3;
+  optional string api_version = 28 [default = ""];
+  optional group Metadata = 19 {
+    required .apphosting.AppInfo.MetadataType type = 20;
+    required string data = 21;
+  }
+  optional int32 default_expiration = 32;
+  repeated group File = 6 {
+    required string sha1_hash = 7;
+    required string path = 8;
+    required int64 file_size = 14;
+    optional string mime_type = 15 [default = ""];
+    optional string source_url = 71;
+  }
+  repeated group Blob = 16 {
+    required .blobstore.BlobRef blobref = 17;
+    required string path = 18;
+    optional .apphosting.BlobMetadata blob_metadata = 26;
+    optional string mime_type = 35;
+  }
+  repeated group ErrorBlob = 51 {
+    enum Code {
+      DEFAULT = 1;
+      OVER_QUOTA = 2;
+      DOS_API_DENIAL = 3;
+      TIMEOUT = 4;
+    }
+    required .blobstore.BlobRef blobref = 52;
+    optional .apphosting.BlobMetadata blob_metadata = 53;
+    optional .apphosting.AppInfo.ErrorBlob.Code code = 54 [default = DEFAULT];
+  }
+  repeated group URLMap = 9 {
+    optional string regex = 10;
+    optional .apphosting.Handler handler = 11;
+    optional string static_dir = 30;
+    optional bool require_matching_file = 36 [default = false];
+  }
+  repeated group StaticFileMap = 22 {
+    required string regex = 23;
+    optional string mime_type = 24 [default = ""];
+    optional bool application_readable = 5;
+  }
+  repeated group ServiceMap = 37 {
+    optional .apphosting.AppInfo.ServiceType service_type = 38 [default = NO_MATCHING_SERVICE];
+  }
+  optional string auth_domain = 25 [default = ""];
+  optional string request_auth_domain_regex = 31 [default = ""];
+  optional string title = 27 [default = ""];
+  repeated int64 admin_gaia_id = 29;
+  optional group Deployer = 41 {
+    optional int64 gaia_id = 42;
+    optional string email = 43;
+    optional string auth_domain = 44;
+  }
+  optional string annotation = 48;
+  repeated .apphosting.AppInfo.SourceReference source_reference = 72;
+  optional group DerivedFiles = 39 {
+    enum DerivedFileType {
+      JAVA_PRECOMPILED = 1;
+      PYTHON_PRECOMPILED = 2;
+      GO_BINARY = 3;
+    }
+    repeated .apphosting.AppInfo.DerivedFiles.DerivedFileType derived_file_type = 40;
+  }
+  repeated group CustomAdminConsolePage = 45 {
+    required string custom_page_name = 46;
+    required string custom_page_url = 47;
+  }
+  optional bytes sql_clone_config = 49;
+  optional bool threadsafe = 55 [default = false];
+  repeated group Library = 56 {
+    required string name = 57;
+    required string version = 58;
+  }
+  optional string api_config = 59;
+  optional bool code_lock = 60 [default = false];
+  repeated .apphosting.AppInfo.EnvironmentVariable environment_variable = 61;
+  optional string source_language = 62;
+  optional .apphosting.VersionConfig version_config = 63;
+  optional .apphosting.ServerConfig server_config = 64;
+  optional .apphosting.SupervisorSettings supervisor_settings = 65;
+  repeated .apphosting.AppInfo.VmConfigItem vm_config = 66;
+  optional .apphosting.AppInfo.VmHealthCheck vm_health_check = 68;
+  optional .apphosting.AppInfo.VmLivenessCheck vm_liveness_check = 76;
+  optional .apphosting.AppInfo.VmReadinessCheck vm_readiness_check = 77;
+  optional .apphosting.AppInfo.Resources resources = 69;
+  optional .apphosting.AppInfo.AutoIdPolicy auto_id_policy = 67 [default = SEQUENTIAL];
+  optional .apphosting.AppInfo.Network network = 70;
+  optional .apphosting.AppInfo.ContainerInfo app_container_info = 73;
+  optional .apphosting.AppInfo.BuildInfo build_info = 82;
+  optional bool ignore_binary_verification = 74;
+  optional .riptide.PodInfo pod = 75;
+  optional string pod_id = 79;
+  optional .apphosting.AppInfo.ZipInfo zip = 80;
+  optional bool enable_websocket = 81;
+}
+
+message AppInfoCondensed {
+  required string app_id = 1;
+  required string version_id = 2;
+  required string runtime_id = 3;
+  optional string runtime_specialization = 12;
+  optional string source_language = 4;
+  optional string api_version = 5 [default = ""];
+  repeated group URLMap = 7 {
+    optional string regex = 8;
+    optional .apphosting.Handler handler = 9;
+    optional string static_dir = 10;
+    optional bool require_matching_file = 11 [default = false];
+  }
+  required int64 total_version_size = 6;
+}
+
+

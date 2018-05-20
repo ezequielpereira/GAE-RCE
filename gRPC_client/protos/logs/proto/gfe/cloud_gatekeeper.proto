@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package logs.gfe.cloud_gatekeeper;
+
+enum Status {
+  NO_GATEKEEPER = 0;
+  ERROR = 1;
+  UNAUTHORIZED = 2;
+  AUTHORIZED = 3;
+}
+

@@ -1,0 +1,100 @@
+syntax = "proto2";
+
+import "net/base/qos.proto";
+import "net/rpc4/proto/service_config.proto";
+import "util/task/status.proto";
+package net.rpc4;
+
+message ShmAllocation {
+  optional uint64 size = 1;
+  optional uint64 key = 2;
+}
+
+message ShmControlNoOpRequest {
+  optional int32 ttl = 1 [default = 0];
+}
+
+message ShmControlNoOpResponse {
+}
+
+message ShmNewStubRequest {
+  enum NameType {
+    SERVICE_NAME = 1;
+    LEGACY_TARGET = 2;
+    STUBBY_CONFIG_NAME = 3;
+    SERVICE_CONFIG = 4;
+  }
+  optional .net.rpc4.ShmNewStubRequest.NameType name_type = 3;
+  optional string service_name = 1;
+  optional string resolution_override = 2;
+  optional .net.rpc4.ServiceConfig service_config = 4;
+  optional string client_id = 5;
+  optional .net_base.qos.TrafficClass traffic_class = 6;
+}
+
+message ShmNewStubResponse {
+  optional uint32 vstub_id = 1;
+}
+
+message ShmInternetAddress {
+  oneof address {
+    string ipv4_address = 1;
+    string ipv6_address = 2;
+  }
+  optional uint32 port = 3;
+}
+
+message ShmNewServerRequest {
+  repeated .net.rpc4.ShmInternetAddress address = 1;
+  optional uint32 vstub_id = 2;
+}
+
+message ShmNewServerResponse {
+}
+
+message ShmTearDownRequest {
+  optional uint32 vstub_id = 1;
+}
+
+message ShmTearDownResponse {
+}
+
+message ShmClientToServerSegmentRequest {
+  optional uint64 size = 1;
+}
+
+message ShmClientToServerSegmentResponse {
+  optional .net.rpc4.ShmAllocation allocation = 1;
+}
+
+message ShmServerToClientSegmentRequest {
+  optional .net.rpc4.ShmAllocation allocation = 1;
+}
+
+message ShmServerToClientSegmentResponse {
+}
+
+message ShmControlRequest {
+  oneof request_type {
+    .net.rpc4.ShmControlNoOpRequest no_op = 2;
+    .net.rpc4.ShmNewStubRequest new_stub = 3;
+    .net.rpc4.ShmTearDownRequest teardown = 4;
+    .net.rpc4.ShmNewServerRequest new_server = 7;
+    .net.rpc4.ShmClientToServerSegmentRequest client_to_server_segment = 5;
+    .net.rpc4.ShmServerToClientSegmentRequest server_to_client_segment = 6;
+  }
+}
+
+message ShmControlResponse {
+  optional .util.StatusProto status = 1;
+  oneof response_type {
+    .net.rpc4.ShmControlNoOpResponse no_op = 2;
+    .net.rpc4.ShmNewStubResponse new_stub = 3;
+    .net.rpc4.ShmNewServerResponse new_server = 7;
+    .net.rpc4.ShmTearDownResponse teardown = 4;
+    .net.rpc4.ShmClientToServerSegmentResponse client_to_server_segment = 5;
+    .net.rpc4.ShmServerToClientSegmentResponse server_to_client_segment = 6;
+  }
+}
+
+

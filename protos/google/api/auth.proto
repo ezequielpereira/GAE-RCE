@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "security/context/proto/policy/rpc_security_policy.proto";
+package google.api;
+
+option java_package = "com.google.api";
+option java_outer_classname = "AuthProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig";
+option objc_class_prefix = "GAPI";
+
+message Authentication {
+  string gaia_service = 1;
+  repeated .google.api.AuthenticationRule rules = 3;
+  repeated .google.api.AuthProvider providers = 4;
+  .security.context.RpcSecurityPolicy rpc_security_policy = 5;
+}
+
+message AuthenticationRule {
+  enum RpcSecurityPolicyMode {
+    DISABLED = 0;
+    ENABLED = 1;
+    DARKLAUNCH = 2;
+  }
+  string selector = 1;
+  .google.api.OAuthRequirements oauth = 2;
+  .google.api.EndUserCredsRequirements end_user_creds = 3;
+  .google.api.BrowserFirstPartyAuthRequirements browser_first_party_auth = 4;
+  .google.api.CustomAuthRequirements custom_auth = 9;
+  bool allow_without_credential = 5;
+  bool hide_creds_from_backend = 6;
+  repeated .google.api.AuthRequirement requirements = 7;
+  .google.api.AuthenticationRule.RpcSecurityPolicyMode use_rpc_security_policy = 8;
+}
+
+message AuthProvider {
+  string id = 1;
+  string issuer = 2;
+  string jwks_uri = 3;
+  string audiences = 4;
+}
+
+message BrowserFirstPartyAuthRequirements {
+  string scope_codes = 1;
+}
+
+message EndUserCredsRequirements {
+  string scope_codes = 1;
+}
+
+message OAuthRequirements {
+  string canonical_scopes = 1;
+}
+
+message CustomAuthRequirements {
+  string provider = 1;
+}
+
+message AuthRequirement {
+  string provider_id = 1;
+  string audiences = 2;
+}
+
+

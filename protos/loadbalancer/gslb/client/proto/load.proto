@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+package loadbalancer_gslb.rpc;
+
+option cc_enable_arenas = true;
+
+message LBNamedCostEntry {
+  optional string cost_name = 1;
+  optional double cumulative_query_cost = 2;
+  optional int64 queries_with_cost = 3;
+}
+
+message LBNamedCostLoad {
+  repeated .loadbalancer_gslb.rpc.LBNamedCostEntry named_cost_entry = 1;
+  optional string name_repeated_warning = 2;
+  optional string invalid_name_warning = 3;
+  optional string too_many_entries_warning = 4;
+}
+
+message LBLoad {
+  required string incoming_dc = 1;
+  optional string backend_dc = 2 [default = ""];
+  optional string client_type = 3 [default = ""];
+  required int64 queries_issued = 4;
+  optional int64 queries_completed = 5 [default = 0];
+  optional int64 queries_error = 6 [default = 0];
+  optional int64 cumulative_latency_in_ms = 7 [default = 0];
+  optional int64 bytes_in = 8 [default = 0];
+  optional int64 bytes_out = 9 [default = 0];
+  optional double cumulative_query_cost = 10;
+  optional int64 queries_with_cost = 11;
+  optional int64 potential_queries_issued = 12 [default = 0];
+  optional int64 queries_in_progress = 13 [default = 0];
+  optional double reporting_interval_in_sec = 14 [default = 10];
+  optional .loadbalancer_gslb.rpc.LBNamedCostLoad named_cost_load = 18;
+}
+
+

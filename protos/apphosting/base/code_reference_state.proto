@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package apphosting;
+
+option java_package = "com.google.apphosting.base";
+option java_outer_classname = "CodePb";
+
+message CodeReferenceState {
+  enum RefState {
+    REFERENCED = 0;
+    MAYBE_REFERENCED = 1;
+  }
+  optional .apphosting.CodeReferenceState.RefState ref_state = 1;
+  optional int64 transition_time = 2;
+}
+

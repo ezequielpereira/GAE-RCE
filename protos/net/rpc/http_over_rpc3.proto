@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package rpc3;
+
+option java_package = "com.google.net.rpc3.impl.proto";
+option java_multiple_files = true;
+
+message HTTPOverRPCRequest {
+  optional bytes text = 1 [ctype = CORD];
+}
+
+message HTTPOverRPCReply {
+  optional bytes text = 1 [ctype = CORD];
+}
+
+service HTTPOverRPC {
+  rpc HTTPRequest(.rpc3.HTTPOverRPCRequest) returns (.rpc3.HTTPOverRPCReply);
+  rpc HTTPStream(.rpc3.HTTPOverRPCRequest) returns (.rpc3.HTTPOverRPCReply);
+}
+

@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package net.rpc.rpcinjectz2;
+
+option java_package = "com.google.net.rpc.contrib.rpcinjectz2";
+option java_outer_classname = "RpcInjectz2Proto";
+
+enum RuleType {
+  CLIENT_SIDE = 0;
+  SERVER_SIDE = 1;
+}
+
+enum ActionType {
+  PASS_THROUGH = 0;
+  RETURN_RPC_ERROR = 1;
+  RETURN_APP_ERROR = 2;
+  RETURN_CANONICAL_ERROR = 3;
+}
+
+enum Position {
+  BACK = 0;
+  FRONT = 1;
+}
+
+message Rule {
+  .net.rpc.rpcinjectz2.RuleType type = 1;
+  string rpc_target_regexp = 2;
+  string rpc_service_regexp = 3;
+  string rpc_method_regexp = 4;
+  string remote_user_regexp = 5;
+  int64 max_matches = 6;
+  repeated .net.rpc.rpcinjectz2.Action actions = 7;
+  string description = 8;
+}
+
+message Action {
+  int32 weight = 1;
+  .net.rpc.rpcinjectz2.ActionType type = 2;
+  int32 delay_ms = 3;
+  int32 min_delay_ms = 6;
+  int32 fake_error_status = 4;
+  string fake_error_message = 5;
+}
+
+message RuleStats {
+  int64 id = 1;
+  bool enabled = 2;
+  int64 matches = 3;
+  repeated int64 action_matches = 4;
+}
+
+message CreateRuleReq {
+  .net.rpc.rpcinjectz2.Position position = 1;
+  .net.rpc.rpcinjectz2.Rule rule = 2;
+}
+
+message BatchCreateRulesReq {
+  .net.rpc.rpcinjectz2.Position position = 1;
+  repeated .net.rpc.rpcinjectz2.Rule rules = 2;
+}
+
+message CreateRuleResp {
+  int64 id = 1;
+}
+
+message BatchCreateRulesResp {
+  repeated int64 ids = 1;
+}
+
+message DeleteRuleReq {
+  int64 id = 1;
+}
+
+message DeleteRuleResp {
+}
+
+message DeleteAllRulesReq {
+}
+
+message DeleteAllRulesResp {
+}
+
+message LookupRuleReq {
+  int64 id = 1;
+}
+
+message LookupRuleResp {
+  .net.rpc.rpcinjectz2.Rule rule = 1;
+  .net.rpc.rpcinjectz2.RuleStats rule_stats = 2;
+}
+
+message LookupAllRulesReq {
+}
+
+message LookupAllRulesResp {
+  repeated .net.rpc.rpcinjectz2.LookupRuleResp rules = 1;
+}
+

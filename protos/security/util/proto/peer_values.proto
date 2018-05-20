@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package security_util;
+
+message PeerValues {
+  optional uint32 psp_version = 1 [default = 0];
+  optional int32 rpc_wire_protocol_version = 2 [default = 0];
+}
+
+

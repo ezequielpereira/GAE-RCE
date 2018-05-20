@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+option java_package = "com.google.io.protocol.proto";
+option cc_enable_arenas = true;
+
+message MessageSetInternal {
+  repeated group Item = 1 {
+    required int32 type_id = 2;
+    required bytes message = 3 [ctype = CORD];
+  }
+}
+
+message MessageSetInternalUsingCords {
+  repeated group Item = 1 {
+    required int32 type_id = 2;
+    required bytes message = 3 [ctype = CORD];
+  }
+}
+

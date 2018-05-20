@@ -1,0 +1,58 @@
+syntax = "proto2";
+
+package stats_io;
+
+message BasicStatMsg {
+  required int64 count = 1;
+  required int64 min_val = 2;
+  required int64 max_val = 3;
+  required int64 interval = 4;
+}
+
+message MultiLevelStatMsg {
+  required int64 total = 5;
+  required int64 min_val = 6;
+  required int64 max_val = 7;
+  required int64 max_total = 8;
+  repeated .stats_io.BasicStatMsg levels = 9;
+}
+
+message MultiLevelAvgStatMsg {
+  required .stats_io.MultiLevelStatMsg sum = 10;
+  required .stats_io.MultiLevelStatMsg count = 11;
+}
+
+message MovingAverageStatMsg {
+  required int32 count = 12;
+  required int32 window = 13;
+  required int64 sum = 14;
+}
+
+message MultiLevelAvgStdevStatMsg {
+  required .stats_io.MultiLevelAvgStatMsg averages = 15;
+  required .stats_io.MultiLevelStatMsg sumsquares = 16;
+}
+
+message MultiLevelStatMapMsg {
+  optional string name = 17;
+  optional string key_desc = 18;
+  optional double export_scale_factor = 19 [default = 1];
+  optional int32 top_n = 20;
+  repeated group MapEntry = 21 {
+    required string key = 22;
+    required .stats_io.MultiLevelStatMsg stat = 23;
+  }
+}
+
+message MultiLevelAvgStatMapMsg {
+  optional string name = 24;
+  optional string key_desc = 25;
+  optional double export_scale_factor = 26 [default = 1];
+  optional int32 top_n = 27;
+  repeated group MapEntry = 28 {
+    required string key = 29;
+    required .stats_io.MultiLevelAvgStatMsg stat = 30;
+  }
+}
+
+
