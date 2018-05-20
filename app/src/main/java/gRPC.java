@@ -85,7 +85,7 @@ public class gRPC extends HttpServlet {
       output += "api = API to call (i.e. app_identity_service)\n";
       output += "method = Method to invoke (i.e. GetAccessToken)\n";
       output +=
-        "req = JSON representing the request (i.e. {\"scope\":[\"email\"]})\n";
+        "req = JSON representing the request (i.e. {\"scope\":[\"https://www.googleapis.com/auth/xapi.zoo\"]})\n";
       output += "setPb = 1 (Set the PB field), 0 (Do not set the PB field)\n";
       output += sb.toString();
       output += "gRPC client exit code: " + proc.exitValue();
